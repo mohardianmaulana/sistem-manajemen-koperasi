@@ -53,6 +53,23 @@
 								<span class="text-danger text-left">{{ $errors->first('username') }}</span>
 							@endif
 						</div>
+						<div class="mb-3">
+							<label for="role_aktif" class="form-label">Role</label>
+							<select name="role_aktif" id="role_aktif" class="form-control" required>
+								<option value="">-- Pilih Role --</option>
+								@foreach($roles as $role)
+									<option value="{{ $role->name }}"
+										{{ old('role_aktif') == $role->name ? 'selected' : '' }}>
+										{{ ucfirst($role->name) }}
+									</option>
+								@endforeach
+							</select>
+							@if ($errors->has('role_aktif'))
+								<span class="text-danger text-left">
+									{{ $errors->first('role_aktif') }}
+								</span>
+							@endif
+						</div>
 
 						<button type="submit" class="btn btn-primary">Save user</button>
 						<a href="{{ route('users.index') }}" class="btn btn-default">Back</a>

@@ -15,7 +15,8 @@
         "laravel/ui": "^3.4",
         "laravelcollective/html": "^6.3",
         "nwidart/laravel-modules": "8.6.0",
-        "spatie/laravel-permission": "^5.5"
+        "phpoffice/phpword": "^1.4",
+        "spatie/laravel-permission": "^6.25"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

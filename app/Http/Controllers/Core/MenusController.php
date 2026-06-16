@@ -70,6 +70,7 @@ class MenusController extends Controller
         $active="";
         if($request->url!="")$active=serialize([$request->url,$request->url."*"]);
         $menu = Menu::create([
+            'modul' => 'Core',
             'label' => $request->name,
             'url' => $request->url,
             'can' => serialize($request->can),

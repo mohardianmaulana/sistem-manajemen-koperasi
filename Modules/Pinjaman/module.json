@@ -1,0 +1,13 @@
+{
+    "name": "Pinjaman",
+    "alias": "pinjaman",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Pinjaman\\Providers\\PinjamanServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

@@ -7,6 +7,8 @@ use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -41,9 +43,9 @@ class LoginController extends Controller
         Auth::login($user);
 		
 		
-        \DB::table('sessions')
-            ->where('user_id', \Auth::user()->id)
-            ->where('id', '!=', \Session::getId())->delete();
+        DB::table('sessions')
+            ->where('user_id', Auth::user()->id)
+            ->where('id', '!=', Session::getId())->delete();
         
 
         return $this->authenticated($request, $user);

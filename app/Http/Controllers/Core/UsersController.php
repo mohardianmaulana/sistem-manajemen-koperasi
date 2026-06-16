@@ -11,9 +11,10 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
-
+use App\Http\Requests\UserRequest;
 use Hash;
 use Auth;
+use Illuminate\Support\Facades\Hash as FacadesHash;
 
 class UsersController extends Controller
 {
@@ -36,7 +37,8 @@ class UsersController extends Controller
      */
     public function create() 
     {
-        return view('users.create');
+        $roles = Role::all();
+        return view('users.create', compact('roles'));
     }
 
     /**
@@ -47,18 +49,19 @@ class UsersController extends Controller
      * 
      * @return \Illuminate\Http\Response
      */
-    public function store(User $user, StoreUserRequest $request) 
+    public function store(User $user, UserRequest $request) 
     {
         //For demo purposes only. When creating user or inviting a user
         // you should create a generated random password and email it to the user
         $usr = $user->create(array_merge($request->validated(), [
-            'password' => Hash::make('Poliwangi123'),
+            'password' => FacadesHash::make('admin!@#123'),
 			'unit'	=> 0,
 			'staff'	=> 0,
 			'status'	=> 2,
+            'role_aktif' => $request->role_aktif,
         ]));
 		
-		$usr->syncRoles(2);
+		$usr->syncRoles($request->role_aktif);
 
         return redirect()->route('users.index')
             ->withSuccess(__('User created successfully.'));

@@ -29,7 +29,13 @@ class User extends Authenticatable
 		'unit',
 		'staff',
         'status',
+		'role_aktif',
     ];
+
+	protected static function newFactory()
+	{
+		return \Database\Factories\UserFactory::new();
+	}
 
     /**
      * The attributes that should be hidden for serialization.
