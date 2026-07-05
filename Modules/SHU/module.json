@@ -1,0 +1,13 @@
+{
+    "name": "SHU",
+    "alias": "shu",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\SHU\\Providers\\SHUServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}
