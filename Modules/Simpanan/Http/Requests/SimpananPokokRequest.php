@@ -27,7 +27,6 @@ class SimpananPokokRequest extends FormRequest
                 return [
                     'nilai' => 'required|numeric|min:1',
                     'tanggal' => 'required|date',
-                    'id_anggota' => 'required|exists:anggota,id',
                 ];
             }
 

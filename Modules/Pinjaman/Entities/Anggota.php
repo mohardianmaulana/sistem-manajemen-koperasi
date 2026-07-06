@@ -4,6 +4,7 @@ namespace Modules\Pinjaman\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\SHU\Entities\ShuAnggota;
 use Modules\Simpanan\Entities\MasterSimpananSukarela;
 use Modules\Simpanan\Entities\SimpananPokok;
 use Modules\Simpanan\Entities\SimpananSukarela;
@@ -61,5 +62,10 @@ class Anggota extends Model
     public function masterSimpananWajib()
     {
         return $this->hasMany( MasterSimpananSukarela::class, 'id_anggota');
+    }
+
+    public function shuAnggota()
+    {
+        return $this->hasMany(ShuAnggota::class, 'id_anggota');
     }
 }

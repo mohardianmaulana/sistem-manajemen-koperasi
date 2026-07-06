@@ -15,9 +15,12 @@ class CreateShuAnggotaTable extends Migration
     {
         Schema::create('shu_anggota', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('shu_anggota')->unsigned();
-            $table->dateTime('tanggal')->nullable();
-            $table->foreignId('id_anggota')->constrained('anggota')->onDelete('cascade');
+            $table->bigInteger('shu_simpanan');
+            $table->bigInteger('shu_pinjaman');
+            $table->bigInteger('shu_anggota');
+            $table->timestamp('tanggal')->nullable();
+            $table->year('tahun');
+            $table->foreignId('id_anggota')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

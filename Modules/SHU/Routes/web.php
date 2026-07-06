@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -12,5 +12,6 @@
 */
 
 Route::prefix('shu')->group(function() {
-    Route::get('/', 'SHUController@index');
+    Route::get('/', 'ShuAnggotaController@index')->name('shu.index');
+    Route::post('/hitung', 'ShuAnggotaController@store')->name('shu.store');
 });

@@ -10,6 +10,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 use Auth;
+use Modules\SHU\Entities\ShuAnggota;
+use Modules\Simpanan\Entities\MasterSimpananSukarela;
+use Modules\Simpanan\Entities\MasterSimpananWajib;
+use Modules\Simpanan\Entities\SimpananPokok;
+use Modules\Simpanan\Entities\SimpananSukarela;
+use Modules\Simpanan\Entities\SimpananWajib;
 
 class User extends Authenticatable
 {
@@ -104,4 +110,34 @@ class User extends Authenticatable
 		if($rol[$this->role_aktif]==$roleCheck)return true;
 		return false;
 	}
+
+	public function simpananPokok()
+    {
+        return $this->hasMany(SimpananPokok::class, 'id_anggota');
+    }
+
+	 public function simpananSukarela()
+    {
+        return $this->hasMany(SimpananSukarela::class, 'id_anggota');
+    }
+
+    public function masterSimpananSukarela()
+    {
+        return $this->hasMany(MasterSimpananSukarela::class, 'id_anggota');
+    }
+
+    public function simpananWajib()
+    {
+        return $this->hasMany(SimpananWajib::class, 'id_anggota');
+    }
+
+    public function masterSimpananWajib()
+    {
+        return $this->hasMany( MasterSimpananWajib::class, 'id_anggota');
+    }
+
+    public function shuAnggota()
+    {
+        return $this->hasMany(ShuAnggota::class, 'id_anggota');
+    }
 }

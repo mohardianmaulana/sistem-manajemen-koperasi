@@ -44,7 +44,7 @@ class MasterJenisSimpananController extends Controller
     {
          $this->service->store($request->validated());
 
-         return redirect()->route('simpanan-sukarela.index')->with('success', 'Data berhasil ditambahkan');
+         return redirect()->route('master-jenis-simpanan.index')->with('success', 'Data berhasil ditambahkan');
     }
 
     /**

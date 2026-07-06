@@ -33,14 +33,16 @@
         /**
          * Status dihitung saat dibutuhkan
          */
-        public function getStatus($model)
+       public function getStatus($model)
         {
             $now = Carbon::now();
 
-            return $now->between(
-                Carbon::parse($model->tanggal_mulai),
-                Carbon::parse($model->tanggal_berakhir)
-            ) ? 'Aktif' : 'Tidak Aktif';
+            $mulai = Carbon::parse($model->tanggal_mulai)->startOfDay();
+            $berakhir = Carbon::parse($model->tanggal_berakhir)->endOfDay();
+
+            return $now->between($mulai, $berakhir)
+                ? 'Aktif'
+                : 'Tidak Aktif';
         }
 
         /**

@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Core\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Modules\Pinjaman\Entities\Anggota;
+use Spatie\Permission\Models\Role;
 use Modules\Simpanan\Entities\MasterSimpananSukarela;
 use Tests\TestCase;
 
@@ -16,64 +17,108 @@ class MasterSimpananSukarelaTest extends TestCase
      *
      * @return void
      */
-      public function create_simpanan_sukarela_masuk_ke_master()
+     public function create_simpanan_sukarela_masuk_ke_master()
     {
-        $anggota = Anggota::factory()->create();
+        $role = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
 
         $response = $this->post('/simpanan-sukarela/store', [
-            'nilai'      => 50000,
-            'periode'    => '2026-07-05',
-            'id_anggota' => $anggota->id,
+
+            'nilai'   => 50000,
+            'periode' => '2026-07-05',
+
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         $this->assertDatabaseHas('master_simpanan_sukarela', [
+
             'nilai'      => 50000,
             'status'     => 'pending',
-            'id_anggota' => $anggota->id,
+            'id_anggota' => $user->id,
+
         ]);
     }
 
     /** @test */
-   public function update_simpanan_sukarela_wajib_status()
+    public function update_simpanan_sukarela_status()
     {
-        $anggota = Anggota::factory()->create();
+        $role = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
 
         $master = MasterSimpananSukarela::factory()->create([
-            'id_anggota' => $anggota->id,
+
+            'id_anggota' => $user->id,
             'status'     => 'pending',
+
         ]);
 
-       $response = $this->put('/simpanan-sukarela/' . $master->id, [
+        $response = $this->put('/simpanan-sukarela/' . $master->id, [
+
             'status' => 'selesai',
+
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         $this->assertDatabaseHas('master_simpanan_sukarela', [
+
             'id'     => $master->id,
             'status' => 'selesai',
+
         ]);
     }
 
     /** @test */
-   public function jika_disetujui_masuk_ke_tabel_final()
+    public function jika_disetujui_masuk_ke_tabel_final()
     {
-        $anggota = Anggota::factory()->create();
+        $role = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
 
         $master = MasterSimpananSukarela::factory()->create([
-            'id_anggota' => $anggota->id,
-            'status'     => 'selesai',
+
+            'id_anggota' => $user->id,
+            'status'     => 'pending',
+
         ]);
 
-        $this->put('/simpanan-sukarela/' . $master->id, [
+        $response = $this->put('/simpanan-sukarela/' . $master->id, [
+
             'status' => 'selesai',
+
         ]);
 
-        $this->assertDatabaseHas('master_simpanan_sukarela', [
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('simpanan_sukarela', [
+
             'nilai'      => $master->nilai,
-            'id_anggota' => $master->id_anggota,
+            'id_anggota' => $user->id,
+
         ]);
     }
 }

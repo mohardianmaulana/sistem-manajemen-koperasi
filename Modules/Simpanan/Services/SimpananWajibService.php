@@ -2,13 +2,15 @@
 namespace Modules\Simpanan\Services;
 
 use Modules\Simpanan\Entities\SimpananWajib;
+use Illuminate\Support\Facades\Auth;
 use Modules\Simpanan\Entities\MasterSimpananWajib;
 
 class SimpananWajibService
 {
     public function getAll()
     {
-        return MasterSimpananWajib::with('anggota')->paginate(5);
+        $idAnggota = Auth::user()->id;
+        return MasterSimpananWajib::with('user')->where('id_anggota', $idAnggota)->paginate(5);
     }
 
     public function store($data)
@@ -19,11 +21,8 @@ class SimpananWajibService
             $data['tahun'] = date('Y');
 
             // sementara tanpa login
-            $data['id_anggota'] = $data['id_anggota'] ?? 1;
+            $data['id_anggota'] = Auth::id();
 
-            //if (isset($data['bukti']) && is_object($data['bukti'])) {
-                //$data['bukti'] = $data['bukti']->store('bukti-simpanan');
-            //}
 
             return MasterSimpananWajib::create($data);
          

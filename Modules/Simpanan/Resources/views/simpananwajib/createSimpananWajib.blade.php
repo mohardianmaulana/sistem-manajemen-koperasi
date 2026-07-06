@@ -96,30 +96,6 @@
 
             </div>
 
-            {{-- ID ANGGOTA (sementara manual karena belum login) --}}
-            <div class="form-group">
-
-                <label>ID Anggota</label>
-
-                <input type="number"
-                       name="id_anggota"
-                       class="form-control @error('id_anggota') is-invalid @enderror"
-                       value="{{ old('id_anggota') }}"
-                       placeholder="Masukkan ID anggota">
-
-                @error('id_anggota')
-                    <span class="invalid-feedback d-block">{{ $message }}</span>
-                @enderror
-
-            </div>
-
-            {{-- ========================= --}}
-            {{-- NANTI JIKA SUDAH LOGIN --}}
-            {{-- GANTI MENJADI: --}}
-            {{-- Auth::user()->anggota->id --}}
-            {{-- DAN HAPUS INPUT DI ATAS --}}
-            {{-- ========================= --}}
-
             <div class="mt-3">
 
                 <button type="submit"

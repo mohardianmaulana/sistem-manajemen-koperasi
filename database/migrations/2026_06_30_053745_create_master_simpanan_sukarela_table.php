@@ -21,7 +21,7 @@ class CreateMasterSimpananSukarelaTable extends Migration
             $table->year('tahun');
             $table->string('bukti')->nullable();
             $table->enum('status', ['pending', 'selesai', 'tidak berhasil'])->default('pending');
-            $table->foreignId('id_anggota')->constrained('anggota')->onDelete('cascade');
+            $table->foreignId('id_anggota')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

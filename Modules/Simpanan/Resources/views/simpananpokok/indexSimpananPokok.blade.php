@@ -47,7 +47,7 @@
                         </td>
 
                         <td>
-                            {{ $item->anggota->nama }}
+                            {{ $item->user->name}}
                         </td>
 
                         <td>

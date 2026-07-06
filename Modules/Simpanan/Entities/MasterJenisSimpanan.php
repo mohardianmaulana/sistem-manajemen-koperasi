@@ -9,14 +9,12 @@ class MasterJenisSimpanan extends Model
 {
     use HasFactory;
 
-    protected $table = 'master_simpanan_sukarela';
+    protected $table = 'master_jenis_simpanan';
     protected $fillable = [
-        'nilai',
-        'periode',
-        'tahun',
-        'bukti',
-        'status',
-        'id_anggota',
+        'nama_jenis_simpanan',
+        'tanggal_mulai',
+        'tanggal_berakhir',
+
     ];
     
     protected static function newFactory()

@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Core\User;
 use Illuminate\Foundation\Testing\WithFaker;
+use Spatie\Permission\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\Pinjaman\Entities\Anggota;
 use Tests\TestCase;
 use Modules\Simpanan\Entities\SimpananPokok;
 
@@ -19,46 +20,69 @@ class TabunganTest extends TestCase
      */
    public function test_create_tabungan()
     {
-        $anggota = Anggota::factory()->create();
-
-        $response = $this->post('/simpanan/store', [
-            'nilai' => 100000,
-            'tanggal' => '2026-07-04',
-            'id_anggota' => $anggota->id,
+        $role = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
         ]);
 
-        $response->assertStatus(302);
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
+
+        $response = $this->post('/simpanan/store', [
+            'nilai'   => 100000,
+            'tanggal' => '2026-07-04',
+        ]);
+
+        $response->assertRedirect();
 
         $this->assertDatabaseHas('tabungan', [
-            'nilai' => 100000,
-            'id_anggota' => $anggota->id,
+            'nilai'      => 100000,
+            'id_anggota' => $user->id,
         ]);
     }
 
   public function test_update_tabungan()
     {
-        $anggota = Anggota::factory()->create();
+        $role = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
 
         $tabungan = SimpananPokok::create([
-            'nilai' => 100000,
-            'tanggal' => '2026-07-04',
-            'status' => 'pending',
-            'bukti' => 'dummy.jpg',
-            'id_anggota' => $anggota->id, // 🔥 FIX
+
+            'nilai'      => 100000,
+            'tanggal'    => '2026-07-04',
+            'status'     => 'pending',
+            'bukti'      => 'dummy.jpg',
+            'id_anggota' => $user->id,
+
         ]);
 
         $response = $this->put("/simpanan/updatedata/{$tabungan->id}", [
-            'nilai' => 200000,
+
+            'nilai'   => 200000,
             'tanggal' => '2026-07-05',
-            'status' => 'selesai',
+            'status'  => 'selesai',
+
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         $this->assertDatabaseHas('tabungan', [
-            'id' => $tabungan->id,
-            'nilai' => 200000,
+
+            'id'     => $tabungan->id,
+            'nilai'  => 200000,
             'status' => 'selesai',
+
         ]);
     }
 }

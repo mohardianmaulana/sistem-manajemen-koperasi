@@ -2,9 +2,9 @@
 
 namespace Modules\Simpanan\Entities;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Modules\Pinjaman\Entities\Anggota;
 
 class MasterSimpananWajib extends Model
 {
@@ -25,8 +25,8 @@ class MasterSimpananWajib extends Model
         return \Modules\Simpanan\Database\factories\MasterSimpananWajibFactory::new();
     }
 
-    public function anggota()
+    public function user()
     {
-        return $this->belongsTo(Anggota::class, 'id_anggota');
+        return $this->belongsTo(User::class, 'id_anggota');
     }
 }

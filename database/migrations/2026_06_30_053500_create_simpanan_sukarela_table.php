@@ -17,7 +17,7 @@ class CreateSimpananSukarelaTable extends Migration
             $table->id();
             $table->bigInteger('nilai')->unsigned();
             $table->dateTime('periode');
-           $table->foreignId('id_anggota')->constrained('anggota')->onDelete('cascade');
+           $table->foreignId('id_anggota')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

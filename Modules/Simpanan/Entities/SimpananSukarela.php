@@ -2,10 +2,9 @@
 
 namespace Modules\Simpanan\Entities;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Modules\Pinjaman\Entities\Anggota;
-
 class SimpananSukarela extends Model
 {
     use HasFactory;
@@ -24,6 +23,6 @@ class SimpananSukarela extends Model
 
     public function anggota()
     {
-        return $this->belongsTo(Anggota::class, 'id_anggota');
+        return $this->belongsTo(User::class, 'id_anggota');
     }
 }

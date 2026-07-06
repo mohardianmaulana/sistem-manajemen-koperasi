@@ -23,7 +23,6 @@ class MasterSimpananWajibRequest extends FormRequest
             'POST' => [
                 'nilai'      => ['required', 'numeric', 'min:1'],
                 'periode'    => ['required', 'date'],
-                'id_anggota' => ['required', 'exists:anggota,id'],
             ],
 
             'PUT', 'PATCH' => [

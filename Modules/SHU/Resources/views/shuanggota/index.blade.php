@@ -1,0 +1,167 @@
+@extends('adminlte::page')
+
+@section('title', 'Perhitungan SHU')
+
+@section('content_header')
+
+<h1 class="m-0 text-dark">
+
+    Perhitungan SHU Anggota
+
+</h1>
+
+@stop
+
+@section('content')
+
+<div class="card">
+
+    <div class="card-header">
+
+        <form action="{{ route('shu.store') }}"
+              method="POST">
+
+            @csrf
+
+            <div class="row">
+
+                <div class="col-md-3">
+
+                    <label>Tahun</label>
+
+                    <input
+                        type="number"
+                        name="tahun"
+                        class="form-control @error('tahun') is-invalid @enderror"
+                        value="{{ old('tahun', date('Y')) }}"
+                    >
+
+                    @error('tahun')
+
+                        <small class="text-danger">
+
+                            {{ $message }}
+
+                        </small>
+
+                    @enderror
+
+                </div>
+
+                <div class="col-md-3 mt-4">
+
+                    <button
+                        class="btn btn-primary">
+
+                        <i class="fas fa-sync"></i>
+
+                        Regenerate SHU
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+        <div class="card-body">
+
+        <table
+            class="table table-bordered table-striped">
+
+            <thead class="text-center">
+
+                <tr>
+
+                    <th>No</th>
+
+                    <th>Tahun</th>
+
+                    <th>Nama Anggota</th>
+
+                    <th>SHU Simpanan</th>
+
+                    <th>SHU Pinjaman</th>
+
+                    <th>Total SHU</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            @forelse($data as $item)
+
+                <tr>
+
+                    <td class="text-center">
+
+                        {{ $loop->iteration }}
+
+                    </td>
+
+                    <td class="text-center">
+
+                        {{ $item->tahun }}
+
+                    </td>
+
+                    <td>
+
+                        {{ $item->anggota->username}}
+
+                    </td>
+
+                    <td class="text-right">
+
+                        Rp {{ number_format($item->shu_simpanan,0,',','.') }}
+
+                    </td>
+
+                    <td class="text-right">
+
+                        Rp {{ number_format($item->shu_pinjaman,0,',','.') }}
+
+                    </td>
+
+                    <td class="text-right">
+
+                        <strong>
+
+                            Rp {{ number_format($item->shu_anggota,0,',','.') }}
+
+                        </strong>
+
+                    </td>
+
+                </tr>
+
+            @empty
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="text-center">
+
+                        Belum ada data SHU.
+
+                    </td>
+
+                </tr>
+
+            @endforelse
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@stop

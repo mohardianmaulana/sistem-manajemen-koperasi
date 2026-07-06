@@ -43,7 +43,6 @@ class SimpananSukarelaController extends Controller
     public function store(MasterSimpananSukarelaRequest $request)
     {
         $this->service->store($request->validated());
-
         return redirect()->route('simpanan-sukarela.index')->with('success', 'Data berhasil ditambahkan');
     }
 

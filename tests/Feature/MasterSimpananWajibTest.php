@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Core\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Modules\Pinjaman\Entities\Anggota;
+use Spatie\Permission\Models\Role;
 use Modules\Simpanan\Entities\MasterSimpananWajib;
 use Tests\TestCase;
 
@@ -17,63 +18,105 @@ class MasterSimpananWajibTest extends TestCase
      * @return void
      */
     public function test_create_master_simpanan_wajib()
-     {
-       
-        $anggota = Anggota::factory()->create();
+    {
+        $role = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
 
         $response = $this->post('/simpanan-wajib/store', [
-            'nilai'      => 50000,
-            'periode'    => '2026-07-05',
-            'id_anggota' => $anggota->id,
+
+            'nilai'   => 50000,
+            'periode' => '2026-07-05',
+
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         $this->assertDatabaseHas('master_simpanan_wajib', [
+
             'nilai'      => 50000,
             'status'     => 'pending',
-            'id_anggota' => $anggota->id,
+            'id_anggota' => $user->id,
+
         ]);
     }
+
     /** @test */
-   public function update_simpanan_sukarela_wajib_status()
+    public function update_simpanan_wajib_status()
     {
-         $anggota = Anggota::factory()->create();
+        $role = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
 
         $master = MasterSimpananWajib::factory()->create([
-            'id_anggota' => $anggota->id,
+
+            'id_anggota' => $user->id,
             'status'     => 'pending',
+
         ]);
 
         $response = $this->put('/simpanan-wajib/' . $master->id, [
+
             'status' => 'selesai',
+
         ]);
 
-        $response->assertStatus(302);
+        $response->assertRedirect();
 
         $this->assertDatabaseHas('master_simpanan_wajib', [
+
             'id'     => $master->id,
             'status' => 'selesai',
+
         ]);
     }
 
     /** @test */
-   public function jika_disetujui_masuk_ke_tabel_final()
+    public function jika_disetujui_masuk_ke_tabel_final()
     {
-        $anggota = Anggota::factory()->create();
+        $role = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
 
         $master = MasterSimpananWajib::factory()->create([
-            'id_anggota' => $anggota->id,
-            'status'     => 'selesai',
+
+            'id_anggota' => $user->id,
+            'status'     => 'pending',
+
         ]);
 
         $this->put('/simpanan-wajib/' . $master->id, [
+
             'status' => 'selesai',
+
         ]);
 
         $this->assertDatabaseHas('simpanan_wajib', [
+
             'nilai'      => $master->nilai,
-            'id_anggota' => $master->id_anggota,
+            'id_anggota' => $user->id,
+
         ]);
     }
 

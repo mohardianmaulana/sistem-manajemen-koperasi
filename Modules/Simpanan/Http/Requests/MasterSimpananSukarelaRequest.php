@@ -11,7 +11,7 @@ class MasterSimpananSukarelaRequest extends FormRequest
      *
      * @return array
      */
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
@@ -23,7 +23,6 @@ class MasterSimpananSukarelaRequest extends FormRequest
             'POST' => [
                 'nilai'      => ['required', 'numeric', 'min:1'],
                 'periode'    => ['required', 'date'],
-                'id_anggota' => ['required', 'exists:anggota,id'],
             ],
 
            'PUT', 'PATCH' => [
