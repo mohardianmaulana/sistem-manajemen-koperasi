@@ -4,7 +4,7 @@ namespace Modules\SHU\Services;
 use App\Models\Core\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Modules\Pinjaman\Entities\Angsuran;
+use Modules\Pinjaman\Entities\Pinjaman;
 use Modules\SHU\Entities\ShuAnggota;
 use Modules\SHU\Entities\ShuKoperasi;
 use Modules\Simpanan\Entities\SimpananPokok;
@@ -25,30 +25,43 @@ use Modules\Simpanan\Entities\SimpananWajib;
             try {
 
                 /**
-                 * Ambil data SHU berdasarkan tahun
+                 * Ambil SHU koperasi berdasarkan tahun
                  */
                 $shu = ShuKoperasi::where('tahun', $tahun)->first();
 
                 if (!$shu) {
-                    throw new \Exception("Data SHU tahun {$tahun} tidak ditemukan.");
+                    throw new Exception(
+                        "Data SHU tahun {$tahun} tidak ditemukan."
+                    );
                 }
 
                 /**
-                 * Total simpanan seluruh anggota
+                 * Total Simpanan Seluruh Anggota
                  */
                 $totalSimpanan = $this->totalSimpananSemua($tahun);
 
                 /**
-                 * Total angsuran seluruh anggota
+                 * Total Jasa Pinjaman Seluruh Anggota
                  */
-                $totalAngsuran = $this->totalAngsuranSemua($tahun);
+                $totalJasaPinjaman = $this->totalJasaPinjamanSemua($tahun);
+
+                /**
+                 * Tidak ada transaksi sama sekali
+                 */
+                if ($totalSimpanan <= 0 && $totalJasaPinjaman <= 0) {
+
+                    throw new Exception(
+                        "Perhitungan SHU tidak dapat dilakukan karena belum terdapat transaksi simpanan maupun pinjaman pada tahun {$tahun}."
+                    );
+
+                }
 
                 /**
                  * Ambil seluruh anggota
                  */
-                $user = User::all();
+                $users = User::all();
 
-                foreach ($user as $user) {
+                foreach ($users as $user) {
 
                     /**
                      * Total simpanan anggota
@@ -59,18 +72,12 @@ use Modules\Simpanan\Entities\SimpananWajib;
                     );
 
                     /**
-                     * Total angsuran anggota
+                     * Total jasa pinjaman anggota
                      */
-                    $angsuranAnggota = $this->totalAngsuranAnggota(
+                    $jasaPinjamanAnggota = $this->totalJasaPinjamanAnggota(
                         $user->id,
                         $tahun
                     );
-
-                    if ($totalSimpanan == 0) {
-                        throw new \Exception(
-                            "Perhitungan SHU tidak dapat dilakukan karena belum terdapat data simpanan pada tahun {$tahun}."
-                        );
-                    }
 
                     /**
                      * Hitung SHU Simpanan
@@ -85,13 +92,13 @@ use Modules\Simpanan\Entities\SimpananWajib;
                      * Hitung SHU Pinjaman
                      */
                     $shuPinjaman = $this->hitungShuPinjaman(
-                        $angsuranAnggota,
-                        $totalAngsuran,
+                        $jasaPinjamanAnggota,
+                        $totalJasaPinjaman,
                         $shu->jasa_pinjaman
                     );
 
                     /**
-                     * Simpan hasil SHU
+                     * Simpan SHU Anggota
                      */
                     $this->simpanShu(
                         $user->id,
@@ -130,7 +137,7 @@ use Modules\Simpanan\Entities\SimpananWajib;
             $simpananSukarela;
     }
 
-    private function totalSimpananAnggota($idAnggota, $tahun)
+   private function totalSimpananAnggota($idAnggota, $tahun)
     {
         $tabungan = SimpananPokok::where('id_anggota', $idAnggota)
             ->where('status', 'selesai')
@@ -151,20 +158,11 @@ use Modules\Simpanan\Entities\SimpananWajib;
             $simpananSukarela;
     }
 
-    private function totalAngsuranSemua($tahun)
+    private function totalJasaPinjamanSemua($tahun)
     {
-        return Angsuran::join(
-                'pinjaman',
-                'pinjaman.id',
-                '=',
-                'angsuran.id_pinjaman'
-            )
-            ->where('angsuran.status_bayar', 'lunas')
-            ->whereYear(
-                'angsuran.tanggal_jatuh_tempo',
-                $tahun
-            )
-            ->sum('angsuran.jumlah_angsuran');
+        return Pinjaman::where('status_pinjaman', 'selesai')
+            ->whereYear('tanggal_disetujui', $tahun)
+            ->sum('jumlah_bunga');
     }
 
     /**
@@ -180,17 +178,9 @@ use Modules\Simpanan\Entities\SimpananWajib;
      * @param int $tahun
      * @return int
      */
-    private function totalAngsuranAnggota(
-        $idAnggota,
-        $tahun
-    ) {
-        return Angsuran::join(
-                'pinjaman',
-                'pinjaman.id',
-                '=',
-                'angsuran.id_pinjaman'
-            )
-            ->join(
+   private function totalJasaPinjamanAnggota($idAnggota, $tahun)
+    {
+        return Pinjaman::join(
                 'pengajuan_pinjaman',
                 'pengajuan_pinjaman.id',
                 '=',
@@ -201,14 +191,14 @@ use Modules\Simpanan\Entities\SimpananWajib;
                 $idAnggota
             )
             ->where(
-                'angsuran.status_bayar',
-                'lunas'
+                'pinjaman.status_pinjaman',
+                'selesai'
             )
             ->whereYear(
-                'angsuran.tanggal_jatuh_tempo',
+                'pinjaman.tanggal_disetujui',
                 $tahun
             )
-            ->sum('angsuran.jumlah_angsuran');
+            ->sum('pinjaman.jumlah_bunga');
     }
 
     /**
@@ -229,8 +219,8 @@ use Modules\Simpanan\Entities\SimpananWajib;
         $simpananAnggota,
         $totalSimpanan,
         $shuJasaSimpanan
-    ) {
-
+    )
+    {
         if ($totalSimpanan <= 0) {
             return 0;
         }
@@ -246,27 +236,27 @@ use Modules\Simpanan\Entities\SimpananWajib;
      *
      * Rumus:
      *
-     * Angsuran Anggota
+     * Pinjaman Anggota
      * --------------------- x SHU Jasa Pinjaman
-     * Total Angsuran
+     * Total Pinjaman
      *
-     * @param int $angsuranAnggota
-     * @param int $totalAngsuran
+     * @param int $pinjamanAnggota
+     * @param int $totalPinjaman
      * @param int $shuJasaPinjaman
      * @return int
      */
-    private function hitungShuPinjaman(
-        $angsuranAnggota,
-        $totalAngsuran,
-        $shuJasaPinjaman
-    ) {
-
-        if ($totalAngsuran <= 0) {
+   private function hitungShuPinjaman(
+    $jasaPinjamanAnggota,
+    $totalJasaPinjaman,
+    $shuJasaPinjaman
+    )
+    {
+        if ($totalJasaPinjaman <= 0) {
             return 0;
         }
 
         return round(
-            ($angsuranAnggota / $totalAngsuran)
+            ($jasaPinjamanAnggota / $totalJasaPinjaman)
             * $shuJasaPinjaman
         );
     }
@@ -283,13 +273,13 @@ use Modules\Simpanan\Entities\SimpananWajib;
      * @param int $shuPinjaman
      * @return void
      */
-    private function simpanShu(
-        $idAnggota,
-        $tahun,
-        $shuSimpanan,
-        $shuPinjaman
-    ) {
-
+   private function simpanShu(
+    $idAnggota,
+    $tahun,
+    $shuSimpanan,
+    $shuPinjaman
+    )
+    {
         ShuAnggota::updateOrCreate(
 
             [
@@ -300,11 +290,8 @@ use Modules\Simpanan\Entities\SimpananWajib;
             [
                 'shu_simpanan' => $shuSimpanan,
                 'shu_pinjaman' => $shuPinjaman,
-                'shu_anggota'  => (
-                    $shuSimpanan +
-                    $shuPinjaman
-                ),
-                'tanggal' => now(),
+                'shu_anggota'  => $shuSimpanan + $shuPinjaman,
+                'tanggal'      => now(),
             ]
         );
     }

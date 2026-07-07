@@ -24,114 +24,110 @@ class ShuAnggotaTest extends TestCase
      *
      * @return void
      */
-  public function test_sistem_dapat_menyimpan_shu_anggota()
-    {
-        /**
-         * Membuat role admin
-         */
-        $role = Role::firstOrCreate([
-            'name' => 'admin',
-            'guard_name' => 'web',
-        ]);
+        /** @test */
+        public function test_sistem_dapat_menyimpan_shu_anggota()
+        {
+            /**
+             * Membuat role admin
+             */
+            $role = Role::firstOrCreate([
+                'name'       => 'admin',
+                'guard_name' => 'web',
+            ]);
 
-        /**
-         * Login sebagai admin
-         */
-        $user = User::factory()->create();
+            /**
+             * Login sebagai admin
+             */
+            $user = User::factory()->create();
 
-        $user->assignRole($role);
+            $user->assignRole($role);
 
-        $this->actingAs($user);
+            $this->actingAs($user);
 
-        /**
-         * SHU koperasi
-         */
-        ShuKoperasi::factory()->create([
-            'tahun'           => 2026,
-            'jasa_simpanan'   => 1000000,
-            'jasa_pinjaman'   => 500000,
-            'dana_cadangan'   => 200000,
-            'jasa_pengurus'   => 150000,
-            'dana_sosial'     => 100000,
-            'total_shu'       => 1950000,
-        ]);
+            /**
+             * SHU Koperasi
+             */
+            ShuKoperasi::factory()->create([
+                'tahun'           => 2026,
+                'jasa_simpanan'   => 1000000,
+                'jasa_pinjaman'   => 500000,
+                'dana_cadangan'   => 200000,
+                'jasa_pengurus'   => 150000,
+                'dana_sosial'     => 100000,
+                'total_shu'       => 1950000,
+            ]);
 
-        /**
-         * Simpanan Pokok
-         */
-        SimpananPokok::factory()->create([
-            'id_anggota' => $user->id,
-            'nilai'      => 100000,
-            'status'     => 'selesai',
-            'tanggal'    => '2026-01-10',
-        ]);
+            /**
+             * Simpanan Pokok
+             */
+            SimpananPokok::factory()->create([
+                'id_anggota' => $user->id,
+                'nilai'      => 100000,
+                'status'     => 'selesai',
+                'tanggal'    => '2026-01-10',
+            ]);
 
-        /**
-         * Simpanan Wajib
-         */
-        SimpananWajib::factory()->create([
-            'id_anggota' => $user->id,
-            'nilai'      => 100000,
-            'periode'    => '2026-01-01',
-        ]);
+            /**
+             * Simpanan Wajib
+             */
+            SimpananWajib::factory()->create([
+                'id_anggota' => $user->id,
+                'nilai'      => 100000,
+                'periode'    => '2026-01-01',
+            ]);
 
-        /**
-         * Simpanan Sukarela
-         */
-        SimpananSukarela::factory()->create([
-            'id_anggota' => $user->id,
-            'nilai'      => 100000,
-            'periode'    => '2026-01-01',
-        ]);
+            /**
+             * Simpanan Sukarela
+             */
+            SimpananSukarela::factory()->create([
+                'id_anggota' => $user->id,
+                'nilai'      => 100000,
+                'periode'    => '2026-01-01',
+            ]);
 
-        /**
-         * Skema Pinjaman
-         */
-        $skema = SkemaPinjaman::factory()->create();
+            /**
+             * Skema Pinjaman
+             */
+            $skema = SkemaPinjaman::factory()->create();
 
-        /**
-         * Pengajuan Pinjaman
-         */
-        $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota'         => $user->id,
-            'id_skema_pinjaman'  => $skema->id,
-        ]);
+            /**
+             * Pengajuan Pinjaman
+             */
+            $pengajuan = PengajuanPinjaman::factory()->create([
+                'id_anggota'        => $user->id,
+                'id_skema_pinjaman' => $skema->id,
+            ]);
 
-        /**
-         * Pinjaman
-         */
-        $pinjaman = Pinjaman::factory()->create([
-            'id_pengajuan' => $pengajuan->id,
-        ]);
+            /**
+             * Pinjaman
+             */
+            Pinjaman::factory()->create([
+                'id_pengajuan'      => $pengajuan->id,
+                'jumlah_disetujui'  => 5000000,
+                'jumlah_bunga'      => 500000,
+                'total_pinjaman'    => 5500000,
+                'tanggal_disetujui' => '2026-01-15',
+                'status_pinjaman'   => 'selesai',
+            ]);
 
-        /**
-         * Angsuran
-         */
-        Angsuran::factory()->create([
-            'id_pinjaman'          => $pinjaman->id,
-            'jumlah_angsuran'      => 50000,
-            'tanggal_jatuh_tempo'  => '2026-02-01',
-            'status_bayar'         => 'lunas',
-        ]);
+            /**
+             * Hitung SHU
+             */
+            $response = $this->post(route('shu.store'), [
+                'tahun' => 2026,
+            ]);
 
-        /**
-         * Hitung SHU
-         */
-        $response = $this->post(route('shu.store'), [
-            'tahun' => 2026,
-        ]);
+            /**
+             * Harus redirect
+             */
+            $response->assertRedirect();
 
-        /**
-         * Harus redirect setelah berhasil
-         */
-        $response->assertRedirect();
-
-        /**
-         * Data SHU tersimpan
-         */
-        $this->assertDatabaseHas('shu_anggota', [
-            'id_anggota' => $user->id,
-            'tahun'      => 2026,
-        ]);
+            /**
+             * SHU Anggota berhasil tersimpan
+             */
+            $this->assertDatabaseHas('shu_anggota', [
+                'id_anggota' => $user->id,
+                'tahun'      => 2026,
+            ]);
+        }
     }
-}
