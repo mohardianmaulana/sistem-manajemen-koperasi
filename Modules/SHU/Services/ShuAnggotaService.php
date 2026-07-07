@@ -1,8 +1,9 @@
 <?php
 namespace Modules\SHU\Services;
+
+use App\Models\Core\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Modules\Pinjaman\Entities\Anggota;
 use Modules\Pinjaman\Entities\Angsuran;
 use Modules\SHU\Entities\ShuAnggota;
 use Modules\SHU\Entities\ShuKoperasi;
@@ -14,7 +15,7 @@ use Modules\Simpanan\Entities\SimpananWajib;
     {
         public function getAll(){
             
-            return ShuAnggota::with('anggota')->paginate(5);
+            return ShuAnggota::with('user')->paginate(5);
         }
 
          public function hitungSemuaAnggota($tahun)
@@ -45,15 +46,15 @@ use Modules\Simpanan\Entities\SimpananWajib;
                 /**
                  * Ambil seluruh anggota
                  */
-                $anggotas = Anggota::all();
+                $user = User::all();
 
-                foreach ($anggotas as $anggota) {
+                foreach ($user as $user) {
 
                     /**
                      * Total simpanan anggota
                      */
                     $simpananAnggota = $this->totalSimpananAnggota(
-                        $anggota->id,
+                        $user->id,
                         $tahun
                     );
 
@@ -61,9 +62,15 @@ use Modules\Simpanan\Entities\SimpananWajib;
                      * Total angsuran anggota
                      */
                     $angsuranAnggota = $this->totalAngsuranAnggota(
-                        $anggota->id,
+                        $user->id,
                         $tahun
                     );
+
+                    if ($totalSimpanan == 0) {
+                        throw new \Exception(
+                            "Perhitungan SHU tidak dapat dilakukan karena belum terdapat data simpanan pada tahun {$tahun}."
+                        );
+                    }
 
                     /**
                      * Hitung SHU Simpanan
@@ -87,7 +94,7 @@ use Modules\Simpanan\Entities\SimpananWajib;
                      * Simpan hasil SHU
                      */
                     $this->simpanShu(
-                        $anggota->id,
+                        $user->id,
                         $tahun,
                         $shuSimpanan,
                         $shuPinjaman

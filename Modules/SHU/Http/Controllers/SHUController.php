@@ -5,16 +5,25 @@ namespace Modules\SHU\Http\Controllers;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\SHU\Services\ShuKoperasiService;
+use Modules\SHU\Http\Requests\ShuKoperasiRequest;
 
 class SHUController extends Controller
 {
+    protected $shuKoperasiService;
+    public function __construct(ShuKoperasiService $shuKoperasiService)
+    {
+        $this->shuKoperasiService = $shuKoperasiService;
+    }
     /**
      * Display a listing of the resource.
      * @return Renderable
      */
     public function index()
     {
-        return view('shu::index');
+        $data = $this->shuKoperasiService->getAll();
+
+        return view('shu::shukoperasi.index', compact('data'));
     }
 
     /**
@@ -23,7 +32,16 @@ class SHUController extends Controller
      */
     public function create()
     {
-        return view('shu::create');
+        $tahun = date('Y');
+
+        $data = $this->shuKoperasiService->getDataCreate($tahun);
+
+        return view('shu::shukoperasi.create',
+            array_merge(
+                ['tahun' => $tahun],
+                $data
+            )
+        );
     }
 
     /**
@@ -31,9 +49,15 @@ class SHUController extends Controller
      * @param Request $request
      * @return Renderable
      */
-    public function store(Request $request)
+    public function store(ShuKoperasiRequest $request)
     {
-        //
+        $this->shuKoperasiService->store(
+        $request->validated()
+    );
+
+    return redirect()
+        ->route('shu-koperasi.index')
+        ->with('success', 'Data SHU berhasil ditambahkan.');
     }
 
     /**
@@ -43,7 +67,9 @@ class SHUController extends Controller
      */
     public function show($id)
     {
-        return view('shu::show');
+        $shu = $this->shuKoperasiService->findById($id);
+
+        return view('shu::shukoperasi.edit', compact('shu'));
     }
 
     /**
@@ -51,10 +77,7 @@ class SHUController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function edit($id)
-    {
-        return view('shu::edit');
-    }
+
 
     /**
      * Update the specified resource in storage.
@@ -62,9 +85,11 @@ class SHUController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function update(Request $request, $id)
+    public function update(ShuKoperasiRequest $request, $id)
     {
-        //
+        $this->shuKoperasiService->update($id,$request->validated());
+
+    return redirect()->route('shu-koperasi.index')->with('success', 'Data SHU Koperasi berhasil diperbarui.');
     }
 
     /**

@@ -25,7 +25,7 @@ class ShuAnggota extends Model
         return \Modules\SHU\Database\factories\ShuAnggotaFactory::new();
     }
 
-    public function anggota()
+    public function user()
     {
         return $this->belongsTo(User::class, 'id_anggota');
     }

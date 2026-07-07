@@ -39,27 +39,10 @@ class ShuAnggotaController extends Controller
     {
             try {
 
-                $this->shuAnggotaService->hitungSemuaAnggota(
-                    $request->tahun
-                );
-
-                return redirect()
-                    ->back()
-                    ->with(
-                        'success',
-                        'Perhitungan SHU berhasil dilakukan.'
-                    );
-
+                $this->shuAnggotaService->hitungSemuaAnggota($request->tahun);
+                return redirect()->back()->with('success','Perhitungan SHU berhasil dilakukan.');
             } catch (\Exception $e) {
-
-                return redirect()
-                    ->back()
-                    ->withInput()
-                    ->with(
-                        'error',
-                        $e->getMessage()
-                    );
-
+                return redirect()->back()->withInput()->with('error',$e->getMessage());
             }
     }
 

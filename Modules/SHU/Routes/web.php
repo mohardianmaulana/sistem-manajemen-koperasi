@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Middleware\RoleMiddleware;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,7 +12,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('shu')->group(function() {
+Route::prefix('shu')->middleware(['auth', 'role:admin'])->group(function() {
     Route::get('/', 'ShuAnggotaController@index')->name('shu.index');
     Route::post('/hitung', 'ShuAnggotaController@store')->name('shu.store');
+});
+
+Route::prefix('shu-koperasi')->middleware(['auth', 'role:admin'])->group(function() {
+    Route::get('/', 'SHUController@index')->name('shu-koperasi.index');
+    Route::get('/create', 'SHUController@create')->name('shu-koperasi.create');
+    Route::post('/store', 'SHUController@store')->name('shu-koperasi.store');
+    Route::get('/{id}', 'SHUController@show')->name('shu-koperasi.show');
+    Route::put('/{id}/update', 'SHUController@update')->name('shu-koperasi.update');
 });
