@@ -12,14 +12,16 @@
 
     <div class="card-header">
 
-        <a href="{{ route('simpanan-sukarela.create') }}"
-           class="btn btn-primary"
-           style="border-radius:10px">
+         @role('anggota')
+            <a href="{{route('simpanan-sukarela.create') }}"
+               class="btn btn-primary"
+               style="border-radius:10px">
 
-            <i class="fas fa-plus"></i>
-            Tambah Simpanan
+                <i class="fas fa-plus"></i>
+                Tambah Simpanan
 
-        </a>
+            </a>
+        @endrole
 
     </div>
 

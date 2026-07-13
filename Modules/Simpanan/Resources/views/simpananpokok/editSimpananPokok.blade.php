@@ -7,6 +7,11 @@
 @stop
 
 @section('content')
+
+@php
+    $isAdmin = auth()->check() && auth()->user()->hasRole('admin');
+@endphp
+
 <div class="row">
     <div class="col-12">
 
@@ -41,7 +46,8 @@
                                 <input type="number"
                                        name="nilai"
                                        class="form-control @error('nilai') is-invalid @enderror"
-                                       value="{{ old('nilai', $simpanan->nilai) }}">
+                                       value="{{ old('nilai', $simpanan->nilai) }}"
+                                       {{ !$isAdmin ? 'readonly' : '' }}>
 
                                 @error('nilai')
                                     <span class="invalid-feedback d-block">
@@ -59,7 +65,8 @@
                                 <input type="date"
                                        name="tanggal"
                                        class="form-control @error('tanggal') is-invalid @enderror"
-                                       value="{{ old('tanggal', \Carbon\Carbon::parse($simpanan->tanggal)->format('Y-m-d')) }}">
+                                       value="{{ old('tanggal', \Carbon\Carbon::parse($simpanan->tanggal)->format('Y-m-d')) }}"
+                                       {{ !$isAdmin ? 'readonly' : '' }}>
 
                                 @error('tanggal')
                                     <span class="invalid-feedback d-block">
@@ -75,7 +82,8 @@
                                 <label>Status</label>
 
                                 <select name="status"
-                                        class="form-control @error('status') is-invalid @enderror">
+                                        class="form-control @error('status') is-invalid @enderror"
+                                        {{ !$isAdmin ? 'disabled' : '' }}>
 
                                     <option value="pending"
                                         {{ old('status', $simpanan->status) == 'pending' ? 'selected' : '' }}>
@@ -94,6 +102,13 @@
 
                                 </select>
 
+                                {{-- Agar nilai status tetap terkirim saat anggota melakukan submit --}}
+                                @unless($isAdmin)
+                                    <input type="hidden"
+                                           name="status"
+                                           value="{{ $simpanan->status }}">
+                                @endunless
+
                                 @error('status')
                                     <span class="invalid-feedback d-block">
                                         {{ $message }}
@@ -107,7 +122,6 @@
                             <div class="form-group">
                                 <label>Bukti Transfer</label>
 
-                                {{-- tampilkan gambar lama --}}
                                 @if($simpanan->bukti)
                                     <div class="mb-2">
                                         <img src="{{ asset('storage/' . $simpanan->bukti) }}"
@@ -119,7 +133,8 @@
                                 <input type="file"
                                        name="bukti"
                                        class="form-control @error('bukti') is-invalid @enderror"
-                                       accept="image/*">
+                                       accept="image/*"
+                                       {{ $isAdmin ? 'disabled' : '' }}>
 
                                 @error('bukti')
                                     <span class="invalid-feedback d-block">

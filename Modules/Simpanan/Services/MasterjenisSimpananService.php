@@ -2,42 +2,46 @@
     namespace Modules\Simpanan\Services;
 
     use Carbon\Carbon;
-    use Modules\Simpanan\Entities\MasterJenisSimpanan;
+    
+    use Modules\Simpanan\Repositories\MasterJenisSimpananRepository;
 
     class MasterJenisSimpananService
     {
-         public function getAll()
+        protected $repository;
+        
+        public function __construct(MasterJenisSimpananRepository $repository){
+        $this->repository = $repository;
+        }
+
+        public function getAll()
         {
-            return MasterJenisSimpanan::all();
+            return $this->repository->getAll();
         }
 
         public function store(array $data)
         {
-            return MasterJenisSimpanan::create($data);
+            return $this->repository->store($data);
         }
 
         public function update($id, array $data)
         {
-            $master = MasterJenisSimpanan::findOrFail($id);
-
-            $master->update($data);
-
-            return $master;
+            return $this->repository->update($id, $data);
         }
 
         public function findById($id)
         {
-            return MasterJenisSimpanan::findOrFail($id);
+            return $this->repository->findById($id);
         }
 
         /**
          * Status dihitung saat dibutuhkan
          */
-       public function getStatus($model)
+        public function getStatus($model)
         {
             $now = Carbon::now();
 
             $mulai = Carbon::parse($model->tanggal_mulai)->startOfDay();
+
             $berakhir = Carbon::parse($model->tanggal_berakhir)->endOfDay();
 
             return $now->between($mulai, $berakhir)
@@ -46,7 +50,7 @@
         }
 
         /**
-         * cek apakah aktif
+         * Cek apakah aktif
          */
         public function isActive($model)
         {

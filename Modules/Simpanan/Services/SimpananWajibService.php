@@ -1,66 +1,106 @@
 <?php
 namespace Modules\Simpanan\Services;
 
-use Modules\Simpanan\Entities\SimpananWajib;
 use Illuminate\Support\Facades\Auth;
-use Modules\Simpanan\Entities\MasterSimpananWajib;
+use Modules\Simpanan\Repositories\SimpananWajibRepository;
 
 class SimpananWajibService
 {
+     protected $repository;
+
+    public function __construct(SimpananWajibRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * Menampilkan seluruh data.
+     */
     public function getAll()
     {
-        $idAnggota = Auth::user()->id;
-        return MasterSimpananWajib::with('user')->where('id_anggota', $idAnggota)->paginate(5);
+        if (Auth::user()->hasRole('admin')) {
+        return $this->repository->getAll();
+        }
+
+        return $this->repository->getAll(Auth::id());
     }
 
-    public function store($data)
+    /**
+     * Menyimpan pengajuan simpanan wajib.
+     */
+    public function store(array $data)
     {
+        /**
+         * Status awal.
+         */
         $data['status'] = 'pending';
 
-            // auto tahun
-            $data['tahun'] = date('Y');
+        /**
+         * Tahun otomatis.
+         */
+        $data['tahun'] = date('Y');
 
-            // sementara tanpa login
-            $data['id_anggota'] = Auth::id();
+        /**
+         * User login.
+         */
+        $data['id_anggota'] = Auth::id();
 
-
-            return MasterSimpananWajib::create($data);
-         
+        return $this->repository->store($data);
     }
 
+    /**
+     * Menampilkan detail.
+     */
     public function findById($id)
     {
-        return MasterSimpananWajib::findOrFail($id);
+        return $this->repository->findById($id);
     }
 
-    public function update($id, $data)
+    /**
+     * Update data.
+     */
+    public function update($id, array $data)
     {
-          $master = MasterSimpananWajib::findOrFail($id);
+        $master = $this->repository->findById($id);
 
-            // upload bukti jika ada
-            if (isset($data['bukti']) && is_object($data['bukti'])) {
-                $data['bukti'] = $data['bukti']->store('bukti-simpanan');
-            }
+        /**
+         * Upload bukti.
+         */
+        if (isset($data['bukti']) && $data['bukti']) {
 
-            // update hanya status + bukti
-            $master->update([
-                'status' => $data['status'],
-                'bukti'  => $data['bukti'] ?? $master->bukti,
-            ]);
+            $data['bukti'] = $data['bukti']->store('bukti-simpanan','public');
 
-            // ======================
-            // RULE: jika disetujui
-            // ======================
-            if ($master->status === 'selesai') {
-                SimpananWajib::create([
-                    'nilai'      => $master->nilai,
-                    'periode'    => $master->periode,
-                    'tahun'      => $master->tahun,
-                    'id_anggota' => $master->id_anggota,
-                ]);
-            }
-
-            return $master;
         }
-    
+
+        /**
+         * Update status dan bukti.
+         */
+        $this->repository->update($master, [
+
+            'status' => $data['status'],
+
+            'bukti' => $data['bukti'] ?? $master->bukti,
+
+        ]);
+
+        /**
+         * Jika disetujui maka masuk tabel final.
+         */
+        if ($master->status == 'selesai') {
+
+            $this->repository->storeSimpanan([
+
+                'nilai'      => $master->nilai,
+
+                'periode'    => $master->periode,
+
+                'tahun'      => $master->tahun,
+
+                'id_anggota' => $master->id_anggota,
+
+            ]);
+        }
+
+        return $master;
+    }  
 }

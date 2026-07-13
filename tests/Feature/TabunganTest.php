@@ -18,29 +18,34 @@ class TabunganTest extends TestCase
      *
      * @return void
      */
-   public function test_create_tabungan()
+  public function test_create_tabungan()
     {
         $role = Role::firstOrCreate([
             'name' => 'admin',
             'guard_name' => 'web',
         ]);
 
-        $user = User::factory()->create();
+        // User yang login sebagai admin
+        $admin = User::factory()->create();
+        $admin->assignRole($role);
 
-        $user->assignRole($role);
+        // User yang dipilih pada dropdown
+        $anggota = User::factory()->create();
 
-        $this->actingAs($user);
+        $this->actingAs($admin);
 
         $response = $this->post('/simpanan/store', [
-            'nilai'   => 100000,
-            'tanggal' => '2026-07-04',
+            'id_anggota' => $anggota->id,
+            'nilai'      => 100000,
+            'tanggal'    => '2026-07-04',
         ]);
 
         $response->assertRedirect();
 
         $this->assertDatabaseHas('tabungan', [
+            'id_anggota' => $anggota->id,
             'nilai'      => 100000,
-            'id_anggota' => $user->id,
+            'status'     => 'pending',
         ]);
     }
 
@@ -51,38 +56,58 @@ class TabunganTest extends TestCase
             'guard_name' => 'web',
         ]);
 
+        // Admin yang login
+        $admin = User::factory()->create();
+        $admin->assignRole($role);
+
+        // Anggota pemilik tabungan
+        $anggota = User::factory()->create();
+
+        $this->actingAs($admin);
+
+        $tabungan = SimpananPokok::create([
+            'nilai'      => 100000,
+            'tanggal'    => '2026-07-04',
+            'status'     => 'pending',
+            'bukti'      => 'dummy.jpg',
+            'id_anggota' => $anggota->id,
+        ]);
+
+        $response = $this->put("/simpanan/updatedata/{$tabungan->id}", [
+            'nilai'   => 200000,
+            'tanggal' => '2026-07-05',
+            'status'  => 'selesai',
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('tabungan', [
+            'id'         => $tabungan->id,
+            'id_anggota' => $anggota->id,
+            'nilai'      => 200000,
+            'status'     => 'selesai',
+        ]);
+    }
+   public function test_anggota_tidak_bisa_membuka_halaman_create()
+    {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
 
         $user->assignRole($role);
 
         $this->actingAs($user);
 
-        $tabungan = SimpananPokok::create([
+        $response = $this->get(route('simpanan-pokok.create'));
 
-            'nilai'      => 100000,
-            'tanggal'    => '2026-07-04',
-            'status'     => 'pending',
-            'bukti'      => 'dummy.jpg',
-            'id_anggota' => $user->id,
+        $response->assertRedirect(route('simpanan-pokok.index'));
 
-        ]);
-
-        $response = $this->put("/simpanan/updatedata/{$tabungan->id}", [
-
-            'nilai'   => 200000,
-            'tanggal' => '2026-07-05',
-            'status'  => 'selesai',
-
-        ]);
-
-        $response->assertRedirect();
-
-        $this->assertDatabaseHas('tabungan', [
-
-            'id'     => $tabungan->id,
-            'nilai'  => 200000,
-            'status' => 'selesai',
-
-        ]);
+        $response->assertSessionHas(
+            'error',
+            'Anda tidak memiliki hak akses untuk mengakses halaman ini.'
+        );
     }
 }

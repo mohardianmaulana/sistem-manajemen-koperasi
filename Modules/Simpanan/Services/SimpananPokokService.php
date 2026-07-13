@@ -1,77 +1,70 @@
 <?php
     namespace Modules\Simpanan\Services;
 
-
     use Illuminate\Support\Facades\Auth;
-    use Modules\Simpanan\Entities\SimpananPokok;
+    use Modules\Simpanan\Repositories\SimpananPokokRepository;
 
     class SimpananPokokService
     {
-        public function getAll()
-        {
-            $idAnggota = Auth::user()->id;
-            return SimpananPokok::with('user')->where('id_anggota', $idAnggota)->paginate(5);
-            
+       protected $repository;
+
+    public function __construct(SimpananPokokRepository $repository) {
+        $this->repository = $repository;
+    }
+    public function getAll()
+    {
+        if (Auth::user()->hasRole('admin')) {
+        return $this->repository->getAll();
         }
 
-        public function store(array $data)
-        {
-            /**
-             * Status awal simpanan.
-             */
-            $data['status'] = 'pending';
+        return $this->repository->getAll(Auth::id());
+    }
 
-            /**
-             * User yang sedang login.
-             * Kolom id_anggota mengarah ke tabel users.
-             */
-            $data['id_anggota'] = Auth::id();
+    public function getAllUser()
+    {
+        return $this->repository->getAllUser();
+    }
+    public function store(array $data)
+    {
+        $data['status'] = 'pending';
+        return $this->repository->store($data);
+    }
+    
+    public function findById($id)
+    {
+        return $this->repository->findById($id);
+    }
+    public function update($id, array $data)
+    {
+        $simpanan = $this->repository->findById($id);
 
-            /**
-             * Upload bukti jika ada.
-             */
-            if (isset($data['bukti']) && $data['bukti']) {
+        // Jika yang login adalah admin
+        if (Auth::user()->hasRole('admin')) {
 
-                $data['bukti'] = $data['bukti']->store('bukti-simpanan');
-
-            } else {
-
-                $data['bukti'] = null;
-
-            }
-
-            /**
-             * Simpan data.
-             */
-            return SimpananPokok::create($data);
-        }
-
-        public function findById($id)
-        {
-            return SimpananPokok::findOrFail($id);
-        }
-
-        public function update($id, array $data)
-        {
-            $simpanan = SimpananPokok::findOrFail($id);
-            
-            // =====================
-            // HANDLE FILE BUKTI
-            // =====================
-            if (isset($data['bukti'])) {
-                $data['bukti'] = $data['bukti']->store('bukti-simpanan');
-            }
-        
-            // =====================
-            // UPDATE DATA
-            // =====================
-            $simpanan->update([
+            $data = [
                 'nilai'   => $data['nilai'] ?? $simpanan->nilai,
                 'tanggal' => $data['tanggal'] ?? $simpanan->tanggal,
                 'status'  => $data['status'] ?? $simpanan->status,
-                'bukti'   => $data['bukti'] ?? $simpanan->bukti,
-            ]);
+                'bukti'   => $simpanan->bukti, // admin tidak boleh mengubah bukti
+            ];
 
-            return $simpanan;
+        } else {
+
+            // Anggota hanya boleh mengubah bukti
+            if (isset($data['bukti']) && $data['bukti']) {
+
+                $data['bukti'] = $data['bukti']->store('bukti-simpanan', 'public');
+
+            }
+
+            $data = [
+                'nilai'   => $simpanan->nilai,
+                'tanggal' => $simpanan->tanggal,
+                'status'  => $simpanan->status,
+                'bukti'   => $data['bukti'] ?? $simpanan->bukti,
+            ];
         }
+
+        return $this->repository->update($id, $data);
+    }
  }

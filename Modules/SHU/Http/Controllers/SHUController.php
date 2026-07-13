@@ -36,8 +36,7 @@ class SHUController extends Controller
 
         $data = $this->shuKoperasiService->getDataCreate($tahun);
 
-        return view('shu::shukoperasi.create',
-            array_merge(
+        return view('shu::shukoperasi.create',array_merge(
                 ['tahun' => $tahun],
                 $data
             )
@@ -89,7 +88,7 @@ class SHUController extends Controller
     {
         $this->shuKoperasiService->update($id,$request->validated());
 
-    return redirect()->route('shu-koperasi.index')->with('success', 'Data SHU Koperasi berhasil diperbarui.');
+        return redirect()->route('shu-koperasi.index')->with('success', 'Data SHU Koperasi berhasil diperbarui.');
     }
 
     /**

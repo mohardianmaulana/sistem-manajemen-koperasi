@@ -21,20 +21,31 @@ class SimpananPokokRequest extends FormRequest
         return true;
     }
 
-     public function rules()
-        {
-            if ($this->isMethod('post')) {
-                return [
-                    'nilai' => 'required|numeric|min:1',
-                    'tanggal' => 'required|date',
-                ];
-            }
+    public function rules()
+    {
+        if ($this->isMethod('post')) {
 
             return [
-                'nilai' => 'sometimes|numeric|min:1',
-                'tanggal' => 'sometimes|date',
-                'status' => 'sometimes|in:pending,selesai,tidak berhasil',
-                'bukti' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
+
+                'id_anggota' => 'required|exists:users,id',
+
+                'nilai' => 'required|numeric|min:1',
+
+                'tanggal' => 'required|date',
+
             ];
         }
+
+        return [
+
+            'nilai' => 'sometimes|numeric|min:1',
+
+            'tanggal' => 'sometimes|date',
+
+            'status' => 'sometimes|in:pending,selesai,tidak berhasil',
+
+            'bukti' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
+
+        ];
+    }
 }

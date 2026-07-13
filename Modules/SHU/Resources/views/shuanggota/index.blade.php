@@ -58,6 +58,9 @@
 
 <div class="card">
 
+    {{-- Hanya Admin yang dapat melakukan Regenerate SHU --}}
+    @role('admin')
+
     <div class="card-header">
 
         <form action="{{ route('shu.store') }}"
@@ -109,6 +112,8 @@
 
     </div>
 
+    @endrole
+
     <div class="card-body">
 
         <table class="table table-bordered table-striped">
@@ -135,33 +140,23 @@
                 <tr>
 
                     <td class="text-center">
-
                         {{ $loop->iteration }}
-
                     </td>
 
                     <td class="text-center">
-
                         {{ $item->tahun }}
-
                     </td>
 
                     <td>
-
                         {{ $item->anggota->username }}
-
                     </td>
 
                     <td class="text-right">
-
                         Rp {{ number_format($item->shu_simpanan, 0, ',', '.') }}
-
                     </td>
 
                     <td class="text-right">
-
                         Rp {{ number_format($item->shu_pinjaman, 0, ',', '.') }}
-
                     </td>
 
                     <td class="text-right">
@@ -180,9 +175,7 @@
 
                 <tr>
 
-                    <td
-                        colspan="6"
-                        class="text-center">
+                    <td colspan="6" class="text-center">
 
                         Belum ada data SHU.
 

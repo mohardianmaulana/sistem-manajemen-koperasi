@@ -84,12 +84,12 @@ class SisaHasilUsahaTest extends TestCase
          * Pinjaman
          */
         Pinjaman::factory()->create([
-            'id_pengajuan'      => $pengajuan->id,
-            'jumlah_disetujui'  => 5000000,
-            'jumlah_bunga'      => 75000,
-            'total_pinjaman'    => 5075000,
-            'tanggal_disetujui' => '2026-01-15',
-            'status_pinjaman'   => 'aktif',
+        'id_pengajuan'      => $pengajuan->id,
+        'jumlah_disetujui'  => 5000000,
+        'jumlah_bunga'      => 75000,
+        'total_pinjaman'    => 5075000,
+        'tanggal_disetujui' => '2026-01-15',
+        'status_pinjaman'   => 'selesai',
         ]);
 
         /**
@@ -238,12 +238,12 @@ class SisaHasilUsahaTest extends TestCase
          * Pinjaman
          */
         Pinjaman::factory()->create([
-            'id_pengajuan'      => $pengajuan->id,
-            'jumlah_disetujui'  => 5000000,
-            'jumlah_bunga'      => 50000,
-            'total_pinjaman'    => 5050000,
-            'tanggal_disetujui' => '2026-01-10',
-            'status_pinjaman'   => 'aktif',
+        'id_pengajuan'      => $pengajuan->id,
+        'jumlah_disetujui'  => 5000000,
+        'jumlah_bunga'      => 75000,
+        'total_pinjaman'    => 5075000,
+        'tanggal_disetujui' => '2026-01-15',
+        'status_pinjaman'   => 'selesai',
         ]);
 
         /**
@@ -270,16 +270,16 @@ class SisaHasilUsahaTest extends TestCase
          *
          * Total SHU = 500000
          */
-        $this->assertDatabaseHas('sisa_hasil_usaha', [
+       $this->assertDatabaseHas('sisa_hasil_usaha', [
 
-            'tahun' => 2026,
+        'tahun' => 2026,
 
-            'jasa_simpanan' => 300000,
+        'jasa_simpanan' => 300000,
 
-            'jasa_pinjaman' => 50000,
+        'jasa_pinjaman' => 75000,
 
-            'total_shu' => 500000,
+        'total_shu' => 525000,
 
-        ]);
+    ]);
     }
 }

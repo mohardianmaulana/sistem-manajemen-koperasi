@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\Simpanan\Http\Requests\SimpananPokokRequest;
 use Modules\Simpanan\Services\SimpananPokokService;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class SimpananController extends Controller
 {
@@ -33,7 +34,13 @@ class SimpananController extends Controller
 
     public function create()
     {
-        return view('simpanan::simpananpokok.createSimpananPokok');
+        if (!Auth::user()->hasRole('admin')) {
+        return redirect()
+            ->route('simpanan-pokok.index')
+            ->with('error', 'Anda tidak memiliki hak akses untuk mengakses halaman ini.');
+        }
+        $users = $this->simpananPokokService->getAllUser();
+        return view('simpanan::simpananpokok.createSimpananPokok',compact('users') );
     }
 
     /**
@@ -65,7 +72,7 @@ class SimpananController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function edit(SimpananPokokRequest $request, $id)
+    public function update(SimpananPokokRequest $request, $id)
     {
         $this->simpananPokokService->update($id, $request->validated());
 
@@ -78,10 +85,7 @@ class SimpananController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+
 
     /**
      * Remove the specified resource from storage.

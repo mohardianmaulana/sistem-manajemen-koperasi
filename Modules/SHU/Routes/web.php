@@ -12,9 +12,12 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 |
 */
 
-Route::prefix('shu')->middleware(['auth', 'role:admin'])->group(function() {
+Route::prefix('shu')->middleware(['auth',])->group(function() {
     Route::get('/', 'ShuAnggotaController@index')->name('shu.index');
-    Route::post('/hitung', 'ShuAnggotaController@store')->name('shu.store');
+    Route::middleware(['role:admin'])->group(function () {
+        Route::post('/hitung', 'ShuAnggotaController@store')
+            ->name('shu.store');
+    });
 });
 
 Route::prefix('shu-koperasi')->middleware(['auth', 'role:admin'])->group(function() {

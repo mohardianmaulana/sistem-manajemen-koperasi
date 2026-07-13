@@ -1,55 +1,69 @@
 <?php
 namespace Modules\SHU\Services;
 
-use Modules\Pinjaman\Entities\Pinjaman;
-use Modules\SHU\Entities\ShuKoperasi;
-use Modules\Simpanan\Entities\SimpananPokok;
-use Modules\Simpanan\Entities\SimpananSukarela;
-use Modules\Simpanan\Entities\SimpananWajib;
+
+use Modules\SHU\Repositories\ShuKoperasiRepository;
 
 class ShuKoperasiService
 {
-    public function getAll()
-    {
-        return ShuKoperasi::paginate(5);
-    }
+     protected $repository;
 
-     public function store(array $data)
-    {
-        $data['jasa_simpanan'] = $this->totalJasaSimpanan($data['tahun']);
-
-        $data['jasa_pinjaman'] = $this->totalJasaPinjaman($data['tahun']);
-
-        $data['total_shu'] = $this->hitungTotalShu(
-            $data['jasa_simpanan'],
-            $data['jasa_pinjaman'],
-            $data['dana_cadangan'],
-            $data['jasa_pengurus'],
-            $data['dana_sosial']
-        );
-
-        return ShuKoperasi::create($data);
+    public function __construct(
+        ShuKoperasiRepository $repository
+    ) {
+        $this->repository = $repository;
     }
 
     /**
-     * Menampilkan satu data
+     * Menampilkan seluruh data.
+     */
+    public function getAll()
+    {
+        return $this->repository->getAll();
+    }
+
+    /**
+     * Menyimpan SHU koperasi.
+     */
+    public function store(array $data)
+    {
+        $data['jasa_simpanan'] = $this->repository
+            ->totalJasaSimpanan($data['tahun']);
+
+        $data['jasa_pinjaman'] = $this->repository
+            ->totalJasaPinjaman($data['tahun']);
+
+        $data['total_shu'] = $this->hitungTotalShu(
+
+            $data['jasa_simpanan'],
+
+            $data['jasa_pinjaman'],
+
+            $data['dana_cadangan'],
+
+            $data['jasa_pengurus'],
+
+            $data['dana_sosial']
+
+        );
+
+        return $this->repository->store($data);
+    }
+
+    /**
+     * Detail data.
      */
     public function findById($id)
     {
-        return ShuKoperasi::findOrFail($id);
+        return $this->repository->findById($id);
     }
 
     /**
-     * Update SHU koperasi
-     *
-     * Yang boleh diubah hanya:
-     * - dana_cadangan
-     * - jasa_pengurus
-     * - dana_sosial
+     * Update SHU koperasi.
      */
     public function update($id, array $data)
     {
-        $shu = ShuKoperasi::findOrFail($id);
+        $shu = $this->repository->findById($id);
 
         $dataUpdate = [
 
@@ -62,11 +76,13 @@ class ShuKoperasiService
         ];
 
         /**
-         * Hitung ulang otomatis
+         * Hitung ulang otomatis.
          */
-        $dataUpdate['jasa_simpanan'] = $this->totalJasaSimpanan($shu->tahun);
+        $dataUpdate['jasa_simpanan'] = $this->repository
+            ->totalJasaSimpanan($shu->tahun);
 
-        $dataUpdate['jasa_pinjaman'] = $this->totalJasaPinjaman($shu->tahun);
+        $dataUpdate['jasa_pinjaman'] = $this->repository
+            ->totalJasaPinjaman($shu->tahun);
 
         $dataUpdate['total_shu'] = $this->hitungTotalShu(
 
@@ -82,54 +98,31 @@ class ShuKoperasiService
 
         );
 
-        $shu->update($dataUpdate);
-
-        return $shu;
+        return $this->repository->update(
+            $shu,
+            $dataUpdate
+        );
     }
-    
+
+    /**
+     * Data yang dibutuhkan halaman create.
+     */
     public function getDataCreate($tahun)
     {
         return [
 
-            'jasaSimpanan' => $this->totalJasaSimpanan($tahun),
+            'jasaSimpanan' => $this->repository
+                ->totalJasaSimpanan($tahun),
 
-            'jasaPinjaman' => $this->totalJasaPinjaman($tahun),
+            'jasaPinjaman' => $this->repository
+                ->totalJasaPinjaman($tahun),
 
         ];
     }
 
     /**
-     * Total jasa simpanan
-     */
-    private function totalJasaSimpanan($tahun)
-    {
-        $simpananPokok = SimpananPokok::where('status', 'selesai')
-            ->whereYear('tanggal', $tahun)
-            ->sum('nilai');
-
-        $simpananWajib = SimpananWajib::whereYear('periode', $tahun)
-            ->sum('nilai');
-
-        $simpananSukarela = SimpananSukarela::whereYear('periode', $tahun)
-            ->sum('nilai');
-
-        return
-            $simpananPokok +
-            $simpananWajib +
-            $simpananSukarela;
-    }
-
-    /**
-     * Total jasa pinjaman
-     */
-    private function totalJasaPinjaman($tahun)
-    {
-        return Pinjaman::whereYear('tanggal_disetujui', $tahun)
-            ->sum('jumlah_bunga');
-    }
-
-    /**
-     * Menghitung total SHU
+     * Business Logic
+     * Menghitung total SHU.
      */
     private function hitungTotalShu(
         $jasaSimpanan,

@@ -109,9 +109,7 @@
 
                 </div>
 
-                {{-- STATUS (HANYA ADMIN) --}}
-                @role('admin')
-
+                {{-- STATUS --}}
                 <div class="col-md-6 mt-3">
 
                     <div class="form-group">
@@ -120,7 +118,8 @@
 
                         <select
                             name="status"
-                            class="form-control @error('status') is-invalid @enderror">
+                            class="form-control @error('status') is-invalid @enderror"
+                            @role('anggota') disabled @endrole>
 
                             <option value="pending"
                                 {{ old('status', $simpanan->status) == 'pending' ? 'selected' : '' }}>
@@ -139,6 +138,14 @@
 
                         </select>
 
+                        {{-- Agar status tetap dikirim saat anggota submit --}}
+                        @role('anggota')
+                            <input
+                                type="hidden"
+                                name="status"
+                                value="{{ $simpanan->status }}">
+                        @endrole
+
                         @error('status')
                             <span class="invalid-feedback d-block">
                                 {{ $message }}
@@ -149,21 +156,23 @@
 
                 </div>
 
-                {{-- BUKTI (HANYA ADMIN) --}}
+                {{-- BUKTI --}}
                 <div class="col-md-6 mt-3">
 
                     <div class="form-group">
 
-                        <label>Bukti</label>
+                        <label>Bukti Transfer</label>
 
                         @if($simpanan->bukti)
 
                             <div class="mb-2">
 
                                 <a href="{{ asset('storage/'.$simpanan->bukti) }}"
-                                   target="_blank">
+                                   target="_blank"
+                                   class="btn btn-info btn-sm">
 
-                                    Lihat Bukti Lama
+                                    <i class="fas fa-image"></i>
+                                    Lihat Bukti
 
                                 </a>
 
@@ -174,7 +183,8 @@
                         <input
                             type="file"
                             name="bukti"
-                            class="form-control @error('bukti') is-invalid @enderror">
+                            class="form-control @error('bukti') is-invalid @enderror"
+                            accept="image/*">
 
                         @error('bukti')
                             <span class="invalid-feedback d-block">
@@ -185,8 +195,6 @@
                     </div>
 
                 </div>
-
-                @endrole
 
             </div>
 

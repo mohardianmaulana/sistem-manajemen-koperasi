@@ -7,6 +7,7 @@
 @stop
 
 @section('content')
+
 <div class="row">
     <div class="col-12">
 
@@ -24,11 +25,51 @@
 
                 <h4>Form Tabungan</h4>
 
-                <form action=" {{ route('simpanan-pokok.store') }} " method="POST">
+                <form action="{{ route('simpanan-pokok.store') }}" method="POST">
                     @csrf
 
                     <div class="row">
 
+                        {{-- USER --}}
+                        <div class="col-md-12">
+                            <div class="form-group">
+
+                                <label>
+                                    User
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <select
+                                    name="id_anggota"
+                                    class="form-control @error('id_anggota') is-invalid @enderror">
+
+                                    <option value="">
+                                        -- Pilih User --
+                                    </option>
+
+                                    @foreach($users as $user)
+
+                                        <option value="{{ $user->id }}"
+                                            {{ old('id_anggota') == $user->id ? 'selected' : '' }}>
+
+                                            {{ $user->name }}
+
+                                        </option>
+
+                                    @endforeach
+
+                                </select>
+
+                                @error('id_anggota')
+                                    <span class="invalid-feedback d-block">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
+
+                            </div>
+                        </div>
+
+                        {{-- NOMINAL --}}
                         <div class="col-md-6">
                             <div class="form-group">
 
@@ -63,6 +104,7 @@
                             </div>
                         </div>
 
+                        {{-- TANGGAL --}}
                         <div class="col-md-6">
                             <div class="form-group">
 
@@ -109,4 +151,5 @@
 
     </div>
 </div>
+
 @stop
