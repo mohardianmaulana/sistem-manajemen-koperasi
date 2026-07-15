@@ -71,25 +71,4 @@ class SimpananWajibController extends Controller
 
          return redirect()->route('simpanan-wajib.index')->with('success', 'Data simpanan berhasil diperbarui');
     }
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
-    public function edit(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

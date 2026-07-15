@@ -49,7 +49,7 @@
                             name="nilai"
                             class="form-control @error('nilai') is-invalid @enderror"
                             value="{{ old('nilai', $simpanan->nilai) }}"
-                            @role('admin') readonly @endrole>
+                            @role('anggota') readonly @endrole>
 
                         @error('nilai')
                             <span class="invalid-feedback d-block">
@@ -73,7 +73,7 @@
                             name="periode"
                             class="form-control @error('periode') is-invalid @enderror"
                             value="{{ old('periode', $simpanan->periode) }}"
-                            @role('admin') readonly @endrole>
+                            @role('anggota') readonly @endrole>
 
                         @error('periode')
                             <span class="invalid-feedback d-block">
@@ -97,7 +97,7 @@
                             name="tahun"
                             class="form-control @error('tahun') is-invalid @enderror"
                             value="{{ old('tahun', $simpanan->tahun) }}"
-                            @role('admin') readonly @endrole>
+                            @role('anggota') readonly @endrole>
 
                         @error('tahun')
                             <span class="invalid-feedback d-block">
@@ -157,46 +157,56 @@
                 </div>
 
                 {{-- BUKTI --}}
-                <div class="col-md-6 mt-3">
+                        <div class="col-md-6 mt-3">
+                            <div class="form-group">
 
-                    <div class="form-group">
+                                <label>Bukti Transfer</label>
 
-                        <label>Bukti Transfer</label>
+                                @if($simpanan->bukti)
+                                    <div class="mb-2">
+                                        <a href="{{ asset('storage/'.$simpanan->bukti) }}"
+                                        target="_blank"
+                                        class="btn btn-info btn-sm">
+                                            <i class="fas fa-image"></i>
+                                            Lihat Bukti
+                                        </a>
+                                    </div>
+                                @endif
 
-                        @if($simpanan->bukti)
+                                <input
+                                    type="file"
+                                    name="bukti"
+                                    class="form-control @error('bukti') is-invalid @enderror"
+                                    accept="image/*"
+                                    @role('anggota')
+                                        {{ $simpanan->status != 'tidak berhasil' ? 'disabled' : '' }}
+                                    @endrole
+                                >
 
-                            <div class="mb-2">
+                                @role('anggota')
+                                    @if($simpanan->status != 'tidak berhasil')
+                                        <small class="text-danger">
+                                            Bukti transfer hanya dapat diunggah apabila status pengajuan
+                                            <strong>Tidak Berhasil</strong>.
+                                        </small>
+                                    @else
+                                        <small class="text-primary">
+                                            Silakan transfer secara mandiri ke rekening
+                                            <strong>981237981237</strong>, kemudian unggah bukti transfer pada form di atas.
+                                        </small>
+                                    @endif
+                                @endrole
 
-                                <a href="{{ asset('storage/'.$simpanan->bukti) }}"
-                                   target="_blank"
-                                   class="btn btn-info btn-sm">
-
-                                    <i class="fas fa-image"></i>
-                                    Lihat Bukti
-
-                                </a>
+                                @error('bukti')
+                                    <span class="invalid-feedback d-block">
+                                        {{ $message }}
+                                    </span>
+                                @enderror
 
                             </div>
-
-                        @endif
-
-                        <input
-                            type="file"
-                            name="bukti"
-                            class="form-control @error('bukti') is-invalid @enderror"
-                            accept="image/*">
-
-                        @error('bukti')
-                            <span class="invalid-feedback d-block">
-                                {{ $message }}
-                            </span>
-                        @enderror
+                        </div>
 
                     </div>
-
-                </div>
-
-            </div>
 
             <div class="mt-3">
 

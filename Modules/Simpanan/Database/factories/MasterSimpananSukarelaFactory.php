@@ -1,6 +1,7 @@
 <?php
 namespace Modules\Simpanan\Database\factories;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Simpanan\Entities\MasterSimpananSukarela;
 
@@ -26,7 +27,7 @@ class MasterSimpananSukarelaFactory extends Factory
                 'tahun'      => $this->faker->year(),
                 'status'     => 'pending',
                 'bukti'      => null,
-                'id_anggota' => 1,
+                'id_anggota' => User::factory(),
             ];
         }
 

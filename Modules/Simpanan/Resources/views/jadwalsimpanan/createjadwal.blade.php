@@ -42,11 +42,6 @@
 
                             <option value="">-- Pilih Jenis Simpanan --</option>
 
-                            <option value="Simpanan Pokok"
-                                {{ old('nama_jenis_simpanan') == 'Simpanan Pokok' ? 'selected' : '' }}>
-                                Simpanan Pokok
-                            </option>
-
                             <option value="Simpanan Wajib"
                                 {{ old('nama_jenis_simpanan') == 'Simpanan Wajib' ? 'selected' : '' }}>
                                 Simpanan Wajib

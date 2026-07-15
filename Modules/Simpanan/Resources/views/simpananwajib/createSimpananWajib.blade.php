@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Tambah Simpanan Sukarela')
+@section('title', 'Penetapan Simpanan Wajib')
 
 @section('content_header')
     <h1 class="m-0 text-dark">Tambah Simpanan Sukarela</h1>
@@ -12,7 +12,7 @@
 <div class="col-12">
 
     <div class="mb-3">
-        <a href="{{ route('simpanan-sukarela.index') }}"
+        <a href="{{ route('simpanan-wajib.index') }}"
            class="btn btn-secondary"
            style="border-radius:10px">
 

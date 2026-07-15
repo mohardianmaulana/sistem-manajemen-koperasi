@@ -2,6 +2,7 @@
 
 namespace Modules\Simpanan\Repositories;
 
+use App\Models\Core\User;
 use Modules\Simpanan\Entities\MasterSimpananWajib;
 use Modules\Simpanan\Entities\SimpananWajib;
 
@@ -27,6 +28,11 @@ class SimpananWajibRepository
     public function store(array $data)
     {
         return MasterSimpananWajib::create($data);
+    }
+
+     public function getAllAnggota()
+    {
+        return User::role('anggota')->get();
     }
 
     /**
@@ -63,5 +69,11 @@ class SimpananWajibRepository
                 'id_anggota' => $data['id_anggota'],
             ]
         );
+        }
+        public function existsSimpanan($idAnggota, $periode)
+        {
+            return SimpananWajib::where('id_anggota', $idAnggota)
+                ->whereDate('periode', $periode)
+                ->exists();
         }
 }

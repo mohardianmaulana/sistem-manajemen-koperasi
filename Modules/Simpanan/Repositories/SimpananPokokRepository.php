@@ -3,6 +3,7 @@
 namespace Modules\Simpanan\Repositories;
 
 use App\Models\Core\User;
+use Modules\Simpanan\Entities\MasterSimpananWajib;
 use Modules\Simpanan\Entities\SimpananPokok;
 
 class SimpananPokokRepository
@@ -16,6 +17,7 @@ class SimpananPokokRepository
 
     return $query->paginate(5);
     }
+
     public function getAllUser()
     {
         return User::orderBy('name')->get();
@@ -39,4 +41,5 @@ class SimpananPokokRepository
 
         return $simpanan;
     }
+
 }

@@ -6,14 +6,19 @@ use Illuminate\Contracts\Support\Renderable;
 use Modules\Simpanan\Http\Requests\MasterSimpananSukarelaRequest;
 use Modules\Simpanan\Services\SimpananSukarelaService;
 use Illuminate\Routing\Controller;
+use Modules\Simpanan\Services\MasterJenisSimpananService;
 
 class SimpananSukarelaController extends Controller
 {
      protected $service;
+     protected $masterJenisSimpananService;
 
-    public function __construct(SimpananSukarelaService $service)
-    {
+    public function __construct(
+    SimpananSukarelaService $service,
+    MasterJenisSimpananService $masterJenisSimpananService
+    ) {
         $this->service = $service;
+        $this->masterJenisSimpananService = $masterJenisSimpananService;
     }
     /**
      * Display a listing of the resource.
@@ -32,7 +37,20 @@ class SimpananSukarelaController extends Controller
      */
     public function create()
     {
+       try {
+
+        $this->masterJenisSimpananService
+             ->cekJadwalAktif('Simpanan Sukarela');
+
         return view('simpanan::simpanansukarela.createSimpananSukarela');
+
+    } catch (\Exception $e) {
+
+        return redirect()
+            ->route('simpanan-sukarela.index')
+            ->with('error', $e->getMessage());
+
+    }
     }
 
     /**
@@ -42,8 +60,22 @@ class SimpananSukarelaController extends Controller
      */
     public function store(MasterSimpananSukarelaRequest $request)
     {
+        try {
+
         $this->service->store($request->validated());
-        return redirect()->route('simpanan-sukarela.index')->with('success', 'Data berhasil ditambahkan');
+
+        return redirect()
+            ->route('simpanan-sukarela.index')
+            ->with('success', 'Data berhasil ditambahkan');
+
+    } catch (\Exception $e) {
+
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with('error', $e->getMessage());
+
+    }
     }
 
     /**
@@ -52,10 +84,22 @@ class SimpananSukarelaController extends Controller
      * @return Renderable
      */
     public function show($id)
-    {
-        $simpanan= $this->service->findById($id);
+    { 
+        try {
 
-        return view('simpanan::simpanansukarela.editSimpananSukarela', compact('simpanan'));
+            $simpanan = $this->service->findById($id);
+
+            return view(
+                'simpanan::simpanansukarela.editSimpananSukarela',
+                compact('simpanan')
+            );
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->route('simpanan-sukarela.index')
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -65,29 +109,22 @@ class SimpananSukarelaController extends Controller
      */
     public function update($id, MasterSimpananSukarelaRequest $request)
     {
-         $this->service->update($id, $request->validated());
+        
+        try {
 
-         return redirect()->route('simpanan-sukarela.index')->with('success', 'Data simpanan berhasil diperbarui');
-    }
+        $this->service->update($id, $request->validated());
 
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
-    public function edit()
-    {
-        //
-    }
+        return redirect()
+            ->route('simpanan-sukarela.index')
+            ->with('success', 'Data simpanan berhasil diperbarui');
 
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    public function destroy($id)
-    {
-        //
+        } catch (\Exception $e) {
+
+            return redirect()
+             ->back()
+             ->withInput()
+             ->with('error', $e->getMessage());
+
+        }
     }
 }

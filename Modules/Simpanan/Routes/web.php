@@ -21,7 +21,7 @@ Route::prefix('simpanan')->middleware(['auth'])->group(function() {
     Route::put('/updatedata/{id}', 'SimpananController@update')->name('simpanan-pokok.update');
 });
 
-Route::prefix('jadwal-simpanan')->middleware(['auth'])->group(function() {
+Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:admin'])->group(function() {
     Route::get('/', 'MasterJenisSimpananController@index')->name('master-jenis-simpanan.index');
     Route::get('/master-jenis-simpanan/create', 'MasterJenisSimpananController@create')->name('master-jenis-simpanan.create');
     Route::post('/master-jenis-simpanan/store', 'MasterJenisSimpananController@store')->name('master-jenis-simpanan.store');
@@ -29,18 +29,25 @@ Route::prefix('jadwal-simpanan')->middleware(['auth'])->group(function() {
     Route::put('/master-jenis-simpanan/updatedata/{id}', 'MasterJenisSimpananController@update')->name('master-jenis-simpanan.update'); 
 });
 
-Route::prefix('simpanan-sukarela')->middleware(['auth'])->group(function() {
-    Route::get('/', 'SimpananSukarelaController@index')->name('simpanan-sukarela.index');
-    Route::get('/create', 'SimpananSukarelaController@create')->name('simpanan-sukarela.create');
-    Route::post('/store', 'SimpananSukarelaController@store')->name('simpanan-sukarela.store');
+Route::prefix('simpanan-sukarela')->middleware(['auth'])->group(function () {
+    Route::get('/', 'SimpananSukarelaController@index')
+        ->name('simpanan-sukarela.index');
+    Route::middleware(['role:anggota'])->group(function () {
+        Route::get('/create', 'SimpananSukarelaController@create')->name('simpanan-sukarela.create');
+        Route::post('/store', 'SimpananSukarelaController@store')->name('simpanan-sukarela.store');
+    });
     Route::get('/{id}', 'SimpananSukarelaController@show')->name('simpanan-sukarela.show');
     Route::put('/{id}', 'SimpananSukarelaController@update')->name('simpanan-sukarela.update');
 });
 
-Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function() {
-    Route::get('/', 'SimpananWajibController@index')->name('simpanan-wajib.index');
-    Route::get('/create', 'SimpananWajibController@create')->name('simpanan-wajib.create');
-    Route::post('/store', 'SimpananWajibController@store')->name('simpanan-wajib.store');
+Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
+    Route::get('/', 'SimpananWajibController@index')
+        ->name('simpanan-wajib.index');
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/create', 'SimpananWajibController@create')->name('simpanan-wajib.create');
+        Route::post('/store', 'SimpananWajibController@store')->name('simpanan-wajib.store');
+    });
     Route::get('/{id}', 'SimpananWajibController@show')->name('simpanan-wajib.show');
     Route::put('/{id}', 'SimpananWajibController@update')->name('simpanan-wajib.update');
+
 });

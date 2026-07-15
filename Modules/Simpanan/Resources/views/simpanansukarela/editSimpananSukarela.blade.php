@@ -154,25 +154,39 @@
                                 <label>Bukti Transfer</label>
 
                                 @if($simpanan->bukti)
-
                                     <div class="mb-2">
                                         <a href="{{ asset('storage/'.$simpanan->bukti) }}"
-                                           target="_blank"
-                                           class="btn btn-info btn-sm">
-
+                                        target="_blank"
+                                        class="btn btn-info btn-sm">
                                             <i class="fas fa-image"></i>
                                             Lihat Bukti
-
                                         </a>
                                     </div>
-
                                 @endif
 
                                 <input
                                     type="file"
                                     name="bukti"
                                     class="form-control @error('bukti') is-invalid @enderror"
-                                    accept="image/*">
+                                    accept="image/*"
+                                    @role('anggota')
+                                        {{ $simpanan->status != 'tidak berhasil' ? 'disabled' : '' }}
+                                    @endrole
+                                >
+
+                                @role('anggota')
+                                    @if($simpanan->status != 'tidak berhasil')
+                                        <small class="text-danger">
+                                            Bukti transfer hanya dapat diunggah apabila status pengajuan
+                                            <strong>Tidak Berhasil</strong>.
+                                        </small>
+                                    @else
+                                        <small class="text-primary">
+                                            Silakan transfer secara mandiri ke rekening
+                                            <strong>981237981237</strong>, kemudian unggah bukti transfer pada form di atas.
+                                        </small>
+                                    @endif
+                                @endrole
 
                                 @error('bukti')
                                     <span class="invalid-feedback d-block">

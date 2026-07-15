@@ -90,14 +90,4 @@ class SHUController extends Controller
 
         return redirect()->route('shu-koperasi.index')->with('success', 'Data SHU Koperasi berhasil diperbarui.');
     }
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

@@ -11,7 +11,7 @@
 <div class="card">
 
     <div class="card-header">
-
+    @role('admin')
         <a href="{{ route('simpanan-wajib.create') }}"
            class="btn btn-primary"
            style="border-radius:10px">
@@ -20,7 +20,7 @@
             Tambah Simpanan
 
         </a>
-
+    @endrole
     </div>
 
     <div class="card-body">

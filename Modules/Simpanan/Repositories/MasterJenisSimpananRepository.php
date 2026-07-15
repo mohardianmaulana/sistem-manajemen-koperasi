@@ -29,4 +29,12 @@ class MasterJenisSimpananRepository
     {
         return MasterJenisSimpanan::findOrFail($id);
     }
+
+    public function findByJenis($jenis)
+    {
+        return MasterJenisSimpanan::where(
+            'nama_jenis_simpanan',
+            $jenis
+        )->first();
+    }
 }

@@ -3,15 +3,21 @@
 namespace Modules\Simpanan\Services;
 
 use Illuminate\Support\Facades\Auth;
+use Exception;
 use Modules\Simpanan\Repositories\SimpananSukarelaRepository;
+use Modules\Simpanan\Services\MasterJenisSimpananService as ServicesMasterJenisSimpananService;
 
 class SimpananSukarelaService
 {
     protected $repository;
+    protected $masterJenisSimpananService;
 
-    public function __construct(SimpananSukarelaRepository $repository)
-    {
+    public function __construct(
+        SimpananSukarelaRepository $repository,
+        ServicesMasterJenisSimpananService $masterJenisSimpananService
+    ) {
         $this->repository = $repository;
+        $this->masterJenisSimpananService = $masterJenisSimpananService;
     }
 
     /**
@@ -31,6 +37,9 @@ class SimpananSukarelaService
      */
     public function store(array $data)
     {
+        $this->masterJenisSimpananService
+         ->cekJadwalAktif('Simpanan Sukarela');
+
         $data['status'] = 'pending';
 
         $data['tahun'] = date('Y');
@@ -59,13 +68,32 @@ class SimpananSukarelaService
          * Upload bukti
          */
         if (isset($data['bukti']) && $data['bukti']) {
-
-            $data['bukti'] = $data['bukti']->store('bukti-simpanan','public');
-
+            $data['bukti'] = $data['bukti']->store('bukti-simpanan', 'public');
         }
 
         /**
-         * Update data master
+         * Jika anggota
+         */
+        if (Auth::user()->hasRole('anggota')) {
+
+            $this->masterJenisSimpananService
+                ->cekJadwalAktif('Simpanan Sukarela');
+
+            if ($master->status != 'tidak berhasil') {
+                throw new Exception(
+                    'Bukti transfer hanya dapat diunggah ketika status pengajuan Tidak Berhasil.'
+                );
+            }
+
+            $this->repository->update($master, [
+                'bukti' => $data['bukti'] ?? $master->bukti,
+            ]);
+
+            return $master;
+        }
+
+        /**
+         * Jika admin
          */
         $this->repository->update($master, [
 
@@ -76,24 +104,28 @@ class SimpananSukarelaService
         ]);
 
         /**
-         * Jika disetujui
+         * Jika status selesai
          */
-        if ($master->status == 'selesai') {
+        if ($data['status'] == 'selesai') {
 
-            $this->repository->storeSimpanan([
+            // Sebaiknya cek dulu apakah sudah pernah masuk tabel final
+            if (!$this->repository->sudahMasukSimpanan($master)) {
 
-                'nilai' => $master->nilai,
+                $this->repository->storeSimpanan([
 
-                'periode' => $master->periode,
+                    'nilai'      => $master->nilai,
 
-                'tahun' => $master->tahun,
+                    'periode'    => $master->periode,
 
-                'id_anggota' => $master->id_anggota,
+                    'tahun'      => $master->tahun,
 
-            ]);
+                    'id_anggota' => $master->id_anggota,
+
+                ]);
+
+            }
         }
 
         return $master;
     }
-  
 }

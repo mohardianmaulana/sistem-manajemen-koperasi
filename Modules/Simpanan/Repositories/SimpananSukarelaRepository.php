@@ -39,4 +39,12 @@ class SimpananSukarelaRepository
     {
         return SimpananSukarela::create($data);
     }
+
+    public function sudahMasukSimpanan($master)
+    {
+        return SimpananSukarela::where([
+            'id_anggota' => $master->id_anggota,
+            'periode'    => $master->periode,
+        ])->exists();
+    }
 }

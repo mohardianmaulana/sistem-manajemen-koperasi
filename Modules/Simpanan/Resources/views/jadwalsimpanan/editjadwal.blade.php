@@ -41,11 +41,6 @@
                             name="nama_jenis_simpanan"
                             class="form-control @error('nama_jenis_simpanan') is-invalid @enderror">
 
-                            <option value="Simpanan Pokok"
-                                {{ old('nama_jenis_simpanan', $jenis->nama_jenis_simpanan) == 'Simpanan Pokok' ? 'selected' : '' }}>
-                                Simpanan Pokok
-                            </option>
-
                             <option value="Simpanan Wajib"
                                 {{ old('nama_jenis_simpanan', $jenis->nama_jenis_simpanan) == 'Simpanan Wajib' ? 'selected' : '' }}>
                                 Simpanan Wajib

@@ -120,29 +120,40 @@
                         {{-- BUKTI --}}
                         <div class="col-md-6 mt-3">
                             <div class="form-group">
+
                                 <label>Bukti Transfer</label>
 
                                 @if($simpanan->bukti)
                                     <div class="mb-2">
                                         <img src="{{ asset('storage/' . $simpanan->bukti) }}"
-                                             width="150"
-                                             style="border-radius:10px;">
+                                            width="150"
+                                            style="border-radius:10px;">
                                     </div>
                                 @endif
 
-                                <input type="file"
-                                       name="bukti"
-                                       class="form-control @error('bukti') is-invalid @enderror"
-                                       accept="image/*"
-                                       {{ $isAdmin ? 'disabled' : '' }}>
+                                <input
+                                    type="file"
+                                    name="bukti"
+                                    class="form-control @error('bukti') is-invalid @enderror"
+                                    accept="image/*"
+                                    {{ $isAdmin ? 'disabled' : '' }}>
+
+                                @role('anggota')
+                                    <small class="text-info d-block mt-2">
+                                        <i class="fas fa-info-circle"></i>
+                                        Silakan melakukan transfer secara mandiri ke rekening
+                                        <strong>1239871298</strong>, kemudian unggah bukti transfer pada kolom di atas.
+                                    </small>
+                                @endrole
 
                                 @error('bukti')
                                     <span class="invalid-feedback d-block">
                                         {{ $message }}
                                     </span>
                                 @enderror
+
                             </div>
-                        </div>
+</div>
 
                     </div>
 

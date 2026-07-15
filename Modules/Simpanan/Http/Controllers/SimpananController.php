@@ -78,22 +78,4 @@ class SimpananController extends Controller
 
         return redirect()->route('simpanan-pokok.index')->with('success', 'Data berhasil diupdate');
     }
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
-
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

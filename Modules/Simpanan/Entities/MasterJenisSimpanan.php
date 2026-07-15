@@ -19,6 +19,6 @@ class MasterJenisSimpanan extends Model
     
     protected static function newFactory()
     {
-        return \Modules\Simpanan\Database\factories\MasterSimpananSukarelaFactory::new();
+        return \Modules\Simpanan\Database\factories\MasterJenisSimpananFactory::new();
     }
 }

@@ -20,8 +20,33 @@ class MasterJenisSimpananFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'nama_jenis_simpanan' => 'Simpanan Sukarela',
+            'tanggal_mulai'       => now()->subDay(),
+            'tanggal_berakhir'    => now()->addDay(),
         ];
+    }
+
+     public function aktif()
+    {
+        return $this->state(function () {
+            return [
+                'tanggal_mulai'    => now()->subDay(),
+                'tanggal_berakhir' => now()->addDay(),
+            ];
+        });
+    }
+
+    /**
+     * State jadwal tidak aktif
+     */
+    public function tidakAktif()
+    {
+        return $this->state(function () {
+            return [
+                'tanggal_mulai'    => now()->subDays(10),
+                'tanggal_berakhir' => now()->subDay(),
+            ];
+        });
     }
 }
 

@@ -1,6 +1,7 @@
 <?php
 namespace Modules\Simpanan\Database\factories;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Simpanan\Entities\SimpananSukarela;
 
@@ -23,7 +24,7 @@ class SimpananSukarelaFactory extends Factory
         return [
             'nilai'      => $this->faker->numberBetween(10000, 500000),
             'periode'    => $this->faker->date(),
-            'id_anggota' => 1,
+            'id_anggota' => User::factory(),
         ];
     }
 }

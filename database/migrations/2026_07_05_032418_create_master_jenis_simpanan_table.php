@@ -15,7 +15,7 @@ class CreateMasterJenisSimpananTable extends Migration
     {
         Schema::create('master_jenis_simpanan', function (Blueprint $table) {
             $table->id();
-            $table->enum('nama_jenis_simpanan', ['Simpanan Wajib', 'Simpanan Sukarela', 'Simpanan Pokok']);
+            $table->enum('nama_jenis_simpanan', ['Simpanan Wajib', 'Simpanan Sukarela']);
             $table->datetime('tanggal_mulai');
             $table->datetime('tanggal_berakhir');
             $table->timestamps();

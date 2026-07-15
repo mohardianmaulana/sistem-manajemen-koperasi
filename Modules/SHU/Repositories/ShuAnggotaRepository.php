@@ -3,6 +3,7 @@
 namespace Modules\SHU\Repositories;
 
 use App\Models\Core\User;
+use Modules\Pinjaman\Entities\Angsuran;
 use Modules\Pinjaman\Entities\Pinjaman;
 use Modules\SHU\Entities\ShuAnggota;
 use Modules\SHU\Entities\ShuKoperasi;
@@ -57,23 +58,59 @@ class ShuAnggotaRepository
 
     public function totalJasaPinjamanSemua($tahun)
     {
-        return Pinjaman::where('status_pinjaman', 'selesai')
-            ->whereYear('tanggal_disetujui', $tahun)
-            ->sum('jumlah_bunga');
+        $total = 0;
+
+        $pinjaman = Pinjaman::with('pengajuan')
+        ->whereYear('tanggal_disetujui', $tahun)
+        ->get();
+
+        foreach ($pinjaman as $item) {
+
+            $bungaPerAngsuran =
+                $item->jumlah_bunga /
+                $item->pengajuan->lama_angsuran;
+
+            $jumlahLunas = Angsuran::where('id_pinjaman', $item->id)
+                ->where('status_bayar', 'lunas')
+                ->whereYear('tanggal_jatuh_tempo', $tahun)
+                ->count();
+
+            $total += $bungaPerAngsuran * $jumlahLunas;
+        }
+
+        return round($total);
     }
 
     public function totalJasaPinjamanAnggota($idAnggota, $tahun)
     {
-        return Pinjaman::join(
+        $total = 0;
+
+        $pinjaman = Pinjaman::with('pengajuan')->whereYear('pinjaman.tanggal_disetujui', $tahun)
+            ->join(
                 'pengajuan_pinjaman',
                 'pengajuan_pinjaman.id',
                 '=',
                 'pinjaman.id_pengajuan'
             )
             ->where('pengajuan_pinjaman.id_anggota', $idAnggota)
-            ->where('pinjaman.status_pinjaman', 'selesai')
-            ->whereYear('pinjaman.tanggal_disetujui', $tahun)
-            ->sum('pinjaman.jumlah_bunga');
+            ->select('pinjaman.*')
+            ->get();
+
+        foreach ($pinjaman as $item) {
+
+            $bungaPerAngsuran =
+                $item->jumlah_bunga /
+                $item->pengajuan->lama_angsuran;
+
+            $jumlahLunas = Angsuran::where('id_pinjaman', $item->id)
+                ->where('status_bayar', 'lunas')
+                ->whereYear('tanggal_jatuh_tempo', $tahun)
+                ->count();
+
+            $total += $bungaPerAngsuran * $jumlahLunas;
+        }
+
+        return round($total);
     }
 
     public function simpanShu(

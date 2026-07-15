@@ -1,16 +1,23 @@
 <?php
 namespace Modules\Simpanan\Services;
 
+use App\Models\Core\User;
 use Illuminate\Support\Facades\Auth;
+use Exception;
 use Modules\Simpanan\Repositories\SimpananWajibRepository;
+use Modules\Simpanan\Services\MasterJenisSimpananService;
 
 class SimpananWajibService
 {
      protected $repository;
+     protected $masterJenisSimpananService;
 
-    public function __construct(SimpananWajibRepository $repository)
-    {
+    public function __construct(
+    SimpananWajibRepository $repository,
+    MasterJenisSimpananService $masterJenisSimpananService
+    ) {
         $this->repository = $repository;
+        $this->masterJenisSimpananService = $masterJenisSimpananService;
     }
 
     /**
@@ -30,22 +37,19 @@ class SimpananWajibService
      */
     public function store(array $data)
     {
-        /**
-         * Status awal.
-         */
-        $data['status'] = 'pending';
+        $anggota = $this->repository->getAllAnggota();
 
-        /**
-         * Tahun otomatis.
-         */
-        $data['tahun'] = date('Y');
+        foreach ($anggota as $user) {
 
-        /**
-         * User login.
-         */
-        $data['id_anggota'] = Auth::id();
+            $this->repository->store([
+                'nilai'      => $data['nilai'],
+                'periode'    => $data['periode'],
+                'tahun'      => date('Y'),
+                'status'     => 'pending',
+                'id_anggota' => $user->id,
+            ]);
 
-        return $this->repository->store($data);
+        }
     }
 
     /**
@@ -64,16 +68,38 @@ class SimpananWajibService
         $master = $this->repository->findById($id);
 
         /**
-         * Upload bukti.
+         * Upload bukti
          */
         if (isset($data['bukti']) && $data['bukti']) {
 
-            $data['bukti'] = $data['bukti']->store('bukti-simpanan','public');
-
+            $data['bukti'] = $data['bukti']->store(
+                'bukti-simpanan',
+                'public'
+            );
         }
 
         /**
-         * Update status dan bukti.
+         * Jika anggota
+         */
+        if (Auth::user()->hasRole('anggota')) {
+
+            if ($master->status != 'tidak berhasil') {
+                throw new Exception(
+                    'Bukti transfer hanya dapat diunggah ketika status pengajuan Tidak Berhasil.'
+                );
+            }
+
+            $this->repository->update($master, [
+
+                'bukti' => $data['bukti'] ?? $master->bukti,
+
+            ]);
+
+            return $master;
+        }
+
+        /**
+         * Jika admin
          */
         $this->repository->update($master, [
 
@@ -84,23 +110,29 @@ class SimpananWajibService
         ]);
 
         /**
-         * Jika disetujui maka masuk tabel final.
+         * Jika disetujui
          */
-        if ($master->status == 'selesai') {
+        if ($data['status'] == 'selesai') {
 
-            $this->repository->storeSimpanan([
+    if (!$this->repository->existsSimpanan(
+        $master->id_anggota,
+        $master->periode
+    )) {
 
-                'nilai'      => $master->nilai,
+        $this->repository->storeSimpanan([
 
-                'periode'    => $master->periode,
+            'nilai'      => $master->nilai,
 
-                'tahun'      => $master->tahun,
+            'periode'    => $master->periode,
 
-                'id_anggota' => $master->id_anggota,
+            'tahun'      => $master->tahun,
 
-            ]);
+            'id_anggota' => $master->id_anggota,
+
+        ]);
         }
 
         return $master;
-    }  
+    }
+    }
 }

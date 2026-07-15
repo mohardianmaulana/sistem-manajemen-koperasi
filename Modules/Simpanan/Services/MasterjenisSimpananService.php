@@ -2,7 +2,7 @@
     namespace Modules\Simpanan\Services;
 
     use Carbon\Carbon;
-    
+    use Exception;
     use Modules\Simpanan\Repositories\MasterJenisSimpananRepository;
 
     class MasterJenisSimpananService
@@ -55,5 +55,19 @@
         public function isActive($model)
         {
             return $this->getStatus($model) === 'Aktif';
+        }
+
+        public function cekJadwalAktif($jenis)
+        {
+            $jadwal = $this->repository->findByJenis($jenis);
+
+            if (!$jadwal) {throw new Exception("Jadwal {$jenis} belum ditentukan.");
+            }
+            if (!$this->isActive($jadwal)) {
+                throw new Exception(
+                    "Jadwal {$jenis} sedang tidak aktif."
+                );
+            }
+            return $jadwal;
         }
     }

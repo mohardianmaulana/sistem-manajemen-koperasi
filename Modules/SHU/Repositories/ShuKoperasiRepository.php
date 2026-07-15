@@ -2,6 +2,7 @@
 
 namespace Modules\SHU\Repositories;
 
+use Modules\Pinjaman\Entities\Angsuran;
 use Modules\Pinjaman\Entities\Pinjaman;
 use Modules\SHU\Entities\ShuKoperasi;
 use Modules\Simpanan\Entities\SimpananPokok;
@@ -70,8 +71,26 @@ class ShuKoperasiRepository
      */
     public function totalJasaPinjaman($tahun)
     {
-        return Pinjaman::where('status_pinjaman', 'selesai')
-            ->whereYear('tanggal_disetujui', $tahun)
-            ->sum('jumlah_bunga');
+        $total = 0;
+
+        $pinjaman = Pinjaman::with('pengajuan')
+        ->whereYear('tanggal_disetujui', $tahun)
+        ->get();
+
+        foreach ($pinjaman as $item) {
+
+            $bungaPerAngsuran =
+                $item->jumlah_bunga /
+                $item->pengajuan->lama_angsuran;
+
+            $jumlahLunas = Angsuran::where('id_pinjaman', $item->id)
+                ->where('status_bayar', 'lunas')
+                ->whereYear('tanggal_jatuh_tempo', $tahun)
+                ->count();
+
+            $total += $bungaPerAngsuran * $jumlahLunas;
+        }
+
+        return round($total);
     }
 }
