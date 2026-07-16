@@ -31,6 +31,7 @@ class CreateAdminUserSeeder extends Seeder
             'password' => Hash::make('admin!@#123'),
             'unit' => 0,
             'staff' => 0,
+            'no_rek'=>'1234567890',
             'role_aktif' => 'admin',
             'status' => 2
         ]);
@@ -68,6 +69,7 @@ class CreateAdminUserSeeder extends Seeder
             'password' => Hash::make('anggota123'),
             'unit' => 1,
             'staff' => 1,
+            'no_rek'=>'0987654321',
             'role_aktif' => 'anggota',
             'status' => 2
         ]);

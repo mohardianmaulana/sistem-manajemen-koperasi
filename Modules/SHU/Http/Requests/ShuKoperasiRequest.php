@@ -14,54 +14,74 @@ class ShuKoperasiRequest extends FormRequest
     public function rules()
     {
             return match ($this->method()) {
+                'POST' => ['periode_awal' => ['required','date',],
+                           'periode_akhir' => ['required','date','after:periode_awal',],
+                           'total_shu' => ['required','numeric','min:1',],
+                           'persen_jasa_simpanan' => ['required','numeric','min:0','max:100',],
+                           'persen_jasa_pinjaman' => ['required','numeric','min:0','max:100',],
+                           'persen_dana_cadangan' => ['required','numeric','min:0','max:100',],
+                           'persen_jasa_pengurus' => ['required','numeric','min:0','max:100',],
+                           'persen_dana_sosial' => ['required','numeric','min:0','max:100',],
+                           ],
+                'PUT', 'PATCH' => ['periode_awal' => ['required','date',],
+                                   'periode_akhir' => ['required','date','after:periode_awal',],
+                                   'total_shu' => ['required','numeric','min:1',],
+                                   'persen_jasa_simpanan' => ['required','numeric','min:0','max:100',],
+                                   'persen_jasa_pinjaman' => ['required','numeric','min:0','max:100',],
+                                   'persen_dana_cadangan' => ['required','numeric','min:0','max:100',],
+                                   'persen_jasa_pengurus' => ['required','numeric','min:0','max:100',],
+                                   'persen_dana_sosial' => ['required','numeric','min:0','max:100',],],
 
-            'POST' => [
-
-                'tahun' => ['required','digits:4','integer','unique:sisa_hasil_usaha,tahun',],
-
-                'dana_cadangan' => ['required','numeric','min:0',],
-
-                'jasa_pengurus' => ['required','numeric','min:0',],
-
-                'dana_sosial' => ['required','numeric','min:0',],
-
-            ],
-
-            'PUT', 'PATCH' => [
-
-                'dana_cadangan' => ['required','numeric','min:0',],
-
-                'jasa_pengurus' => ['required','numeric','min:0',],
-
-                'dana_sosial' => ['required','numeric','min:0',],
-
-            ],
-
-            default => [],
-
-        };
-        
+                default => [],
+            };
     }
 
-    public function messages()
+   public function messages()
     {
         return [
 
-            'tahun.required' => 'Tahun wajib diisi.',
-            'tahun.digits'   => 'Tahun harus terdiri dari 4 digit.',
-            'tahun.unique'   => 'Data SHU untuk tahun tersebut sudah ada.',
+            // Periode
+            'periode_awal.required' => 'Periode awal wajib diisi.',
+            'periode_awal.date'     => 'Format periode awal tidak valid.',
 
-            'dana_cadangan.required' => 'Dana cadangan wajib diisi.',
-            'dana_cadangan.numeric'  => 'Dana cadangan harus berupa angka.',
-            'dana_cadangan.min'      => 'Dana cadangan tidak boleh kurang dari 0.',
+            'periode_akhir.required' => 'Periode akhir wajib diisi.',
+            'periode_akhir.date'     => 'Format periode akhir tidak valid.',
+            'periode_akhir.after'    => 'Periode akhir harus lebih besar dari periode awal.',
 
-            'jasa_pengurus.required' => 'Jasa pengurus wajib diisi.',
-            'jasa_pengurus.numeric'  => 'Jasa pengurus harus berupa angka.',
-            'jasa_pengurus.min'      => 'Jasa pengurus tidak boleh kurang dari 0.',
+            // Total SHU
+            'total_shu.required' => 'Total SHU wajib diisi.',
+            'total_shu.numeric'  => 'Total SHU harus berupa angka.',
+            'total_shu.min'      => 'Total SHU harus lebih dari 0.',
 
-            'dana_sosial.required' => 'Dana sosial wajib diisi.',
-            'dana_sosial.numeric'  => 'Dana sosial harus berupa angka.',
-            'dana_sosial.min'      => 'Dana sosial tidak boleh kurang dari 0.',
+            // Persentase Jasa Simpanan
+            'persen_jasa_simpanan.required' => 'Persentase jasa simpanan wajib diisi.',
+            'persen_jasa_simpanan.numeric'  => 'Persentase jasa simpanan harus berupa angka.',
+            'persen_jasa_simpanan.min'      => 'Persentase jasa simpanan tidak boleh kurang dari 0%.',
+            'persen_jasa_simpanan.max'      => 'Persentase jasa simpanan tidak boleh lebih dari 100%.',
+
+            // Persentase Jasa Pinjaman
+            'persen_jasa_pinjaman.required' => 'Persentase jasa pinjaman wajib diisi.',
+            'persen_jasa_pinjaman.numeric'  => 'Persentase jasa pinjaman harus berupa angka.',
+            'persen_jasa_pinjaman.min'      => 'Persentase jasa pinjaman tidak boleh kurang dari 0%.',
+            'persen_jasa_pinjaman.max'      => 'Persentase jasa pinjaman tidak boleh lebih dari 100%.',
+
+            // Persentase Dana Cadangan
+            'persen_dana_cadangan.required' => 'Persentase dana cadangan wajib diisi.',
+            'persen_dana_cadangan.numeric'  => 'Persentase dana cadangan harus berupa angka.',
+            'persen_dana_cadangan.min'      => 'Persentase dana cadangan tidak boleh kurang dari 0%.',
+            'persen_dana_cadangan.max'      => 'Persentase dana cadangan tidak boleh lebih dari 100%.',
+
+            // Persentase Jasa Pengurus
+            'persen_jasa_pengurus.required' => 'Persentase jasa pengurus wajib diisi.',
+            'persen_jasa_pengurus.numeric'  => 'Persentase jasa pengurus harus berupa angka.',
+            'persen_jasa_pengurus.min'      => 'Persentase jasa pengurus tidak boleh kurang dari 0%.',
+            'persen_jasa_pengurus.max'      => 'Persentase jasa pengurus tidak boleh lebih dari 100%.',
+
+            // Persentase Dana Sosial
+            'persen_dana_sosial.required' => 'Persentase dana sosial wajib diisi.',
+            'persen_dana_sosial.numeric'  => 'Persentase dana sosial harus berupa angka.',
+            'persen_dana_sosial.min'      => 'Persentase dana sosial tidak boleh kurang dari 0%.',
+            'persen_dana_sosial.max'      => 'Persentase dana sosial tidak boleh lebih dari 100%.',
 
         ];
     }

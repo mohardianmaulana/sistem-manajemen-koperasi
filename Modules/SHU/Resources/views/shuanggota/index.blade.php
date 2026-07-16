@@ -57,62 +57,19 @@
 @endif
 
 <div class="card">
-
     {{-- Hanya Admin yang dapat melakukan Regenerate SHU --}}
-    @role('admin')
-
     <div class="card-header">
+   @role('admin')
+        <a href="{{ route('shu.create') }}"
+           class="btn btn-primary"
+           style="border-radius:10px">
 
-        <form action="{{ route('shu.store') }}"
-              method="POST">
+            <i class="fas fa-plus"></i>
+            Tambah Simpanan
 
-            @csrf
-
-            <div class="row">
-
-                <div class="col-md-3">
-
-                    <label>Tahun</label>
-
-                    <input
-                        type="number"
-                        name="tahun"
-                        class="form-control @error('tahun') is-invalid @enderror"
-                        value="{{ old('tahun', date('Y')) }}">
-
-                    @error('tahun')
-
-                        <small class="text-danger">
-
-                            {{ $message }}
-
-                        </small>
-
-                    @enderror
-
-                </div>
-
-                <div class="col-md-3 mt-4">
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary">
-
-                        <i class="fas fa-sync"></i>
-
-                        Regenerate SHU
-
-                    </button>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </div>
-
+        </a>
     @endrole
+    </div>
 
     <div class="card-body">
 
@@ -123,10 +80,13 @@
                 <tr>
 
                     <th>No</th>
-                    <th>Tahun</th>
+                    <th>Awal Periode</th>
+                    <th>Akhir Periode</th>
                     <th>Nama Anggota</th>
+                    <th>Jasa Pengurus</th>
                     <th>SHU Simpanan</th>
                     <th>SHU Pinjaman</th>
+                    <th>Pajak</th>
                     <th>Total SHU</th>
 
                 </tr>
@@ -144,11 +104,19 @@
                     </td>
 
                     <td class="text-center">
-                        {{ $item->tahun }}
+                        {{ $item->periode_awal }}
+                    </td>
+
+                    <td class="text-center">
+                        {{ $item->periode_akhir }}
                     </td>
 
                     <td>
-                        {{ $item->anggota->username }}
+                        {{ $item->user->name }}
+                    </td>
+
+                    <td class="text-right">
+                        Rp {{ number_format($item->jasa_pengurus, 0, ',', '.') }}
                     </td>
 
                     <td class="text-right">
@@ -157,6 +125,10 @@
 
                     <td class="text-right">
                         Rp {{ number_format($item->shu_pinjaman, 0, ',', '.') }}
+                    </td>
+
+                    <td class="text-right">
+                        Rp {{ number_format($item->pajak, 0, ',', '.') }}
                     </td>
 
                     <td class="text-right">

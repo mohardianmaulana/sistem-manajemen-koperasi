@@ -7,7 +7,6 @@ use Modules\Pinjaman\Entities\Angsuran;
 use Modules\Pinjaman\Entities\Pinjaman;
 use Modules\SHU\Entities\ShuAnggota;
 use Modules\SHU\Entities\ShuKoperasi;
-use Modules\Simpanan\Entities\SimpananPokok;
 use Modules\Simpanan\Entities\SimpananSukarela;
 use Modules\Simpanan\Entities\SimpananWajib;
 
@@ -22,117 +21,166 @@ class ShuAnggotaRepository
         return $query->paginate(5);
     }
     
-    public function getShuByTahun($tahun)
+    public function getShuKoperasi(
+    $periodeAwal,
+    $periodeAkhir
+    )
     {
-        return ShuKoperasi::where('tahun', $tahun)->first();
+        return ShuKoperasi::where('periode_awal', $periodeAwal )
+            ->where('periode_akhir', $periodeAkhir)
+            ->first();
     }
 
     public function getUsers()
     {
-        return User::all();
+        return User::role('anggota')->get();
     }
 
-    public function totalSimpananSemua($tahun)
+    public function totalSimpananSemua(
+    $periodeAwal,
+    $periodeAkhir
+    )
     {
-        $wajib = SimpananWajib::whereYear('periode', $tahun)
+       {
+            $wajib = SimpananWajib::whereBetween('periode',[$periodeAwal, $periodeAkhir])
             ->sum('nilai');
 
-        $sukarela = SimpananSukarela::whereYear('periode', $tahun)
+            $sukarela = SimpananSukarela::whereBetween('periode',[$periodeAwal, $periodeAkhir])
             ->sum('nilai');
 
-        return  $wajib + $sukarela;
+            return $wajib + $sukarela;
+        }
     }
 
-    public function totalSimpananAnggota($idAnggota, $tahun)
+   public function totalSimpananAnggota(
+    $idAnggota,
+    $periodeAwal,
+    $periodeAkhir
+    )
     {
         $wajib = SimpananWajib::where('id_anggota', $idAnggota)
-            ->whereYear('periode', $tahun)
+            ->whereBetween('periode',[$periodeAwal, $periodeAkhir])
             ->sum('nilai');
 
         $sukarela = SimpananSukarela::where('id_anggota', $idAnggota)
-            ->whereYear('periode', $tahun)
+            ->whereBetween('periode',[$periodeAwal, $periodeAkhir])
             ->sum('nilai');
 
-        return  $wajib + $sukarela;
+        return $wajib + $sukarela;
     }
 
-    public function totalJasaPinjamanSemua($tahun)
+    public function totalJasaPinjamanSemua(
+    $periodeAwal,
+    $periodeAkhir
+    )
     {
         $total = 0;
 
         $pinjaman = Pinjaman::with('pengajuan')
-        ->whereYear('tanggal_disetujui', $tahun)
-        ->get();
+            ->whereBetween('tanggal_disetujui',[$periodeAwal, $periodeAkhir])
+            ->get();
 
         foreach ($pinjaman as $item) {
-
             $bungaPerAngsuran =
                 $item->jumlah_bunga /
                 $item->pengajuan->lama_angsuran;
 
             $jumlahLunas = Angsuran::where('id_pinjaman', $item->id)
-                ->where('status_bayar', 'lunas')
-                ->whereYear('tanggal_jatuh_tempo', $tahun)
+                ->where('status_bayar','lunas')
+                ->whereBetween('tanggal_jatuh_tempo',[$periodeAwal, $periodeAkhir])
                 ->count();
 
-            $total += $bungaPerAngsuran * $jumlahLunas;
+            $total +=
+                $bungaPerAngsuran *
+                $jumlahLunas;
         }
 
         return round($total);
     }
 
-    public function totalJasaPinjamanAnggota($idAnggota, $tahun)
-    {
+    public function totalJasaPinjamanAnggota(
+    $idAnggota,
+    $periodeAwal,
+    $periodeAkhir
+    ) {
         $total = 0;
 
-        $pinjaman = Pinjaman::with('pengajuan')->whereYear('pinjaman.tanggal_disetujui', $tahun)
+        $pinjaman = Pinjaman::with('pengajuan')
             ->join(
                 'pengajuan_pinjaman',
                 'pengajuan_pinjaman.id',
                 '=',
                 'pinjaman.id_pengajuan'
             )
-            ->where('pengajuan_pinjaman.id_anggota', $idAnggota)
+            ->where(
+                'pengajuan_pinjaman.id_anggota',
+                $idAnggota
+            )
+            ->whereBetween(
+                'pinjaman.tanggal_disetujui',
+                [$periodeAwal, $periodeAkhir]
+            )
             ->select('pinjaman.*')
             ->get();
 
         foreach ($pinjaman as $item) {
-
             $bungaPerAngsuran =
                 $item->jumlah_bunga /
                 $item->pengajuan->lama_angsuran;
 
-            $jumlahLunas = Angsuran::where('id_pinjaman', $item->id)
-                ->where('status_bayar', 'lunas')
-                ->whereYear('tanggal_jatuh_tempo', $tahun)
+            $jumlahLunas = Angsuran::where(
+                    'id_pinjaman',
+                    $item->id
+                )
+                ->where(
+                    'status_bayar',
+                    'lunas'
+                )
+                ->whereBetween(
+                    'tanggal_jatuh_tempo',
+                    [$periodeAwal, $periodeAkhir]
+                )
                 ->count();
-
-            $total += $bungaPerAngsuran * $jumlahLunas;
+            $total +=
+                $bungaPerAngsuran *
+                $jumlahLunas;
         }
 
         return round($total);
     }
 
-    public function simpanShu(
-        $idAnggota,
-        $tahun,
-        $shuSimpanan,
-        $shuPinjaman
-    ) {
+   public function simpanShu(
+    $idAnggota,
+    $periodeAwal,
+    $periodeAkhir,
+    $shuSimpanan,
+    $shuPinjaman,
+    $jasaPengurus,
+    $shuAnggota,
+    $pajak
+    )
+    {
         return ShuAnggota::updateOrCreate(
 
             [
-                'id_anggota' => $idAnggota,
-                'tahun'      => $tahun,
+                'id_anggota'   => $idAnggota,
+                'periode_awal' => $periodeAwal,
+                'periode_akhir'=> $periodeAkhir,
             ],
 
             [
-                'shu_simpanan' => $shuSimpanan,
-                'shu_pinjaman' => $shuPinjaman,
-                'shu_anggota'  => $shuSimpanan + $shuPinjaman,
-                'tanggal'      => now(),
+                'shu_simpanan'  => round($shuSimpanan),
+
+                'shu_pinjaman'  => round($shuPinjaman),
+
+                'jasa_pengurus' => round($jasaPengurus),
+
+                'shu_anggota'   => round($shuAnggota),
+
+                'pajak'         => round($pajak),
             ]
 
         );
+        
     }
 }

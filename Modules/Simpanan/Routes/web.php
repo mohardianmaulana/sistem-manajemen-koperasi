@@ -30,15 +30,18 @@ Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:admin'])->group(func
 });
 
 Route::prefix('simpanan-sukarela')->middleware(['auth'])->group(function () {
-    Route::get('/', 'SimpananSukarelaController@index')
-        ->name('simpanan-sukarela.index');
-    Route::middleware(['role:anggota'])->group(function () {
-        Route::get('/create', 'SimpananSukarelaController@create')->name('simpanan-sukarela.create');
-        Route::post('/store', 'SimpananSukarelaController@store')->name('simpanan-sukarela.store');
+        Route::get('/','SimpananSukarelaController@index')->name('simpanan-sukarela.index');
+        Route::middleware(['role:anggota'])->group(function () {
+            Route::get('/create','SimpananSukarelaController@create')->name('simpanan-sukarela.create');
+            Route::post('/store','SimpananSukarelaController@store')->name('simpanan-sukarela.store');
+        });
+        Route::middleware(['role:admin'])->group(function () {
+            Route::get('/export-auto-debit','SimpananSukarelaController@exportAutoDebit')->name('simpanan-sukarela.export-auto-debit');
+
+        });
+        Route::get('/{id}','SimpananSukarelaController@show')->name('simpanan-sukarela.show');
+        Route::put('/{id}','SimpananSukarelaController@update')->name('simpanan-sukarela.update');
     });
-    Route::get('/{id}', 'SimpananSukarelaController@show')->name('simpanan-sukarela.show');
-    Route::put('/{id}', 'SimpananSukarelaController@update')->name('simpanan-sukarela.update');
-});
 
 Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
     Route::get('/', 'SimpananWajibController@index')
@@ -46,6 +49,7 @@ Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/create', 'SimpananWajibController@create')->name('simpanan-wajib.create');
         Route::post('/store', 'SimpananWajibController@store')->name('simpanan-wajib.store');
+        Route::get('/export-auto-debit','SimpananWajibController@exportAutoDebit')->name('simpanan-wajib.export-auto-debit');
     });
     Route::get('/{id}', 'SimpananWajibController@show')->name('simpanan-wajib.show');
     Route::put('/{id}', 'SimpananWajibController@update')->name('simpanan-wajib.update');

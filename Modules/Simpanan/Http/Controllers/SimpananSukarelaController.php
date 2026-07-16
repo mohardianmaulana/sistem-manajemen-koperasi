@@ -7,6 +7,7 @@ use Modules\Simpanan\Http\Requests\MasterSimpananSukarelaRequest;
 use Modules\Simpanan\Services\SimpananSukarelaService;
 use Illuminate\Routing\Controller;
 use Modules\Simpanan\Services\MasterJenisSimpananService;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SimpananSukarelaController extends Controller
 {
@@ -126,5 +127,36 @@ class SimpananSukarelaController extends Controller
              ->with('error', $e->getMessage());
 
         }
+    }
+
+    public function exportAutoDebit()
+    {
+        $data = $this->service->exportAutoDebit();
+
+        if ($data->isEmpty()) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Belum terdapat data auto debit.'
+                );
+
+        }
+
+        $pdf = Pdf::loadView(
+            'simpanan::pdf',
+            [
+
+                'data' => $data,
+
+                'total' => $this->service->totalAutoDebit(),
+
+            ]
+        );
+
+        return $pdf->download(
+            'Daftar Auto Debit Simpanan Sukarela.pdf'
+        );
     }
 }

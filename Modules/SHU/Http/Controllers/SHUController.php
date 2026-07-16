@@ -32,15 +32,7 @@ class SHUController extends Controller
      */
     public function create()
     {
-        $tahun = date('Y');
-
-        $data = $this->shuKoperasiService->getDataCreate($tahun);
-
-        return view('shu::shukoperasi.create',array_merge(
-                ['tahun' => $tahun],
-                $data
-            )
-        );
+         return view('shu::shukoperasi.create');
     }
 
     /**
@@ -49,15 +41,27 @@ class SHUController extends Controller
      * @return Renderable
      */
     public function store(ShuKoperasiRequest $request)
-    {
-        $this->shuKoperasiService->store(
-        $request->validated()
-    );
+{
+    try {
 
-    return redirect()
-        ->route('shu-koperasi.index')
-        ->with('success', 'Data SHU berhasil ditambahkan.');
+        $this->shuKoperasiService->store(
+            $request->validated()
+        );
+
+        return redirect()
+            ->route('shu-koperasi.index')
+            ->with('success', 'Data SHU berhasil ditambahkan.');
+
+    } catch (\Exception $e) {
+
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors([
+                'persentase' => $e->getMessage(),
+            ]);
     }
+}
 
     /**
      * Show the specified resource.
@@ -86,8 +90,25 @@ class SHUController extends Controller
      */
     public function update(ShuKoperasiRequest $request, $id)
     {
-        $this->shuKoperasiService->update($id,$request->validated());
+        try {
 
-        return redirect()->route('shu-koperasi.index')->with('success', 'Data SHU Koperasi berhasil diperbarui.');
+            $this->shuKoperasiService->update(
+                $id,
+                $request->validated()
+            );
+
+            return redirect()
+                ->route('shu-koperasi.index')
+                ->with('success', 'Data SHU Koperasi berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors([
+                    'persentase' => $e->getMessage(),
+                ]);
+        }
     }
 }

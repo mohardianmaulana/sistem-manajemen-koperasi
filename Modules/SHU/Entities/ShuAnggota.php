@@ -14,9 +14,11 @@ class ShuAnggota extends Model
     protected $fillable = [
         'shu_simpanan',
         'shu_pinjaman',
+        'jasa_pengurus',
         'shu_anggota',
-        'tanggal',
-        'tahun',
+        'pajak',
+        'periode_awal',
+        'periode_akhir',
         'id_anggota',
     ];
     

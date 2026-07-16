@@ -25,26 +25,53 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
         return $this->repository->getAll();
     }
 
-    public function hitungSemuaAnggota($tahun)
-    {
+    public function hitungSemuaAnggota(
+    $periodeAwal,
+    $periodeAkhir,
+    $persenJasaPengurus,
+    $persenPajak
+    ) {
         DB::beginTransaction();
 
         try {
 
-            $shu = $this->repository->getShuByTahun($tahun);
+            /**
+             * Mengambil data SHU koperasi
+             */
+            $shu = $this->repository->getShuKoperasi(
+                $periodeAwal,
+                $periodeAkhir
+            );
 
             if (!$shu) {
+
                 throw new Exception(
-                    "Data SHU tahun {$tahun} tidak ditemukan."
+                    "Data SHU koperasi pada periode tersebut belum tersedia."
                 );
+
             }
 
+            /**
+             * Mengambil total simpanan seluruh anggota
+             */
             $totalSimpanan = $this->repository
-                ->totalSimpananSemua($tahun);
+                ->totalSimpananSemua(
+                    $periodeAwal,
+                    $periodeAkhir
+                );
 
+            /**
+             * Mengambil total jasa pinjaman seluruh anggota
+             */
             $totalJasaPinjaman = $this->repository
-                ->totalJasaPinjamanSemua($tahun);
+                ->totalJasaPinjamanSemua(
+                    $periodeAwal,
+                    $periodeAkhir
+                );
 
+            /**
+             * Validasi transaksi
+             */
             if ($totalSimpanan <= 0 && $totalJasaPinjaman <= 0) {
 
                 throw new Exception(
@@ -53,41 +80,125 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
             }
 
+            /**
+             * Mengambil seluruh anggota
+             */
             $users = $this->repository->getUsers();
 
             foreach ($users as $user) {
 
+                /**
+                 * Total simpanan anggota
+                 */
                 $simpananAnggota = $this->repository
                     ->totalSimpananAnggota(
                         $user->id,
-                        $tahun
+                        $periodeAwal,
+                        $periodeAkhir
                     );
 
+                /**
+                 * Total jasa pinjaman anggota
+                 */
                 $jasaPinjamanAnggota = $this->repository
                     ->totalJasaPinjamanAnggota(
                         $user->id,
-                        $tahun
+                        $periodeAwal,
+                        $periodeAkhir
                     );
 
+                /**
+                 * Menghitung SHU Simpanan
+                 */
                 $shuSimpanan = $this->hitungShuSimpanan(
                     $simpananAnggota,
                     $totalSimpanan,
                     $shu->jasa_simpanan
                 );
 
+                /**
+                 * Menghitung SHU Pinjaman
+                 */
                 $shuPinjaman = $this->hitungShuPinjaman(
                     $jasaPinjamanAnggota,
                     $totalJasaPinjaman,
                     $shu->jasa_pinjaman
                 );
 
-                $this->repository->simpanShu(
-                    $user->id,
-                    $tahun,
-                    $shuSimpanan,
-                    $shuPinjaman
+                /**
+                 * Menghitung Jasa Pengurus
+                 */
+                $jasaPengurus = $this->hitungJasaPengurus(
+
+                    $shu->jasa_pengurus,
+
+                    $persenJasaPengurus,
+
+                    $users->count()
+
                 );
+
+                /**
+                 * Menghitung Total SHU sebelum pajak
+                 */
+                $totalShu = $this->hitungTotalShu(
+
+                    $shuSimpanan,
+
+                    $shuPinjaman,
+
+                    $jasaPengurus
+
+                );
+
+                /**
+                 * Menghitung Pajak
+                 */
+                $pajak = $this->hitungPajak(
+
+                    $totalShu,
+
+                    $persenPajak
+
+                );
+
+                /**
+                 * Menghitung SHU Anggota
+                 */
+                $shuAnggota = $this->hitungShuAnggota(
+
+                    $totalShu,
+
+                    $pajak
+
+                );
+
+
+                /**
+                 * Menyimpan hasil perhitungan SHU
+                 */
+                $this->repository->simpanShu(
+
+                    $user->id,
+
+                    $periodeAwal,
+
+                    $periodeAkhir,
+
+                    $shuSimpanan,
+
+                    $shuPinjaman,
+
+                    $jasaPengurus,
+
+                    $shuAnggota,
+
+                    $pajak
+
+                );
+
             }
+
 
             DB::commit();
 
@@ -96,6 +207,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
             DB::rollBack();
 
             throw $e;
+
         }
     }
 
@@ -135,4 +247,62 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
         );
     }
 
+    private function hitungPajak(
+    $totalShu,
+    $persenPajak
+    )
+    {
+        return round(
+
+            $totalShu *
+            $persenPajak /
+            100
+
+        );
+    }
+
+    private function hitungTotalShu(
+    $shuSimpanan,
+    $shuPinjaman,
+    $jasaPengurus
+    ) {
+        return round(
+
+            $shuSimpanan +
+            $shuPinjaman +
+            $jasaPengurus
+
+        );
+    }
+    private function hitungShuAnggota(
+    $totalShu,
+    $pajak
+    ) {
+        return round(
+
+            $totalShu -
+            $pajak
+
+        );
+    }
+
+    private function hitungJasaPengurus(
+    $nominalJasaPengurus,
+    $persenJasaPengurus,
+    $jumlahAnggota
+    ) {
+        if ($jumlahAnggota <= 0) {
+            return 0;
+        }
+
+        $nominalDibagikan = round(
+            $nominalJasaPengurus *
+            $persenJasaPengurus / 100
+        );
+
+        return round(
+            $nominalDibagikan /
+            $jumlahAnggota
+        );
+    }
 }

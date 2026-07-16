@@ -21,7 +21,8 @@ class CreateSisaHasilUsahaTable extends Migration
             $table->bigInteger('jasa_pengurus')->unsigned();
             $table->bigInteger('dana_sosial')->unsigned();
             $table->bigInteger('total_shu')->unsigned();
-            $table->year('tahun')->unique();
+            $table->date('periode_awal');
+            $table->date('periode_akhir');
             $table->timestamps();
         });
     }

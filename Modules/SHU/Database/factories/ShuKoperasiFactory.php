@@ -20,14 +20,15 @@ class ShuKoperasiFactory extends Factory
     public function definition()
     {
         return [
-            'tahun'          => 2026,
-            'jasa_simpanan'  => 1000000,
-            'jasa_pinjaman'  => 500000,
-            'dana_cadangan'  => 200000,
-            'jasa_pengurus'  => 150000,
-            'dana_sosial'    => 100000,
-            'total_shu'      => 1950000,
-        ];
+                'periode_awal' => '2026-01-01',
+                'periode_akhir' => '2026-12-31',
+                'total_shu' => 1000000,
+                'jasa_simpanan' => 400000,
+                'jasa_pinjaman' => 200000,
+                'dana_cadangan' => 200000,
+                'jasa_pengurus' => 100000,
+                'dana_sosial' => 100000,
+            ];
     }
 }
 

@@ -23,221 +23,538 @@ class ShuAnggotaTest extends TestCase
      *
      * @return void
      */
-        /** @test */
-       /** @test */
-        public function test_sistem_dapat_menyimpan_shu_anggota()
-        {
-            /**
-             * Membuat role admin
-             */
-            $role = Role::firstOrCreate([
-                'name'       => 'admin',
-                'guard_name' => 'web',
+      public function test_sistem_dapat_menyimpan_shu_anggota()
+    {
+        /**
+         * Membuat role admin
+         */
+        $adminRole = Role::firstOrCreate([
+            'name'       => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Membuat role anggota
+         */
+        $anggotaRole = Role::firstOrCreate([
+            'name'       => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Login sebagai admin
+         */
+        $user = User::factory()->create();
+
+        /**
+         * User merupakan admin sekaligus anggota koperasi
+         */
+        $user->assignRole([
+            'admin',
+            'anggota',
+        ]);
+
+        $this->actingAs($user);
+
+        /**
+         * Data SHU Koperasi
+         */
+        ShuKoperasi::factory()->create([
+            'periode_awal'  => '2026-01-01',
+            'periode_akhir' => '2026-12-31',
+            'jasa_simpanan' => 1000000,
+            'jasa_pinjaman' => 500000,
+            'jasa_pengurus' => 150000,
+            'dana_cadangan' => 200000,
+            'dana_sosial'   => 100000,
+            'total_shu'     => 1950000,
+        ]);
+
+        /**
+         * Simpanan Wajib
+         */
+        SimpananWajib::factory()->create([
+            'id_anggota' => $user->id,
+            'nilai'      => 100000,
+            'periode'    => '2026-01-01',
+        ]);
+
+        /**
+         * Simpanan Sukarela
+         */
+        SimpananSukarela::factory()->create([
+            'id_anggota' => $user->id,
+            'nilai'      => 100000,
+            'periode'    => '2026-01-01',
+        ]);
+
+        /**
+         * Skema Pinjaman
+         */
+        $skema = SkemaPinjaman::factory()->create();
+
+        /**
+         * Pengajuan Pinjaman
+         */
+        $pengajuan = PengajuanPinjaman::factory()->create([
+            'id_anggota'        => $user->id,
+            'id_skema_pinjaman' => $skema->id,
+            'lama_angsuran'     => 10,
+        ]);
+
+        /**
+         * Pinjaman
+         */
+        $pinjaman = Pinjaman::factory()->create([
+            'id_pengajuan'      => $pengajuan->id,
+            'jumlah_disetujui'  => 5000000,
+            'jumlah_bunga'      => 500000,
+            'total_pinjaman'    => 5500000,
+            'tanggal_disetujui' => '2026-01-15',
+            'status_pinjaman'   => 'aktif',
+        ]);
+
+        /**
+         * Lima angsuran telah dibayar
+         */
+        Angsuran::factory()->count(5)->create([
+            'id_pinjaman'         => $pinjaman->id,
+            'status_bayar'        => 'lunas',
+            'tanggal_jatuh_tempo' => '2026-02-01',
+        ]);
+
+        /**
+         * Menghitung SHU anggota
+         */
+        $response = $this->post(route('shu.store'), [
+
+            'periode_awal'          => '2026-01-01',
+
+            'periode_akhir'         => '2026-12-31',
+
+            'persen_jasa_pengurus'  => 20,
+
+            'persen_pajak'          => 10,
+
+        ]);
+
+        /**
+         * Memastikan proses berhasil
+         */
+        $response->assertRedirect(route('shu.index'));
+
+        /**
+         * Memastikan data SHU anggota berhasil disimpan
+         */
+        $this->assertDatabaseHas('shu_anggota', [
+
+            'id_anggota'   => $user->id,
+
+            'periode_awal' => '2026-01-01',
+
+            'periode_akhir'=> '2026-12-31',
+
+        ]);
+    }
+
+    public function test_gagal_menghitung_shu_jika_shu_koperasi_tidak_ditemukan()
+    {
+        /**
+         * Membuat role admin
+         */
+        Role::firstOrCreate([
+            'name'       => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Membuat role anggota
+         */
+        Role::firstOrCreate([
+            'name'       => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Login sebagai admin sekaligus anggota
+         */
+        $admin = User::factory()->create();
+
+        $admin->assignRole([
+            'admin',
+            'anggota',
+        ]);
+
+        $this->actingAs($admin);
+
+        /**
+         * Melakukan perhitungan SHU tanpa data SHU koperasi
+         */
+        $response = $this->from(route('shu.index'))
+            ->post(route('shu.store'), [
+
+                'periode_awal' => '2026-01-01',
+
+                'periode_akhir' => '2026-12-31',
+
+                'persen_jasa_pengurus' => 20,
+
+                'persen_pajak' => 10,
+
             ]);
 
-            /**
-             * Login sebagai admin
-             */
-            $user = User::factory()->create();
+        /**
+         * Harus kembali ke halaman sebelumnya
+         */
+        $response->assertRedirect(route('shu.index'));
 
-            $user->assignRole($role);
+        /**
+         * Memastikan pesan error muncul
+         */
+        $response->assertSessionHasErrors([
+            'error' => 'Data SHU koperasi pada periode tersebut belum tersedia.'
+        ]);
 
-            $this->actingAs($user);
+        /**
+         * Memastikan tidak ada data SHU anggota yang tersimpan
+         */
+        $this->assertDatabaseCount('shu_anggota', 0);
+    }
 
-            /**
-             * SHU Koperasi
-             */
-            ShuKoperasi::factory()->create([
-                'tahun'           => 2026,
-                'jasa_simpanan'   => 1000000,
-                'jasa_pinjaman'   => 500000,
-                'dana_cadangan'   => 200000,
-                'jasa_pengurus'   => 150000,
-                'dana_sosial'     => 100000,
-                'total_shu'       => 1950000,
+    public function test_gagal_menghitung_shu_jika_belum_ada_transaksi()
+    {
+        /**
+         * Membuat role admin
+         */
+        Role::firstOrCreate([
+            'name'       => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Membuat role anggota
+         */
+        Role::firstOrCreate([
+            'name'       => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Login sebagai admin sekaligus anggota
+         */
+        $admin = User::factory()->create();
+
+        $admin->assignRole([
+            'admin',
+            'anggota',
+        ]);
+
+        $this->actingAs($admin);
+
+        /**
+         * Data SHU Koperasi
+         */
+        ShuKoperasi::factory()->create([
+            'periode_awal'  => '2026-01-01',
+            'periode_akhir' => '2026-12-31',
+            'jasa_simpanan' => 1000000,
+            'jasa_pinjaman' => 500000,
+            'jasa_pengurus' => 150000,
+            'dana_cadangan' => 200000,
+            'dana_sosial'   => 100000,
+            'total_shu'     => 1950000,
+        ]);
+
+        /**
+         * Tidak membuat transaksi simpanan maupun pinjaman
+         */
+
+        /**
+         * Menjalankan proses perhitungan SHU
+         */
+        $response = $this->from(route('shu.index'))
+            ->post(route('shu.store'), [
+
+                'periode_awal' => '2026-01-01',
+
+                'periode_akhir' => '2026-12-31',
+
+                'persen_jasa_pengurus' => 20,
+
+                'persen_pajak' => 10,
+
             ]);
 
-            /**
-             * Simpanan Wajib
-             */
-            SimpananWajib::factory()->create([
-                'id_anggota' => $user->id,
-                'nilai'      => 100000,
-                'periode'    => '2026-01-01',
-            ]);
+        /**
+         * Harus kembali ke halaman sebelumnya
+         */
+        $response->assertRedirect(route('shu.index'));
 
-            /**
-             * Simpanan Sukarela
-             */
-            SimpananSukarela::factory()->create([
-                'id_anggota' => $user->id,
-                'nilai'      => 100000,
-                'periode'    => '2026-01-01',
-            ]);
+        /**
+         * Memastikan pesan error muncul
+         */
+        $response->assertSessionHasErrors([
+            'error' => 'Perhitungan SHU tidak dapat dilakukan karena belum terdapat transaksi.'
+        ]);
 
-            /**
-             * Skema Pinjaman
-             */
-            $skema = SkemaPinjaman::factory()->create();
+        /**
+         * Memastikan data SHU anggota tidak tersimpan
+         */
+        $this->assertDatabaseCount('shu_anggota', 0);
+    }
 
-            /**
-             * Pengajuan Pinjaman
-             */
-            $pengajuan = PengajuanPinjaman::factory()->create([
-                'id_anggota'        => $user->id,
-                'id_skema_pinjaman' => $skema->id,
-                'lama_angsuran'     => 10,
-            ]);
+    public function test_gagal_menghitung_shu_jika_periode_awal_kosong()
+    {
+        /**
+         * Membuat role admin
+         */
+        Role::firstOrCreate([
+            'name'       => 'admin',
+            'guard_name' => 'web',
+        ]);
 
-            /**
-             * Pinjaman
-             */
-            $pinjaman = Pinjaman::factory()->create([
-                'id_pengajuan'      => $pengajuan->id,
-                'jumlah_disetujui'  => 5000000,
-                'jumlah_bunga'      => 500000,
-                'total_pinjaman'    => 5500000,
-                'tanggal_disetujui' => '2026-01-15',
-                'status_pinjaman'   => 'aktif',
-            ]);
+        /**
+         * Membuat role anggota
+         */
+        Role::firstOrCreate([
+            'name'       => 'anggota',
+            'guard_name' => 'web',
+        ]);
 
-            /**
-             * Lima angsuran telah dibayar
-             */
-            Angsuran::factory()->count(5)->create([
-                'id_pinjaman'         => $pinjaman->id,
-                'status_bayar'        => 'lunas',
-                'tanggal_jatuh_tempo' => '2026-02-01',
-            ]);
+        /**
+         * Login sebagai admin sekaligus anggota
+         */
+        $user = User::factory()->create();
 
-            /**
-             * Hitung SHU
-             */
-            $response = $this->post(route('shu.store'), [
-                'tahun' => 2026,
-            ]);
+        $user->assignRole([
+            'admin',
+            'anggota',
+        ]);
 
-            /**
-             * Harus redirect
-             */
-            $response->assertRedirect();
+        $this->actingAs($user);
 
-            /**
-             * SHU Anggota berhasil tersimpan
-             */
-            $this->assertDatabaseHas('shu_anggota', [
-                'id_anggota' => $user->id,
-                'tahun'      => 2026,
-            ]);
-        }
-        
-       public function test_gagal_menghitung_shu_jika_shu_koperasi_tidak_ditemukan()
-        {
-            $role = Role::firstOrCreate([
-                'name' => 'admin',
-                'guard_name' => 'web',
-            ]);
+        /**
+         * Mengirim request tanpa periode awal
+         */
+        $response = $this->post(route('shu.store'), [
 
-            $admin = User::factory()->create();
+            'periode_awal' => '',
 
-            $admin->assignRole($role);
+            'periode_akhir' => '2026-12-31',
 
-            $this->actingAs($admin);
+            'persen_jasa_pengurus' => 20,
 
-            $response = $this->from(route('shu.index'))
-                ->post(route('shu.store'), [
-                    'tahun' => 2026,
-                ]);
+            'persen_pajak' => 10,
 
-            $response->assertRedirect(route('shu.index'));
+        ]);
 
-            $response->assertSessionHas(
-                'error',
-                'Data SHU tahun 2026 tidak ditemukan.'
-            );
+        /**
+         * Memastikan validasi gagal
+         */
+        $response->assertSessionHasErrors('periode_awal');
+    }
 
-            $this->assertDatabaseCount(
-                'shu_anggota',
-                0
-            );
-        }
+    public function test_gagal_menghitung_shu_jika_periode_akhir_lebih_kecil()
+    {
+        /**
+         * Membuat role admin
+         */
+        Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
 
-        public function test_gagal_menghitung_shu_jika_belum_ada_transaksi()
-        {
-            $role = Role::firstOrCreate([
-                'name' => 'admin',
-                'guard_name' => 'web',
-            ]);
+        /**
+         * Membuat role anggota
+         */
+        Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
 
-            $admin = User::factory()->create();
-            $admin->assignRole($role);
+        /**
+         * Login sebagai admin sekaligus anggota
+         */
+        $user = User::factory()->create();
 
-            $this->actingAs($admin);
+        $user->assignRole([
+            'admin',
+            'anggota',
+        ]);
 
-            ShuKoperasi::factory()->create([
-                'tahun'          => 2026,
-                'jasa_simpanan'  => 1000000,
-                'jasa_pinjaman'  => 500000,
-                'dana_cadangan'  => 200000,
-                'jasa_pengurus'  => 150000,
-                'dana_sosial'    => 100000,
-                'total_shu'      => 1950000,
-            ]);
+        $this->actingAs($user);
 
-            $response = $this->from(route('shu.index'))
-                ->post(route('shu.store'), [
-                    'tahun' => 2026,
-                ]);
+        /**
+         * Mengirim periode akhir lebih kecil dari periode awal
+         */
+        $response = $this->post(route('shu.store'), [
 
-            $response->assertRedirect(route('shu.index'));
+            'periode_awal' => '2026-12-31',
 
-            $response->assertSessionHas(
-                'error',
-                'Perhitungan SHU tidak dapat dilakukan karena belum terdapat transaksi.'
-            );
+            'periode_akhir' => '2026-01-01',
 
-            $this->assertDatabaseCount('shu_anggota', 0);
-        }
+            'persen_jasa_pengurus' => 20,
 
-        public function test_gagal_menghitung_shu_jika_tahun_kosong()
-        {
-            $role = Role::firstOrCreate([
-                'name'=>'admin',
-                'guard_name'=>'web',
-            ]);
+            'persen_pajak' => 10,
 
-            $user = User::factory()->create();
+        ]);
 
-            $user->assignRole($role);
+        /**
+         * Memastikan validasi gagal
+         */
+        $response->assertSessionHasErrors('periode_akhir');
+    }
 
-            $this->actingAs($user);
+    public function test_gagal_menghitung_shu_jika_periode_akhir_kosong()
+    {
+        /**
+         * Membuat role admin
+         */
+        Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
 
-            $response = $this->post(route('shu.store'),[
-                'tahun'=>'',
-            ]);
+        /**
+         * Membuat role anggota
+         */
+        Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
 
-            $response->assertSessionHasErrors('tahun');
-        }
+        /**
+         * Login sebagai admin sekaligus anggota
+         */
+        $user = User::factory()->create();
 
-        public function test_anggota_tidak_dapat_menghitung_shu()
-        {
-            $role = Role::firstOrCreate([
-                'name'=>'anggota',
-                'guard_name'=>'web',
-            ]);
+        $user->assignRole([
+            'admin',
+            'anggota',
+        ]);
 
-            $user = User::factory()->create();
+        $this->actingAs($user);
 
-            $user->assignRole($role);
+        /**
+         * Mengirim request tanpa periode akhir
+         */
+        $response = $this->post(route('shu.store'), [
 
-            $this->actingAs($user);
+            'periode_awal' => '2026-01-01',
 
-            $response = $this->post(route('shu.store'),[
-                'tahun'=>2026,
-            ]);
+            'periode_akhir' => '',
 
-            $response->assertForbidden();
-        }
+            'persen_jasa_pengurus' => 20,
 
-        
+            'persen_pajak' => 10,
+
+        ]);
+
+        /**
+         * Validasi gagal
+         */
+        $response->assertSessionHasErrors('periode_akhir');
+    }
+
+    public function test_gagal_menghitung_shu_jika_persen_pajak_kosong()
+    {
+        /**
+         * Membuat role admin
+         */
+        Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Membuat role anggota
+         */
+        Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Login sebagai admin sekaligus anggota
+         */
+        $user = User::factory()->create();
+
+        $user->assignRole([
+            'admin',
+            'anggota',
+        ]);
+
+        $this->actingAs($user);
+
+        /**
+         * Mengirim request tanpa persen pajak
+         */
+        $response = $this->post(route('shu.store'), [
+
+            'periode_awal' => '2026-01-01',
+
+            'periode_akhir' => '2026-12-31',
+
+            'persen_jasa_pengurus' => 20,
+
+            'persen_pajak' => '',
+
+        ]);
+
+        /**
+         * Validasi gagal
+         */
+        $response->assertSessionHasErrors('persen_pajak');
+    }
+
+    public function test_gagal_menghitung_shu_jika_persen_jasa_pengurus_kosong()
+    {
+        /**
+         * Membuat role admin
+         */
+        Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Membuat role anggota
+         */
+        Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        /**
+         * Login sebagai admin sekaligus anggota
+         */
+        $user = User::factory()->create();
+
+        $user->assignRole([
+            'admin',
+            'anggota',
+        ]);
+
+        $this->actingAs($user);
+
+        /**
+         * Mengirim request tanpa persen jasa pengurus
+         */
+        $response = $this->post(route('shu.store'), [
+
+            'periode_awal' => '2026-01-01',
+
+            'periode_akhir' => '2026-12-31',
+
+            'persen_jasa_pengurus' => '',
+
+            'persen_pajak' => 10,
+
+        ]);
+
+        /**
+         * Validasi gagal
+         */
+        $response->assertSessionHasErrors('persen_jasa_pengurus');
+    }
 }

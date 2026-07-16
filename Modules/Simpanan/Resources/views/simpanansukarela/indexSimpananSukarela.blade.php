@@ -31,18 +31,35 @@
 
     <div class="card-header">
 
-         @role('anggota')
-            <a href="{{route('simpanan-sukarela.create') }}"
-               class="btn btn-primary"
-               style="border-radius:10px">
+    {{-- Tombol tambah simpanan untuk anggota --}}
+    @role('anggota')
 
-                <i class="fas fa-plus"></i>
-                Tambah Simpanan
+        <a href="{{ route('simpanan-sukarela.create') }}"
+           class="btn btn-primary"
+           style="border-radius:10px">
 
-            </a>
-        @endrole
+            <i class="fas fa-plus"></i>
+            Tambah Simpanan
 
-    </div>
+        </a>
+
+    @endrole
+
+    {{-- Tombol export auto debit untuk admin --}}
+    @role('admin')
+
+        <a href="{{ route('simpanan-sukarela.export-auto-debit') }}"
+           class="btn btn-success"
+           style="border-radius:10px">
+
+            <i class="fas fa-file-excel"></i>
+            Export Auto Debit
+
+        </a>
+
+    @endrole
+
+</div>
 
     <div class="card-body">
 

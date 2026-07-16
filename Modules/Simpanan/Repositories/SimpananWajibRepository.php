@@ -76,4 +76,21 @@ class SimpananWajibRepository
                 ->whereDate('periode', $periode)
                 ->exists();
         }
+
+         public function exportAutoDebit()
+    {
+        return MasterSimpananWajib::query()
+            ->join('users','users.id','=','master_simpanan_wajib.id_anggota')
+            ->where('master_simpanan_wajib.status','pending')
+            ->select('users.name','users.no_rek','master_simpanan_wajib.nilai')
+            ->orderBy('users.name')
+            ->get();
+    }
+
+    public function totalAutoDebit()
+    {
+        return MasterSimpananWajib::
+            where('status','pending')
+            ->sum('nilai');
+    }
 }

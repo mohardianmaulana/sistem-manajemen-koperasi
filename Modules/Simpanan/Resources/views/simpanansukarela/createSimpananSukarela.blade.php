@@ -63,7 +63,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
 
-                        <label>Periode *</label>
+                        <label>Berlaku Mulai *</label>
 
                         <input type="date"
                                name="periode"

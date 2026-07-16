@@ -25,27 +25,11 @@ class ShuKoperasiService
     /**
      * Menyimpan SHU koperasi.
      */
-    public function store(array $data)
+   public function store(array $data)
     {
-        $data['jasa_simpanan'] = $this->repository
-            ->totalJasaSimpanan($data['tahun']);
+        $this->validasiPersentase($data);
 
-        $data['jasa_pinjaman'] = $this->repository
-            ->totalJasaPinjaman($data['tahun']);
-
-        $data['total_shu'] = $this->hitungTotalShu(
-
-            $data['jasa_simpanan'],
-
-            $data['jasa_pinjaman'],
-
-            $data['dana_cadangan'],
-
-            $data['jasa_pengurus'],
-
-            $data['dana_sosial']
-
-        );
+        $this->hitungNominal($data);
 
         return $this->repository->store($data);
     }
@@ -65,77 +49,53 @@ class ShuKoperasiService
     {
         $shu = $this->repository->findById($id);
 
-        $dataUpdate = [
+        $this->validasiPersentase($data);
 
-            'dana_cadangan' => $data['dana_cadangan'],
-
-            'jasa_pengurus' => $data['jasa_pengurus'],
-
-            'dana_sosial' => $data['dana_sosial'],
-
-        ];
-
-        /**
-         * Hitung ulang otomatis.
-         */
-        $dataUpdate['jasa_simpanan'] = $this->repository
-            ->totalJasaSimpanan($shu->tahun);
-
-        $dataUpdate['jasa_pinjaman'] = $this->repository
-            ->totalJasaPinjaman($shu->tahun);
-
-        $dataUpdate['total_shu'] = $this->hitungTotalShu(
-
-            $dataUpdate['jasa_simpanan'],
-
-            $dataUpdate['jasa_pinjaman'],
-
-            $dataUpdate['dana_cadangan'],
-
-            $dataUpdate['jasa_pengurus'],
-
-            $dataUpdate['dana_sosial']
-
-        );
+        $this->hitungNominal($data);
 
         return $this->repository->update(
             $shu,
-            $dataUpdate
+            $data
         );
     }
 
-    /**
-     * Data yang dibutuhkan halaman create.
-     */
-    public function getDataCreate($tahun)
+    private function hitungNominal(array &$data)
     {
-        return [
+        $totalShu = $data['total_shu'];
 
-            'jasaSimpanan' => $this->repository
-                ->totalJasaSimpanan($tahun),
+        $data['jasa_simpanan'] =
+            round($totalShu * $data['persen_jasa_simpanan'] / 100);
 
-            'jasaPinjaman' => $this->repository
-                ->totalJasaPinjaman($tahun),
+        $data['jasa_pinjaman'] =
+            round($totalShu * $data['persen_jasa_pinjaman'] / 100);
 
-        ];
+        $data['dana_cadangan'] =
+            round($totalShu * $data['persen_dana_cadangan'] / 100);
+
+        $data['jasa_pengurus'] =
+            round($totalShu * $data['persen_jasa_pengurus'] / 100);
+
+        $data['dana_sosial'] =
+            round($totalShu * $data['persen_dana_sosial'] / 100);
     }
 
-    /**
-     * Business Logic
-     * Menghitung total SHU.
-     */
-    private function hitungTotalShu(
-        $jasaSimpanan,
-        $jasaPinjaman,
-        $danaCadangan,
-        $jasaPengurus,
-        $danaSosial
-    ) {
-        return
-            $jasaSimpanan +
-            $jasaPinjaman +
-            $danaCadangan +
-            $jasaPengurus +
-            $danaSosial;
+    private function validasiPersentase(array $data)
+    {
+        $totalPersen =
+            $data['persen_jasa_simpanan']
+            + $data['persen_jasa_pinjaman']
+            + $data['persen_dana_cadangan']
+            + $data['persen_jasa_pengurus']
+            + $data['persen_dana_sosial'];
+
+
+        if ($totalPersen != 100) {
+
+            throw new \Exception(
+                'Total persentase SHU harus tepat 100%.'
+            );
+
+        }
     }
+
 }

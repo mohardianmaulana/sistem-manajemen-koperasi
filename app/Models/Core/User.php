@@ -33,6 +33,7 @@ class User extends Authenticatable
         'username',
         'password',
 		'unit',
+        'no_rek',
 		'staff',
         'status',
 		'role_aktif',

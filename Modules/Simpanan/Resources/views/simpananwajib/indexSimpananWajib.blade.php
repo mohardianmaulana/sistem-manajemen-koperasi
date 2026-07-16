@@ -20,6 +20,14 @@
             Tambah Simpanan
 
         </a>
+        <a href="{{ route('simpanan-wajib.export-auto-debit') }}"
+           class="btn btn-success"
+           style="border-radius:10px">
+
+            <i class="fas fa-file-excel"></i>
+            Export Auto Debit
+
+        </a>
     @endrole
     </div>
 

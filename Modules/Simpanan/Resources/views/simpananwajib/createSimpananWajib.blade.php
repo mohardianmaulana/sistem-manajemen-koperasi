@@ -3,7 +3,7 @@
 @section('title', 'Penetapan Simpanan Wajib')
 
 @section('content_header')
-    <h1 class="m-0 text-dark">Tambah Simpanan Sukarela</h1>
+    <h1 class="m-0 text-dark">Tambah Simpanan Wajib</h1>
 @stop
 
 @section('content')
@@ -63,7 +63,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
 
-                        <label>Periode *</label>
+                        <label>Berlaku Mulai *</label>
 
                         <input type="date"
                                name="periode"

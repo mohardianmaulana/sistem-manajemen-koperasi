@@ -128,4 +128,14 @@ class SimpananSukarelaService
 
         return $master;
     }
+
+     public function exportAutoDebit()
+    {
+        return $this->repository->exportAutoDebit();
+    }
+
+    public function totalAutoDebit()
+    {
+        return $this->repository->totalAutoDebit();
+    }
 }

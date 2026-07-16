@@ -26,6 +26,11 @@ class ShuAnggotaController extends Controller
         return view('shu::shuanggota.index', compact('data'));
     }
 
+    public function create()
+    {
+        return view('shu::shuanggota.create');
+    }
+
     /**
      * Show the form for creating a new resource.
      * @return Renderable
@@ -37,13 +42,27 @@ class ShuAnggotaController extends Controller
      */
     public function store(ShuAnggotaRequest $request)
     {
-            try {
+           try {
+            $this->shuAnggotaService->hitungSemuaAnggota(
 
-                $this->shuAnggotaService->hitungSemuaAnggota($request->tahun);
-                return redirect()->back()->with('success','Perhitungan SHU berhasil dilakukan.');
-            } catch (\Exception $e) {
-                return redirect()->back()->withInput()->with('error',$e->getMessage());
-            }
+            $request->periode_awal,
+
+            $request->periode_akhir,
+
+            $request->persen_jasa_pengurus,
+
+            $request->persen_pajak
+
+        );
+
+            return redirect()->route('shu.index')
+                ->with('success','Perhitungan SHU anggota berhasil dilakukan.' );
+
+        } catch (\Exception $e) {
+
+            return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
+
+        }
     }
 
     /**

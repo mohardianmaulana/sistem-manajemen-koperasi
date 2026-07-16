@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\Simpanan\Http\Requests\MasterSimpananWajibRequest;
 use Modules\Simpanan\Services\SimpananWajibService;
 use Illuminate\Routing\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SimpananWajibController extends Controller
 {
@@ -71,4 +72,36 @@ class SimpananWajibController extends Controller
 
          return redirect()->route('simpanan-wajib.index')->with('success', 'Data simpanan berhasil diperbarui');
     }
+
+    public function exportAutoDebit()
+    {
+        $data = $this->service->exportAutoDebit();
+
+        if ($data->isEmpty()) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Belum terdapat data auto debit.'
+                );
+
+        }
+
+        $pdf = Pdf::loadView(
+            'simpanan::pdf',
+            [
+
+                'data' => $data,
+
+                'total' => $this->service->totalAutoDebit(),
+
+            ]
+        );
+
+        return $pdf->download(
+            'Daftar Auto Debit Simpanan Wajib.pdf'
+        );
+    }
+
 }

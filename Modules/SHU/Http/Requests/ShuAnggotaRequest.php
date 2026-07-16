@@ -14,15 +14,78 @@ class ShuAnggotaRequest extends FormRequest
     public function rules()
     {
         return [
-            'tahun' => 'required|digits:4'
+
+            'periode_awal' => [
+                'required',
+                'date',
+            ],
+
+            'periode_akhir' => [
+                'required',
+                'date',
+                'after_or_equal:periode_awal',
+            ],
+
+            'persen_jasa_pengurus' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:100',
+            ],
+
+            'persen_pajak' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:100',
+            ],
+
         ];
     }
 
     public function messages()
     {
         return [
-            'tahun.required' => 'Tahun wajib diisi.',
-            'tahun.digits'   => 'Tahun harus terdiri dari 4 digit.'
+
+            'periode_awal.required' =>
+                'Periode awal wajib diisi.',
+
+            'periode_awal.date' =>
+                'Periode awal tidak valid.',
+
+            'periode_akhir.required' =>
+                'Periode akhir wajib diisi.',
+
+            'periode_akhir.date' =>
+                'Periode akhir tidak valid.',
+
+            'periode_akhir.after_or_equal' =>
+                'Periode akhir harus lebih besar atau sama dengan periode awal.',
+
+            'persen_jasa_pengurus.required' =>
+                'Persentase jasa pengurus wajib diisi.',
+
+            'persen_jasa_pengurus.numeric' =>
+                'Persentase jasa pengurus harus berupa angka.',
+
+            'persen_jasa_pengurus.min' =>
+                'Persentase jasa pengurus minimal 0%.',
+
+            'persen_jasa_pengurus.max' =>
+                'Persentase jasa pengurus maksimal 100%.',
+
+            'persen_pajak.required' =>
+                'Persentase pajak wajib diisi.',
+
+            'persen_pajak.numeric' =>
+                'Persentase pajak harus berupa angka.',
+
+            'persen_pajak.min' =>
+                'Persentase pajak minimal 0%.',
+
+            'persen_pajak.max' =>
+                'Persentase pajak maksimal 100%.',
+
         ];
     }
 

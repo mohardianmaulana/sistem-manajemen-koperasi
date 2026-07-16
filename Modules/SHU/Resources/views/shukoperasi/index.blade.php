@@ -11,11 +11,31 @@
 <div class="row">
     <div class="col-12">
 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
+            @if(session('success'))
+
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+
+    @endif
+
+    @if($errors->any())
+
+        <div class="alert alert-danger">
+
+            <ul class="mb-0">
+
+                @foreach($errors->all() as $error)
+
+                    <li>{{ $error }}</li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+    @endif
 
         <div class="mb-3">
             <a href="{{ route('shu-koperasi.create') }}"
@@ -46,7 +66,8 @@
 
                             <tr>
                                 <th>No</th>
-                                <th>Tahun</th>
+                                <th>Periode Awal</th>
+                                <th>Periode Akhir</th>
                                 <th>Jasa Simpanan</th>
                                 <th>Jasa Pinjaman</th>
                                 <th>Dana Cadangan</th>
@@ -69,7 +90,11 @@
                                 </td>
 
                                 <td class="text-center">
-                                    {{ $item->tahun }}
+                                    {{ $item->periode_awal }}
+                                </td>
+
+                                 <td class="text-center">
+                                    {{ $item->periode_akhir }}
                                 </td>
 
                                 <td>

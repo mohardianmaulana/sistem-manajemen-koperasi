@@ -47,4 +47,21 @@ class SimpananSukarelaRepository
             'periode'    => $master->periode,
         ])->exists();
     }
+
+    public function exportAutoDebit()
+    {
+        return MasterSimpananSukarela::query()
+            ->join('users','users.id','=','master_simpanan_sukarela.id_anggota')
+            ->where('master_simpanan_sukarela.status','pending')
+            ->select('users.name','users.no_rek','master_simpanan_sukarela.nilai')
+            ->orderBy('users.name')
+            ->get();
+    }
+
+    public function totalAutoDebit()
+    {
+        return MasterSimpananSukarela::
+            where('status','pending')
+            ->sum('nilai');
+    }
 }
