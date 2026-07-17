@@ -2,5 +2,6 @@
     "Kepegawaian": true,
     "Pinjaman": true,
     "Simpanan": true,
-    "SHU": true
+    "SHU": true,
+    "User": true
 }

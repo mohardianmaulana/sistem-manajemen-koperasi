@@ -2,6 +2,8 @@
 
 namespace App\Models\Core;
 
+use App\Models\Core\Staff;
+use App\Models\Core\Unit;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -28,15 +30,21 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'username',
-        'password',
-		'unit',
-        'no_rek',
-		'staff',
-        'status',
-		'role_aktif',
+    'name',
+    'nip',
+    'email',
+    'username',
+    'password',
+    'unit',
+    'staff',
+    'status',
+    'role_aktif',
+    'no_rek',
+    'tempat_lahir',
+    'tanggal_lahir',
+    'alamat',
+    'no_hp',
+    'file_sk',
     ];
 
 	protected static function newFactory()
@@ -61,6 +69,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'tanggal_lahir' => 'date',
     ];
 	
 	public function token()
@@ -92,9 +101,10 @@ class User extends Authenticatable
 		return 'avatar.jpg';
 	}
 	
-	public function getUnit(){
-		return $this->hasOne(Unit::class,'id','unit');
-	}
+     public function getUnit()
+    {
+        return $this->belongsTo(Unit::class, 'unit', 'id');
+    }
 	
 	public function getStaff(){
 		return $this->hasOne(Staff::class,'id','staff');
