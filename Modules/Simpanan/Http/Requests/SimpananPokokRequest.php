@@ -44,7 +44,7 @@ class SimpananPokokRequest extends FormRequest
 
             'status' => 'sometimes|in:pending,selesai,tidak berhasil',
 
-            'bukti' => 'sometimes|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bukti' => 'sometimes|file|mimes:jpg,jpeg,png|max:2048',
 
         ];
     }
