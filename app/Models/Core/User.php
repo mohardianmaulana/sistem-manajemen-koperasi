@@ -30,6 +30,7 @@ class User extends Authenticatable
 		'staff',
         'status',
 		'role_aktif',
+		'tanda_tangan',
     ];
 
 	protected static function newFactory()
@@ -84,6 +85,11 @@ class User extends Authenticatable
 	public function avatar(){
 		return 'avatar.jpg';
 	}
+
+	public function units()
+    {
+        return $this->belongsTo(Unit::class, 'unit');
+    }
 	
 	public function getUnit(){
 		return $this->hasOne(Unit::class,'id','unit');

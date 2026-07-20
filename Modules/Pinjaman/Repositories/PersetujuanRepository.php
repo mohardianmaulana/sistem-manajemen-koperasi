@@ -14,16 +14,6 @@ class PersetujuanRepository {
         ->get();
     }
 
-    public function getPersetujuanAnggota($id)
-    {
-        return Persetujuan::whereHas(
-            'pengajuan', function ($query) use ($id) { 
-            // ambil hanya persetujuan yang dibuat oleh anggota dengan id_anggota = $id.
-            $query->where('id_anggota', $id);
-        })
-        ->get();
-    }
-
     public function getById($fields, $id)
     {
         return Persetujuan::select($fields)->findOrFail($id);

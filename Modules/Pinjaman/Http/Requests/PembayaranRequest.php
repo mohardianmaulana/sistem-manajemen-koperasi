@@ -15,11 +15,19 @@ class PembayaranRequest extends FormRequest
     {
         return [
             'id_angsuran' => 'required|exists:angsuran,id',
-            'jenis_pembayaran' => 'required|in:manual,auto-debet',
-            'tanggal_bayar' => 'required|date',
-            'jumlah_bayar' => 'required|numeric|min:0',
             'bukti_pembayaran' => 'nullable|file|mimes:jpg,png,jpeg|max:2048',
-            'status_pembayaran' => 'nullable|in:verifikasi,ditolak,sukses'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'id_angsuran.required' => 'Data angsuran wajib dipilih.',
+            'id_angsuran.exists' => 'Data angsuran tidak ditemukan.',
+
+            'bukti_pembayaran.file' => 'Dokumen jaminan harus berupa file.',
+            'bukti_pembayaran.mimes' => 'Dokumen jaminan harus berformat JPG, PNG, JPEG.',
+            'bukti_pembayaran.max' => 'Ukuran dokumen jaminan maksimal 2 MB.',
         ];
     }
 

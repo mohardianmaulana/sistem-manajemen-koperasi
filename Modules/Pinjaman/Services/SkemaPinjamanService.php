@@ -2,6 +2,8 @@
 
 namespace Modules\Pinjaman\Services;
 
+use Exception;
+use Illuminate\Support\Facades\DB;
 use Modules\Pinjaman\Repositories\SkemaPinjamanRepository;
 
 class SkemaPinjamanService {
@@ -18,6 +20,11 @@ class SkemaPinjamanService {
         return $this->skemaPinjamanRepository->getAll($fields);
     }
 
+    public function getAllAktif($fields)
+    {
+        return $this->skemaPinjamanRepository->getAllAktif($fields);
+    }
+
     public function getById($fields, $id)
     {
         return $this->skemaPinjamanRepository->getById($fields, $id);
@@ -25,16 +32,69 @@ class SkemaPinjamanService {
 
     public function create($data)
     {
-        return $this->skemaPinjamanRepository->create($data);
+        DB::beginTransaction();
+
+        try {
+            $jaminanIds = $data['jaminan_ids'] ?? [];
+            unset($data['jaminan_ids']);
+            $skemaPinjaman = $this->skemaPinjamanRepository->create($data);
+            if (
+                $skemaPinjaman->jaminan === 'ada'
+                && !empty($jaminanIds)
+            ) {
+                $this->skemaPinjamanRepository
+                ->syncJaminan($skemaPinjaman->id, $jaminanIds);
+            }
+            DB::commit();
+            return $skemaPinjaman;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     public function update($data, $id)
     {
+        DB::beginTransaction();
+
+        try {
+            $jaminanIds = $data['jaminan_ids'] ?? [];
+
+            unset($data['jaminan_ids']);
+
+            $skemaPinjaman = $this->skemaPinjamanRepository->update($data, $id);
+
+            if ($skemaPinjaman->jaminan === 'ada') {
+            $this->skemaPinjamanRepository
+                ->syncJaminan($skemaPinjaman->id, $jaminanIds);
+            } else {
+                $this->skemaPinjamanRepository
+                    ->syncJaminan($skemaPinjaman->id, []);
+            }
+
+            DB::commit();
+
+            return $skemaPinjaman;
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
+    }
+
+    public function nonaktif($id)
+    {
+        $data = [
+            'status' => 'nonaktif',
+        ];
         return $this->skemaPinjamanRepository->update($data, $id);
     }
 
-    public function delete($id)
+    public function aktif($id)
     {
-        $this->skemaPinjamanRepository->delete($id);
+        $data = [
+            'status' => 'aktif',
+        ];
+        return $this->skemaPinjamanRepository->update($data, $id);
     }
 }

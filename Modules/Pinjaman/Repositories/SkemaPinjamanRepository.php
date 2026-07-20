@@ -10,9 +10,21 @@ class SkemaPinjamanRepository {
         return SkemaPinjaman::select($fields)->get();
     }
 
+    public function getAllAktif($fields)
+    {
+        return SkemaPinjaman::where('status', 'aktif')->select($fields)->get();
+    }
+
     public function getById($fields, $id)
     {
-        return SkemaPinjaman::select($fields)->findOrFail($id);
+        return SkemaPinjaman::with('daftarJaminan')
+                ->select($fields)->findOrFail($id);
+    }
+
+    public function getDetail($id)
+    {
+        return SkemaPinjaman::with('daftarJaminan')
+            ->findOrFail($id);
     }
 
     public function create($data)
@@ -32,5 +44,19 @@ class SkemaPinjamanRepository {
     {
         $skemaPinjaman = SkemaPinjaman::findOrFail($id);
         $skemaPinjaman->delete();
+    }
+
+    public function syncJaminan($skemaPinjamanId, $jaminanIds)
+    {
+        $skemaPinjaman = SkemaPinjaman::findOrFail($skemaPinjamanId);
+
+        $skemaPinjaman->daftarJaminan()->sync($jaminanIds);
+    }
+
+    public function detachJaminan($id)
+    {
+        $skemaPinjaman = SkemaPinjaman::findOrFail($id);
+
+        $skemaPinjaman->daftarJaminan()->detach();
     }
 }

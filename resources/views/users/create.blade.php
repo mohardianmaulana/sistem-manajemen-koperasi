@@ -17,7 +17,7 @@
 				</div>
 
 				<div class="container mt-4">
-					<form method="POST" action="">
+					<form method="POST" action="" enctype="multipart/form-data">
 						@csrf
 						<div class="mb-3">
 							<label for="name" class="form-label">Name</label>
@@ -54,6 +54,23 @@
 							@endif
 						</div>
 						<div class="mb-3">
+							<label for="unit" class="form-label">Unit</label>
+							<select name="unit" id="unit" class="form-control" required>
+								<option value="">-- Pilih Unit --</option>
+								@foreach($units as $unit)
+									<option value="{{ $unit->id }}"
+										{{ old('unit') == $unit->id ? 'selected' : '' }}>
+										{{ ucfirst($unit->nama) }}
+									</option>
+								@endforeach
+							</select>
+							@if ($errors->has('unit'))
+								<span class="text-danger text-left">
+									{{ $errors->first('unit') }}
+								</span>
+							@endif
+						</div>
+						<div class="mb-3">
 							<label for="role_aktif" class="form-label">Role</label>
 							<select name="role_aktif" id="role_aktif" class="form-control" required>
 								<option value="">-- Pilih Role --</option>
@@ -69,6 +86,16 @@
 									{{ $errors->first('role_aktif') }}
 								</span>
 							@endif
+						</div>
+						<div class="form-group">
+							<label>
+								Tanda tangan
+							</label>
+
+							<input type="file"
+								name="tanda_tangan"
+								class="form-control"
+								accept="image/*">
 						</div>
 
 						<button type="submit" class="btn btn-primary">Save user</button>

@@ -3,23 +3,23 @@
 namespace Modules\Pinjaman\Services;
 
 use Exception;
-use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Modules\Pinjaman\Entities\PengajuanPinjaman;
-use Modules\Pinjaman\Entities\Persetujuan;
+use Illuminate\Support\Facades\File;
 use Modules\Pinjaman\Repositories\PengajuanPinjamanRepository;
 use Modules\Pinjaman\Repositories\PersetujuanRepository;
-use PhpOffice\PhpWord\TemplateProcessor;
+use Modules\Pinjaman\Repositories\SkemaPinjamanRepository;
 
 class PengajuanPinjamanService {
     private PengajuanPinjamanRepository $pengajuanPinjamanRepository;
     private PersetujuanRepository $persetujuanRepository;
+    private SkemaPinjamanRepository $skemaPinjamanRepository;
 
-    public function __construct(PengajuanPinjamanRepository $pengajuanPinjamanRepository, PersetujuanRepository $persetujuanRepository)
+    public function __construct(PengajuanPinjamanRepository $pengajuanPinjamanRepository, PersetujuanRepository $persetujuanRepository, SkemaPinjamanRepository $skemaPinjamanRepository)
     {
         $this->pengajuanPinjamanRepository = $pengajuanPinjamanRepository;
         $this->persetujuanRepository = $persetujuanRepository;
+        $this->skemaPinjamanRepository = $skemaPinjamanRepository;
     }
 
     public function getAll($fields)
@@ -37,25 +37,36 @@ class PengajuanPinjamanService {
         DB::beginTransaction();
 
         try {
-            // if (isset($data['path_dokumen']) && $data['path_dokumen'] instanceof UploadedFile) { // instanceof digunakan untuk memastikan itu benar file upload.
-            //     $data['path_dokumen'] = $this->uploadFile($data['path_dokumen']);
-            // }
-
             // Simpan data pengajuan
-            $pengajuanPinjaman = $this->pengajuanPinjamanRepository->create($data);
+            $jaminan = $data['jaminan'] ?? [];
 
-            // Generate Word
-            // $pathDocx = $this->generateWord($pengajuanPinjaman);
+            unset($data['jaminan']);
 
-            // Simpan path word
-            // $updatePengajuanPinjaman = $this->pengajuanPinjamanRepository->update(['path_dokumen_pinjaman' => $pathDocx], $pengajuanPinjaman->id);
+            $data['id_anggota'] = Auth::id();
+            $data['status_pengajuan'] = 'menunggu';
+            $pengajuanPinjaman = $this->pengajuanPinjamanRepository
+                                        ->create($data);
 
+            foreach ($jaminan as $item) {
+                $file = $item['file'];
+                $namaFile = time() . '_' . $file->getClientOriginalName();
+
+                $file->move(
+                    public_path('jaminan'),
+                    $namaFile
+                );
+
+                $this->pengajuanPinjamanRepository
+                    ->attachJaminan(
+                        $pengajuanPinjaman,
+                        $item['id_jaminan'],
+                        $namaFile
+                    );
+            }
             DB::commit();
-
             return $pengajuanPinjaman;
         } catch (Exception $e) {
             DB::rollBack();
-
             throw $e;
         }
     }
@@ -67,28 +78,64 @@ class PengajuanPinjamanService {
         try {
             $fields = ['*'];
             $pengajuanPinjaman = $this->pengajuanPinjamanRepository->getById($fields, $id);
-            // if (!empty($pengajuanPinjaman->path_form_pinjaman)) {
-            //     $this->deleteFile($pengajuanPinjaman->path_form_pinjaman);
-            // }
-            // $data['path_dokumen'] = $this->uploadFile($data['path_dokumen']);
-            // if (isset($data['path_dokumen']) && $data['path_dokumen'] instanceof UploadedFile) { // instanceof digunakan untuk memastikan itu benar file upload.
-            //     if (!empty($pengajuanPinjaman->path_dokumen)) {
-            //         $this->deleteFile($pengajuanPinjaman->path_dokumen);
-            //     }
-            //     $data['path_dokumen'] = $this->uploadFile($data['path_dokumen']);
-            // }
+            
 
-            $pengajuan = $this->pengajuanPinjamanRepository->update($data, $id);
+            $jaminan = $data['jaminan'] ?? [];
 
-            // Generate Word
-            // $pathDocx = $this->generateWord($pengajuanPinjaman);
+            unset($data['jaminan']);
 
-            // Simpan path word
-            // $updatePengajuanPinjaman = $this->pengajuanPinjamanRepository->update(['path_dokumen_pinjaman' => $pathDocx], $pengajuanPinjaman->id);
+            $data['id_anggota'] = Auth::id();
+            $data['status_pengajuan'] = 'menunggu';
+            $pengajuanPinjaman = $this->pengajuanPinjamanRepository->update($data, $id);
 
+            foreach($jaminan as $item)
+            {
+                // user tidak upload file baru
+                if (empty($item['file'])) {
+                    continue;
+                }
+
+                // cek apakah jaminan sudah ada
+                $jaminanLama = $this->pengajuanPinjamanRepository
+                                ->getJaminan($pengajuanPinjaman, $item['id_jaminan']);
+
+                // hapus file lama
+                if ($jaminanLama && $jaminanLama->pivot->file_jaminan) {
+
+                    $oldFile = public_path(
+                        'jaminan/'.$jaminanLama->pivot->file_jaminan
+                    );
+
+                    $this->deleteFile($oldFile);
+                }
+
+                $file = $item['file']
+                    ->store('jaminan');
+
+                if ($jaminanLama) {
+                    // update pivot
+                    $this->pengajuanPinjamanRepository->updateJaminan(
+                        $pengajuanPinjaman,
+                        $item['id_jaminan'],
+                        [
+                            'file_jaminan' => $file,
+                            'status_verifikasi' => null,
+                            'keterangan' => null,
+                        ]
+                    );
+
+                } else {
+                    // attach jika belum ada
+                    $this->pengajuanPinjamanRepository
+                    ->attachJaminan(
+                        $pengajuanPinjaman,
+                        $item['id_jaminan'],
+                        $file
+                    );
+                }
+            }
             DB::commit();
-
-            return $pengajuan;
+            return $pengajuanPinjaman;
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -96,110 +143,300 @@ class PengajuanPinjamanService {
         }
     }
 
-    // public function delete($id)
-    // {
-    //     return $this->pengajuanPinjamanRepository->delete($id);
-    // }
+    public function updateStatusVerifikasi($id)
+    {
+        $data = ['status_pengajuan' => 'verifikasi'];
+        return $this->pengajuanPinjamanRepository->update($data, $id);
+    }
 
     public function teruskan($id)
     {
-        $fields = ['*'];
-        $pengajuan = $this->pengajuanPinjamanRepository->getById($fields, $id);
-        if ($pengajuan['status_pengajuan'] !== 'menunggu') {
-            throw new Exception('status tidak valid');
+        DB::beginTransaction();
+        try {
+            $fields = ['*'];
+            $pengajuan = $this->pengajuanPinjamanRepository
+                                ->getById($fields, $id);
+            if ($pengajuan['status_pengajuan'] !== 'verifikasi') {
+                throw new Exception('status tidak valid');
+            }
+            // Cek apakah skema membutuhkan jaminan
+            if ($pengajuan->skemaPinjaman->jaminan === 'ada') {
+                $belumVerifikasi = $this->pengajuanPinjamanRepository
+                    ->masihAdaJaminanBelumTerverifikasi($id);
+    
+                if ($belumVerifikasi) {
+                    throw new Exception(
+                        'Semua file jaminan harus diverifikasi terlebih dahulu.'
+                    );
+                }
+            }
+            
+            $updatePengajuanPinjaman = $this->pengajuanPinjamanRepository->update([
+                'status_pengajuan' => 'persetujuan_awal'
+                ], $pengajuan->id);
+    
+            $data = [
+                'id_pengajuan' => $id,
+                'role' => 'bendahara',
+                'disetujui_oleh' => null,
+                'status' => 'menunggu',
+                'tanggal_disetujui' => null,
+                'catatan' => null,
+            ];
+    
+            $pengajuanUpdate = $this->pengajuanPinjamanRepository
+                                    ->getById($fields, $id);
+    
+            if ($pengajuanUpdate['status_pengajuan'] == 'persetujuan_awal') {
+                $persetujuan = $this->persetujuanRepository->create($data);
+            }
+            DB::commit();
+            return $updatePengajuanPinjaman;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
-        $updatePengajuanPinjaman = $this->pengajuanPinjamanRepository->update([
-            'status_pengajuan' => 'persetujuan_awal'
-            ], $pengajuan->id);
-
-        $data = [
-            'id_pengajuan' => $id,
-            'role' => 'bendahara',
-            'disetujui_oleh' => null,
-            'status' => 'menunggu',
-            'tanggal_disetujui' => null,
-            'catatan' => null,
-        ];
-
-        $pengajuanUpdate = $this->pengajuanPinjamanRepository->getById($fields, $id);
-
-        if ($pengajuanUpdate['status_pengajuan'] == 'persetujuan_awal') {
-            $persetujuan = $this->persetujuanRepository->create($data);
-        }
-
-        return $updatePengajuanPinjaman;
-    }
-
-    private function uploadFile(UploadedFile $path_dokumen): string
-    {
-        return $path_dokumen->store('jaminan', 'public');
     }
 
     private function deleteFile($filePath)
     {
-        $relativePath = 'jaminan/'. basename($filePath);
-        if (Storage::disk('public')->exists($relativePath)) {
-            Storage::disk('public')->delete($relativePath);
+        if (File::exists($filePath)) {
+            File::delete($filePath);
         }
     }
 
-    private function generateWord($pengajuan)
+    // menampilkan riwayat pengajuan anggota
+    public function getByAnggota($fields)
     {
-        $template = new TemplateProcessor(
-            storage_path('app/templates/pengajuan.docx')
-        );
+        $user = Auth::id();
+        $data = $this->pengajuanPinjamanRepository->getByAnggota($fields, $user);
 
-        $template->setValue(
-            'nama',
-            $pengajuan->anggota->nama
-        );
+        return $this->mappingPersetujuan($data);
+    }
 
-        $template->setValue(
-            'tanggal_pengajuan',
-            $pengajuan->tanggal_pengajuan
-        );
+    private function mappingPersetujuan($pengajuanPinjaman)
+    {
+        foreach ($pengajuanPinjaman as $pengajuan) {
 
-        $template->setValue(
-            'jumlah',
-            $pengajuan->jumlah_pengajuan
-        );
+            $pengajuan->persetujuan_bendahara = null;
+            $pengajuan->persetujuan_wadir = null;
+            $pengajuan->persetujuan_ketua = null;
 
-        $template->setValue(
-            'lama_angsuran',
-            $pengajuan->lama_angsuran
-        );
+            foreach ($pengajuan->persetujuan as $persetujuan) {
 
-        $template->setValue(
-            'no_hp',
-            $pengajuan->no_hp
-        );
+                switch ($persetujuan->role) {
 
-        $template->setValue(
-            'no_ktp',
-            $pengajuan->no_ktp
-        );
+                    case 'bendahara':
+                        $pengajuan->persetujuan_bendahara = $persetujuan;
+                        break;
 
-        $template->setValue(
-            'no_rekening',
-            $pengajuan->no_rekening
-        );
+                    case 'wadir':
+                        $pengajuan->persetujuan_wadir = $persetujuan;
+                        break;
 
-        $template->setValue(
-            'nama_istri_suami',
-            $pengajuan->nama_istri_suami
-        );
+                    case 'ketua':
+                        $pengajuan->persetujuan_ketua = $persetujuan;
+                        break;
+                }
+            }
+        }
 
-        $template->setValue(
-            'alamat',
-            $pengajuan->alamat
-        );
+        return $pengajuanPinjaman;
+    }
 
-        $filename = 'pengajuan_' . $pengajuan->id . '.docx';
+    public function getDetail($id)
+    {
+        return $this->pengajuanPinjamanRepository->getDetail($id);
+    }
 
-        $savePath = storage_path('app/public/pengajuan/' . $filename);
+    public function verifikasi($idPengajuan, $idJaminan)
+    {
+        DB::beginTransaction();
 
-        $template->saveAs($savePath);
+        try {
+            $fields = ['*'];
+            $pengajuan = $this->pengajuanPinjamanRepository
+                                ->getById($fields, $idPengajuan);
+            if ($pengajuan['status_pengajuan'] !== 'verifikasi') {
+                throw new Exception('status tidak valid');
+            }
 
-        return 'pengajuan/' . $filename;
+            $data = [
+                'status_verifikasi' => 'verifikasi',
+                'keterangan' => null,
+            ];
+
+            $this->pengajuanPinjamanRepository->updatePivotJaminan(
+                $idPengajuan,
+                $idJaminan,
+                $data
+            );
+            DB::commit();
+            return true;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public function tolakVerifikasi($idPengajuan, $idJaminan, $keterangan)
+    {
+        DB::beginTransaction();
+
+        try {
+            $fields = ['*'];
+            $pengajuan = $this->pengajuanPinjamanRepository->getById($fields, $idPengajuan);
+            if ($pengajuan['status_pengajuan'] !== 'verifikasi') {
+                throw new Exception('status tidak valid');
+            }
+
+            $data = [
+                'status_verifikasi' => 'ditolak',
+                'keterangan' => $keterangan,
+            ];
+            
+            $this->pengajuanPinjamanRepository->updatePivotJaminan(
+                $idPengajuan,
+                $idJaminan,
+                $data
+            );
+
+            DB::commit();
+
+            return true;
+
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
+    }
+
+    public function simpanRevisi($id, $data)
+    {
+        DB::beginTransaction();
+
+        try {
+            $fields = ['*'];
+            $pengajuan = $this->pengajuanPinjamanRepository
+                ->getById($fields, $id);
+
+            foreach ($data['jaminan'] as $idJaminan => $file) {
+
+                if (!$file) {
+                    continue;
+                }
+
+                $pivot = $this->pengajuanPinjamanRepository
+                            ->getPivotJaminan(
+                                $pengajuan->id,
+                                $idJaminan
+                            );
+
+                /*
+                |-----------------------------------------
+                | Hapus file lama
+                |-----------------------------------------
+                */
+
+                $oldFile = public_path(
+                    'jaminan/'.$pivot->file_jaminan
+                );
+
+                $this->deleteFile($oldFile);
+
+                /*
+                |-----------------------------------------
+                | Upload file baru
+                |-----------------------------------------
+                */
+
+                $namaFile = time() . '_' . $file->getClientOriginalName();
+
+                $file->move(
+                    public_path('jaminan'),
+                    $namaFile
+                );
+
+                /*
+                |-----------------------------------------
+                | Update database
+                |-----------------------------------------
+                */
+
+                $this->pengajuanPinjamanRepository
+                    ->updatePivotJaminan(
+                        $pengajuan->id,
+                        $idJaminan,
+                        [
+                            'file_jaminan' => $namaFile,
+                            'status_verifikasi' => 'menunggu',
+                            'keterangan' => null,
+                        ]
+                    );
+
+            }
+
+            /*
+            |-----------------------------------------
+            | Update status pengajuan
+            |-----------------------------------------
+            */
+
+            $dataPengajuan = 
+            [
+                'status_pengajuan' => 'verifikasi'
+            ];
+
+            $this->pengajuanPinjamanRepository
+                ->update(
+                    $dataPengajuan,
+                    $pengajuan->id,
+                );
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
+    }
+
+    public function delete($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $fields = ['*'];
+
+            $pengajuan = $this->pengajuanPinjamanRepository->getById($fields, $id);
+
+            if($pengajuan->skemaPinjaman->jaminan == 'ada') {
+                foreach ($pengajuan->jaminan as $jaminan) {
+
+                    $pivot = $jaminan->pivot;
+
+                    if ($pivot->file_jaminan) {
+
+                        $oldFile = public_path(
+                            'jaminan/' . $pivot->file_jaminan
+                        );
+
+                        $this->deleteFile($oldFile);
+                    }
+                }
+
+                // Hapus relasi pivot
+                $this->pengajuanPinjamanRepository->detachJaminan($id);
+            }
+
+            $this->pengajuanPinjamanRepository->delete($id);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
     }
 }

@@ -66,7 +66,18 @@
                                             Jaminan :
                                         </span>
                                         <br>
-                                        {{ $item->jaminan }}
+                                        <div class="border rounded p-2 bg-light">
+                                            @forelse($item->daftarJaminan as $jaminan)
+                                                <div class="mb-1">
+                                                    <i class="fas fa-check-circle text-success mr-2"></i>
+                                                    {{ $jaminan->nama }}
+                                                </div>
+                                            @empty
+                                                <div class="text-muted">
+                                                    Tidak ada
+                                                </div>
+                                            @endforelse
+                                        </div>
                                     </div>
 
                                     {{-- Tombol --}}

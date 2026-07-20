@@ -9,6 +9,17 @@
 @section('content')
     <div class="row">
         <div class="col-12">
+            @if($errors->any())
+                <div class="alert alert-danger">
+                <ul>
+                @foreach($errors->all() as $error)
+                <li>
+                {{ $error }}
+                </li>
+                @endforeach
+                </ul>
+                </div>
+            @endif
             <div class="mb-3">
                 <a href="{{ route('pengajuanPinjaman.indexAnggota') }}" class="btn btn-secondary" style="border-radius: 10px;">
                     <i class="fa-solid fa-backward me-2"></i> Kembali
@@ -18,7 +29,7 @@
                 <div class="card-body">
                     <h4 style="color: black;">Tambah pengajuan pinjaman</h4>
                     {{-- FORM --}}
-                    <form action="{{ route('pengajuanPinjaman.store') }}" method="POST">
+                    <form action="{{ route('pengajuanPinjaman.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             {{-- SKEMA PINJAMAN --}}
@@ -196,22 +207,55 @@
                                 </div>
                             </div>
 
-                            {{-- FILE DOKUMEN --}}
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Upload Dokumen</label>
+                            {{-- JAMINAN --}}
+                            @if($skema->jaminan == "ada" && $skema->daftarJaminan->count() > 0)
+                            <div class="col-12 mt-3">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            Dokumen Jaminan
+                                        </h5>
+                                    </div>
 
-                                    <input type="file"
-                                        name="path_dokumen"
-                                        class="form-control @error('path_dokumen') is-invalid @enderror">
+                                    <div class="card-body">
 
-                                    @error('path_dokumen')
-                                        <span class="invalid-feedback d-block">
-                                            {{ $message }}
-                                        </span>
-                                    @enderror
+                                        <p class="text-danger">
+                                            Skema pinjaman ini membutuhkan jaminan.
+                                            Silahkan upload dokumen berikut:
+                                        </p>
+
+                                        <div class="row">
+                                            @foreach($skema->daftarJaminan as $jaminan)
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>
+                                                        {{ $jaminan->nama }}
+                                                        <span class="text-danger">
+                                                            *
+                                                        </span>
+                                                    </label>
+                                                    <input type="hidden"
+                                                        name="jaminan[{{$loop->index}}][id_jaminan]"
+                                                        value="{{ $jaminan->id }}">
+                                                    <input type="file"
+                                                        name="jaminan[{{$loop->index}}][file]"
+                                                        class="form-control
+                                                        @error('jaminan.'.$loop->index.'.file')
+                                                        is-invalid
+                                                        @enderror">
+                                                    @error('jaminan.'.$loop->index.'.file')
+                                                        <span class="invalid-feedback d-block">
+                                                            {{ $message }}
+                                                        </span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            @endif
 
                         </div>
 

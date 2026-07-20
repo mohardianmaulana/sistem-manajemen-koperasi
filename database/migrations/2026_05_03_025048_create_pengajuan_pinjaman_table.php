@@ -21,15 +21,15 @@ class CreatePengajuanPinjamanTable extends Migration
             $table->integer('lama_angsuran');
             $table->date('tanggal_pengajuan');
             $table->enum('status_pengajuan', 
-                        ['menunggu', 'persetujuan_awal', 
-                        'disetujui', 'ditolak']);
+                        ['menunggu', 'persetujuan_awal', 'persetujuan_akhir',
+                        'pencairan', 'disetujui', 'ditolak',
+                        'revisi', 'verifikasi']);
             $table->string('no_hp');
             $table->string('no_ktp');
             $table->string('no_rekening');
             $table->string('alamat');
             $table->string('nama_istri_suami');
-            $table->string('path_form_pinjaman')->nullable();
-            $table->string('path_dokumen')->nullable();
+            $table->string('dokumen_ttd');
 
             $table->foreign('id_anggota')->references('id')
                     ->on('users')->onDelete('cascade');

@@ -7,7 +7,18 @@ use Modules\Pinjaman\Entities\Pembayaran;
 class PembayaranRepository {
     public function getAll($fields)
     {
-        return Pembayaran::select($fields)->latest()->get();
+        return Pembayaran::select($fields)
+                ->where('status_pembayaran', 'verifikasi')
+                ->latest()
+                ->get();
+    }
+
+    public function getPembayaran($id)
+    {
+        return Pembayaran::where('id_angsuran', $id)
+                ->where('status_pembayaran', 'ditolak')
+                ->latest()
+                ->first();
     }
 
     public function getById($fields, $id)

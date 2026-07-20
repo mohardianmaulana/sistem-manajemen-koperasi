@@ -27,7 +27,9 @@ class UserRequest extends FormRequest
             'name' => 'required|string',
             'username' => 'required|string',
             'email' => 'required|string',
+            'unit' => 'required|exists:units,id',
             'role_aktif' => 'required|string',
+            'tanda_tangan' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ];
     }
 

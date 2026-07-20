@@ -2,6 +2,7 @@
 
 namespace Modules\Pinjaman\Entities;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -28,5 +29,10 @@ class Persetujuan extends Model
     public function pengajuan()
     {
         return $this->belongsTo(PengajuanPinjaman::class, 'id_pengajuan');
+    }
+
+    public function users()
+    {
+        return $this->belongsTo(User::class, 'disetujui_oleh');
     }
 }

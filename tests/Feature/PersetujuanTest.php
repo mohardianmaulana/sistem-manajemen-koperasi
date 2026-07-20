@@ -3,11 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Core\User;
-use Database\Factories\UserFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\Pinjaman\Entities\PengajuanPinjaman;
 use Modules\Pinjaman\Entities\Persetujuan;
-use Modules\Pinjaman\Entities\Pinjaman;
 use Modules\Pinjaman\Entities\SkemaPinjaman;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -37,7 +35,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('bendahara');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -49,10 +49,6 @@ class PersetujuanTest extends TestCase
         $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
             'role' => 'bendahara',
-            'disetujui_oleh' => $user->id,
-            'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
         ]);
 
         $response->assertStatus(302);
@@ -63,8 +59,8 @@ class PersetujuanTest extends TestCase
             'role' => 'bendahara',
             'disetujui_oleh' => $user->id,
             'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
+            'tanggal_disetujui' => now()->toDateString(),
+            'catatan' => null,
         ]);
 
         $this->assertDatabaseHas('persetujuan', [
@@ -78,7 +74,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('bendahara');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -89,10 +87,6 @@ class PersetujuanTest extends TestCase
         ]);
         $response = $this->put("persetujuan/tolak/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-            'disetujui_oleh' => $user->id,
-            'status' => 'ditolak',
-            'tanggal_disetujui' => '2026-05-01',
             'catatan' => 'tidak ada',
         ]);
 
@@ -104,7 +98,7 @@ class PersetujuanTest extends TestCase
             'role' => 'bendahara',
             'disetujui_oleh' => $user->id,
             'status' => 'ditolak',
-            'tanggal_disetujui' => '2026-05-01',
+            'tanggal_disetujui' => now()->toDateString(),
             'catatan' => 'tidak ada',
         ]);
     }
@@ -114,7 +108,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('wadir');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -125,14 +121,9 @@ class PersetujuanTest extends TestCase
         ]);
         $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-            'disetujui_oleh' => $user->id,
-            'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(302);
 
         $this->assertDatabaseHas('persetujuan', [
             'id' => $persetujuan->id,
@@ -150,7 +141,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('wadir');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -161,11 +154,6 @@ class PersetujuanTest extends TestCase
         ]);
         $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-            'disetujui_oleh' => $user->id,
-            'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
         ]);
 
         $response->assertStatus(302);
@@ -176,8 +164,8 @@ class PersetujuanTest extends TestCase
             'role' => 'wadir',
             'disetujui_oleh' => $user->id,
             'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
+            'tanggal_disetujui' => now()->toDateString(),
+            'catatan' => null,
         ]);
 
         $this->assertDatabaseHas('persetujuan', [
@@ -191,7 +179,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('wadir');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -202,10 +192,6 @@ class PersetujuanTest extends TestCase
         ]);
         $response = $this->put("persetujuan/tolak/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-            'disetujui_oleh' => $user->id,
-            'status' => 'ditolak',
-            'tanggal_disetujui' => '2026-05-01',
             'catatan' => 'tidak ada',
         ]);
 
@@ -217,7 +203,7 @@ class PersetujuanTest extends TestCase
             'role' => 'wadir',
             'disetujui_oleh' => $user->id,
             'status' => 'ditolak',
-            'tanggal_disetujui' => '2026-05-01',
+            'tanggal_disetujui' => now()->toDateString(),
             'catatan' => 'tidak ada',
         ]);
     }
@@ -227,7 +213,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('bendahara');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -238,14 +226,9 @@ class PersetujuanTest extends TestCase
         ]);
         $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-            'disetujui_oleh' => $user->id,
-            'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(302);
 
         $this->assertDatabaseHas('persetujuan', [
             'id' => $persetujuan->id,
@@ -263,7 +246,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('ketua');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -274,11 +259,6 @@ class PersetujuanTest extends TestCase
         ]);
         $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'ketua',
-            'disetujui_oleh' => $user->id,
-            'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
         ]);
 
         $response->assertStatus(302);
@@ -289,8 +269,8 @@ class PersetujuanTest extends TestCase
             'role' => 'ketua',
             'disetujui_oleh' => $user->id,
             'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
+            'tanggal_disetujui' => now()->toDateString(),
+            'catatan' => null,
         ]);
 
         $this->assertDatabaseHas('pinjaman', 
@@ -304,7 +284,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('ketua');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -315,10 +297,6 @@ class PersetujuanTest extends TestCase
         ]);
         $response = $this->put("persetujuan/tolak/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'ketua',
-            'disetujui_oleh' => $user->id,
-            'status' => 'ditolak',
-            'tanggal_disetujui' => '2026-05-01',
             'catatan' => 'tidak ada',
         ]);
 
@@ -330,7 +308,7 @@ class PersetujuanTest extends TestCase
             'role' => 'ketua',
             'disetujui_oleh' => $user->id,
             'status' => 'ditolak',
-            'tanggal_disetujui' => '2026-05-01',
+            'tanggal_disetujui' => now()->toDateString(),
             'catatan' => 'tidak ada',
         ]);
     }
@@ -340,7 +318,9 @@ class PersetujuanTest extends TestCase
         $user = User::factory()->create();
         $user->assignRole('wadir');
         $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
@@ -351,14 +331,9 @@ class PersetujuanTest extends TestCase
         ]);
         $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'ketua',
-            'disetujui_oleh' => $user->id,
-            'status' => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan' => 'tidak ada',
         ]);
 
-        $response->assertStatus(403);
+        $response->assertStatus(302);
 
         $this->assertDatabaseHas('persetujuan', [
             'id' => $persetujuan->id,
@@ -374,16 +349,18 @@ class PersetujuanTest extends TestCase
     public function test_full_flow_pengajuan_sampai_pinjaman()
     {
         $user = User::factory()->create();
-        $skema_pinjaman = SkemaPinjaman::factory()->create();
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'jaminan' => 'tidak',
+        ]);
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
         ]);
 
+        $this->patch("pengajuan_pinjaman/updateStatus/{$pengajuan->id}")->assertStatus(302);
+
         // step awal: generate bendahara
-        $this->patch("pengajuan_pinjaman/teruskan/{$pengajuan->id}", [
-            'status_pengajuan' => 'persetujuan awal',
-        ])->assertStatus(302);
+        $this->patch("pengajuan_pinjaman/teruskan/{$pengajuan->id}")->assertStatus(302);
 
         // bendahara
         $bendahara = Persetujuan::where('role', 'bendahara')->where('id_pengajuan', $pengajuan->id)->first();
@@ -395,11 +372,6 @@ class PersetujuanTest extends TestCase
 
         $this->put("persetujuan/setujui/{$bendahara->id}", [
             'id_pengajuan'      => $pengajuan->id,
-            'role'              => 'bendahara',
-            'disetujui_oleh'    => $bendaharaUser->id,
-            'status'            => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan'           => 'Disetujui oleh bendahara',
         ])->assertStatus(302);
 
         // wadir
@@ -412,11 +384,6 @@ class PersetujuanTest extends TestCase
 
         $this->put("persetujuan/setujui/{$wadir->id}", [
             'id_pengajuan'      => $pengajuan->id,
-            'role'              => 'wadir',
-            'disetujui_oleh'    => $wadirUser->id,
-            'status'            => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan'           => 'Disetujui oleh wadir',
         ])->assertStatus(302);
 
         // ketua
@@ -429,11 +396,6 @@ class PersetujuanTest extends TestCase
 
         $this->put("persetujuan/setujui/{$ketua->id}", [
             'id_pengajuan'      => $pengajuan->id,
-            'role'              => 'ketua',
-            'disetujui_oleh'    => $ketuaUser->id,
-            'status'            => 'disetujui',
-            'tanggal_disetujui' => '2026-05-01',
-            'catatan'           => 'Disetujui oleh ketua',
         ])->assertStatus(302);
 
         // hasil akhir

@@ -9,6 +9,27 @@
 @section('content')
     <div class="row">
         <div class="col-12">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fa-solid fa-circle-check"></i>
+                    {{ session('success') }}
+
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    {{ session('error') }}
+
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            @endif
             <div class="card">
                 <div class="card-body">
                     {{-- TABEL --}}
@@ -39,7 +60,7 @@
                                             {{ $item->pengajuan->lama_angsuran }}
                                         </td>
                                         <td>
-                                            {{ \Carbon\Carbon::parse($item->pengajuan->tanggal_pengajuan)->format('d-m-Y') }}
+                                            {{ \Carbon\Carbon::parse($item->pengajuan->tanggal_pengajuan)->locale('id')->translatedFormat('d F Y') }}
                                         </td>
                                         <td>
                                             <button class="btn btn-primary btn-sm" 
@@ -193,14 +214,25 @@
                         <tr>
                             <th>Form pinjaman</th>
                             <td>
-                                -
+                                <a href="{{ route('pengajuanPinjaman.cetak', ['id' => $item->pengajuan->id]) }}" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-file-pdf"></i>
+                                </a>
                             </td>
                         </tr>
 
                         <tr>
                             <th>Jaminan</th>
                             <td>
-                                -
+                                @forelse($item->pengajuan->skemaPinjaman->daftarJaminan as $jaminan)
+                                    <div class="mb-1">
+                                        <i class="fas fa-check-circle text-success mr-2"></i>
+                                        {{ $jaminan->nama }}
+                                    </div>
+                                @empty
+                                    <div class="text-muted">
+                                        Tidak ada
+                                    </div>
+                                @endforelse
                             </td>
                         </tr>
 

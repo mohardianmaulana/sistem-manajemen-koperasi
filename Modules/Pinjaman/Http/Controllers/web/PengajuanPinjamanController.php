@@ -2,13 +2,18 @@
 
 namespace Modules\Pinjaman\Http\Controllers\web;
 
+use App\Models\Core\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Modules\Pinjaman\Entities\PengajuanPinjaman;
 use Modules\Pinjaman\Entities\SkemaPinjaman;
-use Modules\Pinjaman\Http\Requests\PengajuanPinjamanRequest;
+use Modules\Pinjaman\Http\Requests\StorePengajuanPinjamanRequest;
+use Modules\Pinjaman\Http\Requests\UpdatePengajuanPinjamanRequest;
 use Modules\Pinjaman\Services\SkemaPinjamanService;
 use Modules\Pinjaman\Services\PengajuanPinjamanService;
 use Modules\Pinjaman\Services\PinjamanService;
@@ -41,13 +46,11 @@ class PengajuanPinjamanController extends Controller
     {
         $user_id = Auth::id();
         $pinjamanAktif = $this->pinjamanService->cekPinjamanAktif($user_id);
-        // dd($pinjamanAktif);
 
         $fields = ['*'];
-        $skema_pinjaman = $this->skemaPinjamanService->getAll($fields);
+        $skema_pinjaman = $this->skemaPinjamanService->getAllAktif($fields);
 
-        if ($pinjamanAktif) {
-            return view(
+        return view(
                 'pinjaman::pengajuanPinjaman.indexAnggota',
                 [
                     'skema_pinjaman' => $skema_pinjaman,
@@ -56,10 +59,7 @@ class PengajuanPinjamanController extends Controller
                         ? 'Anda masih memiliki pinjaman yang belum selesai'
                         : null
                 ]
-            );
-        }
-
-        return view('pinjaman::pengajuanPinjaman.indexAnggota', compact('skema_pinjaman'));
+        );
     }
 
     /**
@@ -96,10 +96,25 @@ class PengajuanPinjamanController extends Controller
      * @param Request $request
      * @return Renderable
      */
-    public function store(PengajuanPinjamanRequest $request)
+    public function store(StorePengajuanPinjamanRequest $request)
     {
-        $pengajuanPinjaman = $this->pengajuanPinjamanService->create($request->validated());
-        return redirect()->route('pengajuanPinjaman.indexAnggota')->with('success', 'Pengajuan pinjaman berhasil diajukan');
+        try {
+            $user_id = Auth::id();
+            if ($this->pinjamanService->cekPinjamanAktif($user_id)) {
+                return redirect()
+                    ->route('pengajuanPinjaman.indexAnggota')
+                    ->withErrors([
+                        'pinjaman' => 'Anda masih memiliki pinjaman yang belum selesai.'
+                    ]);
+            }
+            $this->pengajuanPinjamanService->create($request->validated());
+
+            return redirect()->route('pengajuanPinjaman.indexAnggota')->with('success', 'Pengajuan pinjaman berhasil diajukan');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('pengajuanPinjaman.indexAnggota')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
     }
 
     /**
@@ -132,8 +147,9 @@ class PengajuanPinjamanController extends Controller
     public function edit($id)
     {
         $fields = ['*'];
-        $pengajuan_pinjaman = $this->pengajuanPinjamanService->getById($fields, $id);
-        return view('pinjaman::pengajuanPinjaman.edit', compact('pengajuan_pinjaman'));
+        $pengajuan = $this->pengajuanPinjamanService->getById($fields, $id);
+        $skema_pinjaman = $this->skemaPinjamanService->getAll($fields);
+        return view('pinjaman::pengajuanPinjaman.edit', compact('pengajuan', 'skema_pinjaman'));
     }
 
     /**
@@ -142,13 +158,51 @@ class PengajuanPinjamanController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function update(PengajuanPinjamanRequest $request, $id)
+    public function update(UpdatePengajuanPinjamanRequest $request, $id)
     {
         try {
             $pengajuanPinjaman = $this->pengajuanPinjamanService->update($request->validated(), $id);
-            return redirect()->route('pengajuanPinjaman.indexAnggota')->with('success', 'Data pengajuan pinjaman berhasil diubah');
-        } catch(ModelNotFoundException $e) {
-            return redirect()->back()->with('error', 'Data pengajuan pinjaman tidak ditemukan');
+            return redirect()->route('pinjaman.indexAnggota')->with('success', 'Data pengajuan pinjaman berhasil diubah');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('pinjaman.indexAnggota')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
+    }
+
+    public function revisiJaminan($id)
+    {
+        $pengajuan = $this->pengajuanPinjamanService->getDetail($id);
+
+        return view('pinjaman::pengajuanPinjaman.editJaminan', compact('pengajuan'));
+    }
+
+    public function simpanRevisi(Request $request, $id)
+    {
+        try {
+            $this->pengajuanPinjamanService->simpanRevisi(
+                $id,
+                $request->all()
+            );
+
+            return redirect()->route('pinjaman.indexAnggota')->with('success', 'Dokumen jaminan berhasil direvisi.');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('pinjaman.indexAnggota')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
+    }
+
+    public function updateStatusVerifikasi($id)
+    {
+        try {
+            $pengajuan = $this->pengajuanPinjamanService->updateStatusVerifikasi($id);
+    
+            return redirect()->route('pengajuanPinjaman.index')->with('success', 'Status pengajuan berhasil diubah menjadi verifikasi');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('pengajuanPinjaman.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
         }
     }
 
@@ -156,9 +210,67 @@ class PengajuanPinjamanController extends Controller
     {
         try {
             $pengajuanPinjaman = $this->pengajuanPinjamanService->teruskan($id);
-            return redirect()->route('pengajuanPinjaman.indexAnggota')->with('success', 'Status pengajuan pinjaman berhasil diubah');
-        } catch(ModelNotFoundException $e) {
-            return redirect()->back()->with('error', 'Status pengajuan pinjaman gagal diubah');
+            return redirect()->route('pengajuanPinjaman.index')->with('success', 'Status pengajuan pinjaman berhasil diubah');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('pengajuanPinjaman.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
+    }
+
+    public function cetak($id)
+    {
+        $pengajuan = PengajuanPinjaman::with([
+            'users',
+            'persetujuan'
+        ])->findOrFail($id);
+
+        // Ambil data persetujuan berdasarkan role
+        $persetujuan = $pengajuan->persetujuan->keyBy('role');
+
+        $pengurus = [
+            'koordinator' => User::where('role_aktif', 'koordinator')->first(),
+            'bendahara' => User::where('role_aktif', 'bendahara')->first(),
+            'wadir'     => User::where('role_aktif', 'wadir')->first(),
+            'ketua'     => User::where('role_aktif', 'ketua')->first(),
+        ];
+
+        $pdf = Pdf::loadView(
+            'pinjaman::pdf.pengajuan',
+            compact('pengajuan', 'persetujuan', 'pengurus')
+        );
+
+        return $pdf->stream('Pengajuan-Pinjaman.pdf');
+    }
+
+    public function verifikasi(Request $request, $id)
+    {
+        try {
+            $verifikasi = $this->pengajuanPinjamanService->verifikasi(
+                $id,
+                $request->id_jaminan
+            );
+            return redirect()->route('pengajuanPinjaman.index')->with('success', 'File jaminan berhasil diverifikasi');  
+        } catch (Exception $e) {
+            return redirect()
+                ->route('pengajuanPinjaman.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
+    }
+
+    public function tolak(Request $request, $id)
+    {
+        try {
+            $tolak = $this->pengajuanPinjamanService->tolakVerifikasi(
+                $id,
+                $request->id_jaminan,
+                $request->keterangan
+            );
+            return redirect()->route('pengajuanPinjaman.index')->with('success', 'File jaminan berhasil ditolak');  
+        } catch (Exception $e) {
+            return redirect()
+                ->route('pengajuanPinjaman.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
         }
     }
 
@@ -167,17 +279,15 @@ class PengajuanPinjamanController extends Controller
      * @param int $id
      * @return Renderable
      */
-    // public function destroy($id)
-    // {
-    //     try {
-    //         $this->pengajuanPinjamanService->delete($id);
-    //         return response()->json([
-    //             'message' => 'Pengajuan pinjaman berhasil dihapus',
-    //         ]);
-    //     } catch(ModelNotFoundException) {
-    //         return response()->json([
-    //             'message' => 'Pengajuan pinjaman berhasil dihapus',
-    //         ]);
-    //     }
-    // }
+    public function destroy($id)
+    {
+        try {
+            $this->pengajuanPinjamanService->delete($id);
+            return redirect()->route('pinjaman.indexAnggota')->with('success', 'Pengajuan berhasil dibatalkan');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('pinjaman.indexAnggota')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
+    }
 }

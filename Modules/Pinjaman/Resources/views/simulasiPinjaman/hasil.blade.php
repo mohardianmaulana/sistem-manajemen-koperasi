@@ -54,7 +54,8 @@
                             </span>
                         </div>
 
-                        <input type="number" class="form-control" id="nominal" placeholder="Masukkan nominal">
+                        <input type="number" class="form-control" id="nominal" min="{{ $skema->min_nominal }}" 
+                        max="{{ $skema->max_nominal }}" placeholder="Masukkan nominal">
                     </div>
 
                     <small class="text-muted">

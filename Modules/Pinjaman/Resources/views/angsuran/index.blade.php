@@ -9,11 +9,33 @@
 @section('content')
     <div class="row">
         <div class="col-12">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fa-solid fa-circle-check"></i>
+                    {{ session('success') }}
+
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    {{ session('error') }}
+
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            @endif
             <div class="card">
                 <div class="card-body">
                     <div class="mb-3">
-                        <a href="{{ route('angsuran.indexVerifikasi') }}" class="btn btn-secondary" style="border-radius: 10px;">
-                            <i class="fa-solid fa-file-circle-check"></i> Verifikasi
+                        <a href="{{ route('angsuran.cetakDataTagihan') }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-file-pdf"></i>
+                            Unduh data tagihan
                         </a>
                     </div>
                     {{-- TABEL --}}
@@ -38,7 +60,7 @@
                                         <td class="text-center">{{ $item->angsuran_ke }}</td>
                                         <td class="text-center">Rp. {{ number_format($item->jumlah_angsuran, 0, ',', '.') }}</td>
                                         <td class="text-center">
-                                            {{ \Carbon\Carbon::parse($item->tanggal_jatuh_tempo)->format('d-m-Y') }}
+                                            {{ \Carbon\Carbon::parse($item->tanggal_jatuh_tempo)->locale('id')->translatedFormat('d F Y') }}
                                         </td>
                                         <td>
                                             @if ($item->status_bayar == 'belum_bayar')
@@ -70,10 +92,17 @@
                                                     Gagal debet
                                                 </button>
                                             </form>
-                                            <a href="{{ route('pembayaran.store_auto_debet', ['id' => $item->id]) }}"
-                                            class="btn btn-success btn-sm">
-                                                Auto debet
-                                            </a>
+                                            <form action="{{ route('pembayaran.store_auto_debet') }}"
+                                                method="POST"
+                                                style="display:inline;">
+                                                @csrf
+
+                                                <input type="hidden" name="id_angsuran" value="{{ $item->id }}">
+
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    Auto debet
+                                                </button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @empty

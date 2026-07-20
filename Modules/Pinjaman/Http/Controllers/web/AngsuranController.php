@@ -2,6 +2,8 @@
 
 namespace Modules\Pinjaman\Http\Controllers\web;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -24,14 +26,28 @@ class AngsuranController extends Controller
     public function index()
     {
         $fields = ['*'];
-        $angsuran = $this->angsuranService->getAll($fields);
+        $angsuran = $this->angsuranService->getTagihanBulanIni($fields);
         return view('pinjaman::angsuran.index', compact('angsuran'));
+    }
+
+    public function cetakDataTagihan()
+    {
+        $fields = ['*'];
+        $tagihan = $this->angsuranService->getTagihanBulanIni($fields);
+
+        $pdf = Pdf::loadView(
+            'pinjaman::pdf.dataTagihan',
+            compact('tagihan')
+        );
+
+        return $pdf->stream('Data-tagihan-angsuran.pdf');
     }
 
     public function getAngsuranByIdAnggota()
     {
         $id = Auth::id();
         $angsuran = $this->angsuranService->getAngsuran($id);
+
         return view('pinjaman::angsuran.indexAnggota', compact('angsuran'));
     }
 
@@ -44,68 +60,13 @@ class AngsuranController extends Controller
 
     public function gagalDebet($id)
     {
-        $data = ['status_bayar' => 'gagal_debet'];
-        $pembayaran = $this->angsuranService->updateGagalDebet($data, $id);
-        return redirect()->route('angsuran.index')->with('success', 'Status angsuran berhasil diubah');
+        try {
+            $pembayaran = $this->angsuranService->updateGagalDebet($id);
+            return redirect()->route('angsuran.index')->with('success', 'Status angsuran berhasil diubah');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('angsuran.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
     }
-
-    /**
-     * Show the form for creating a new resource.
-     * @return Renderable
-     */
-    // public function create()
-    // {
-    //     return view('pinjaman::create');
-    // }
-
-    /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Renderable
-     */
-    // public function store(Request $request)
-    // {
-    //     //
-    // }
-
-    /**
-     * Show the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    // public function show($id)
-    // {
-    //     return view('pinjaman::show');
-    // }
-
-    /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    // public function edit($id)
-    // {
-    //     return view('pinjaman::edit');
-    // }
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
-    // public function update(Request $request, $id)
-    // {
-    //     //
-    // }
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    // public function destroy($id)
-    // {
-    //     //
-    // }
 }

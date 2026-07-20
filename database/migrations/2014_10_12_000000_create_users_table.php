@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
 			$table->string('role_aktif')->default('0');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('tanda_tangan')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

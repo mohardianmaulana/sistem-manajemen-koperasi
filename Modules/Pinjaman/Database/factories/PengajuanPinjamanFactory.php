@@ -17,17 +17,15 @@ class PengajuanPinjamanFactory extends Factory
     public function definition()
     {
         return [
-            'tanggal_pengajuan' => $this->faker->date(),
-            'jumlah_pengajuan' => 5000000,
+            'tanggal_pengajuan' => '2026-06-01',
+            'jumlah_pengajuan' => 500000,
             'lama_angsuran' => 18,
             'status_pengajuan' => 'menunggu',
-            'no_hp' => $this->faker->phoneNumber(),
-            'no_ktp' => $this->faker->numerify('################'),
-            'no_rekening' => $this->faker->bankAccountNumber(),
-            'alamat' => $this->faker->address(),
-            'nama_istri_suami' => $this->faker->name(),
-            'path_form_pinjaman' => 'form_pinjaman/sample.pdf',
-            'path_dokumen' => 'dokumen/sample.pdf',
+            'no_hp' => '082132945801',
+            'no_ktp' => '3510090503040006',
+            'no_rekening' => '1234567890',
+            'alamat' => 'Jl. Banyuwangi',
+            'nama_istri_suami' => 'Seseorang',
         ];
     }
 }

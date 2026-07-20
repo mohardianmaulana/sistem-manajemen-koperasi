@@ -24,8 +24,7 @@ class PengajuanPinjaman extends Model
         'no_rekening',
         'alamat',
         'nama_istri_suami',
-        'path_form_pinjaman',
-        'path_dokumen',
+        'dokumen_ttd',
     ];
     
     protected static function newFactory()
@@ -51,5 +50,20 @@ class PengajuanPinjaman extends Model
     public function pinjaman()
     {
         return $this->hasOne(Pinjaman::class, 'id_pengajuan');
+    }
+
+    public function jaminan()
+    {
+        return $this->belongsToMany(
+            Jaminan::class,
+            'pengajuan_jaminan',
+            'id_pengajuan',
+            'id_jaminan'
+        )
+        ->withPivot([
+            'file_jaminan',
+            'status_verifikasi',
+            'keterangan'
+        ]);
     }
 }

@@ -18,8 +18,9 @@
                 <div class="card-body">
                     <h4 style="color: black;">Daftar skema pinjaman</h4>
                     {{-- FORM --}}
-                    <form action="{{ route('skemaPinjaman.store') }}" method="POST">
+                    <form action="{{ route('skemaPinjaman.update', ['id' => $skemaPinjaman->id]) }}" method="POST">
                         @csrf
+                        @method('PUT')
                         <div class="row">
                             {{-- Nama Skema --}}
                             <div class="col-md-6">
@@ -130,7 +131,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Jaminan <span class="text-danger">*</span></label>
-                                    <select name="jaminan" class="form-control @error('jaminan') is-invalid @enderror">
+                                    <select id="is_jaminan" name="jaminan" class="form-control @error('jaminan') is-invalid @enderror">
                                     <option class="text-center" value="">-- Pilih Jaminan --</option>
                                     <option class="text-center" value="ada" {{ old('jaminan', $skemaPinjaman->jaminan) == 'ada' ? 'selected' : '' }}>Ada</option>
                                     <option class="text-center" value="tidak" {{ old('jaminan', $skemaPinjaman->jaminan) == 'tidak' ? 'selected' : '' }}>Tidak</option>
@@ -159,6 +160,42 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            @php
+                                $selectedJaminan = old(
+                                    'jaminan_ids',
+                                    $skemaPinjaman->daftarJaminan->pluck('id')->toArray()
+                                );
+                            @endphp
+
+                            {{-- Jaminan --}}
+                            <div class="col-md-6" id="jaminan_container" style="display: none;">
+                                <div class="form-group">
+                                    <label>Pilih Jaminan <span class="text-danger">*</span></label>
+
+                                    <select name="jaminan_ids[]" multiple
+                                        class="form-control @error('jaminan_ids') is-invalid @enderror">
+
+                                        @foreach($jaminan as $item)
+                                            <option value="{{ $item->id }}"
+                                                {{ in_array($item->id, $selectedJaminan) ? 'selected' : '' }}>
+                                                {{ $item->nama }}
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+
+                                    <small class="text-muted">
+                                        Tekan CTRL + Klik untuk memilih lebih dari satu jaminan
+                                    </small>
+
+                                    @error('jaminan_ids')
+                                        <span class="invalid-feedback d-block">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
                         {{-- BUTTON --}}
@@ -180,5 +217,23 @@
     <link rel="stylesheet" href="/assets/css/admin_custom.css">-->
 @stop
 @push('js')
+<script>
+$(document).ready(function() {
 
+    function toggleJaminan() {
+        if ($('#is_jaminan').val() == 'ada') {
+            $('#jaminan_container').show();
+        } else {
+            $('#jaminan_container').hide();
+        }
+    }
+
+    toggleJaminan();
+
+    $('#is_jaminan').change(function() {
+        toggleJaminan();
+    });
+
+});
+</script>
 @endpush

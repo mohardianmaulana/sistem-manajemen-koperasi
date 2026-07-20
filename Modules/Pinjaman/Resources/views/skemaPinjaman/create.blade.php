@@ -130,8 +130,8 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Jaminan <span class="text-danger">*</span></label>
-                                    <select name="jaminan" class="form-control @error('jaminan') is-invalid @enderror">
-                                    <option class="text-center" value="">-- Pilih Jaminan --</option>
+                                    <select id="is_jaminan" name="jaminan" class="form-control @error('jaminan') is-invalid @enderror">
+                                    <option class="text-center" value="">-- Ada jaminan? --</option>
                                     <option class="text-center" value="ada" {{ old('jaminan') == 'ada' ? 'selected' : '' }}>Ada</option>
                                     <option class="text-center" value="tidak" {{ old('jaminan') == 'tidak' ? 'selected' : '' }}>Tidak</option>
                                 </select>
@@ -161,6 +161,35 @@
                             </div>
                         </div>
 
+                        {{-- Jaminan --}}
+                            <div class="col-md-6" id="jaminan_container" style="display: none;">
+                                <div class="form-group">
+                                    <label>Pilih Jaminan <span class="text-danger">*</span></label>
+
+                                    <select name="jaminan_ids[]" multiple
+                                        class="form-control @error('jaminan_ids') is-invalid @enderror">
+
+                                        @foreach($jaminan as $item)
+                                            <option value="{{ $item->id }}"
+                                                {{ collect(old('jaminan_ids'))->contains($item->id) ? 'selected' : '' }}>
+                                                {{ $item->nama }}
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+
+                                    <small class="text-muted">
+                                        Tekan CTRL + Klik untuk memilih lebih dari satu jaminan
+                                    </small>
+
+                                    @error('jaminan_ids')
+                                        <span class="invalid-feedback d-block">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
                         {{-- BUTTON --}}
                         <div class="mt-3">
                             <button type="submit" class="btn btn-primary" style="border-radius: 10px;">
@@ -180,5 +209,23 @@
     <link rel="stylesheet" href="/assets/css/admin_custom.css">-->
 @stop
 @push('js')
+<script>
+$(document).ready(function() {
 
+    function toggleJaminan() {
+        if ($('#is_jaminan').val() == 'ada') {
+            $('#jaminan_container').show();
+        } else {
+            $('#jaminan_container').hide();
+        }
+    }
+
+    toggleJaminan();
+
+    $('#is_jaminan').change(function() {
+        toggleJaminan();
+    });
+
+});
+</script>
 @endpush

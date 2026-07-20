@@ -12,9 +12,9 @@ class AngsuranService {
         $this->angsuranRepository = $angsuranRepository;
     }
 
-    public function getAll($fields)
+    public function getTagihanBulanIni($fields)
     {
-        return $this->angsuranRepository->getAll($fields);
+        return $this->angsuranRepository->getTagihanBulanIni($fields);
     }
 
     public function getAngsuran($id)
@@ -22,8 +22,9 @@ class AngsuranService {
         return $this->angsuranRepository->getAngsuran($id);
     }
 
-    public function updateGagalDebet($data, $id)
+    public function updateGagalDebet($id)
     {
+        $data = ['status_bayar' => 'gagal_debet'];
         return $this->angsuranRepository->update($data, $id);
     }
 

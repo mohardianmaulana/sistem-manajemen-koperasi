@@ -7,7 +7,7 @@ use Carbon\Carbon;
 
 class AngsuranRepository {
 
-    public function getAll($fields)
+    public function getTagihanBulanIni($fields)
     {
         return Angsuran::select($fields)
             ->where('status_bayar', 'belum_bayar')
@@ -39,7 +39,11 @@ class AngsuranRepository {
 
     public function getAngsuran($id)
     {
-        $angsuran = Angsuran::whereHas(
+        $angsuran = Angsuran::with([
+            'pinjaman.pengajuan.users',
+            'pembayaran'
+        ])
+        ->whereHas(
             'pinjaman.pengajuan', function ($query) use ($id) { 
             $query->where('id_anggota', $id);
         })->get();
@@ -49,7 +53,9 @@ class AngsuranRepository {
 
     public function getVerifikasi($fields)
     {
-        $angsuran = Angsuran::select($fields)->where('status_bayar', 'gagal_debet')->get();
+        $angsuran = Angsuran::select($fields)
+                    ->where('status_bayar', 'verifikasi')
+                    ->get();
         return $angsuran;
     }
 }

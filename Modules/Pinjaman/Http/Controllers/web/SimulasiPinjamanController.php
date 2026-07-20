@@ -2,8 +2,8 @@
 
 namespace Modules\Pinjaman\Http\Controllers\web;
 
-use Illuminate\Http\Request;
 use Modules\Pinjaman\Entities\SkemaPinjaman;
+use Modules\Pinjaman\Http\Requests\SimulasiPinjamanRequest;
 use Modules\Pinjaman\Services\SimulasiPinjamanService;
 use Modules\Pinjaman\Services\SkemaPinjamanService;
 
@@ -20,7 +20,7 @@ class SimulasiPinjamanController {
     public function index()
     {
         $fields = ['*'];
-        $skema_pinjaman = $this->skemaPinjamanService->getAll($fields);
+        $skema_pinjaman = $this->skemaPinjamanService->getAllAktif($fields);
         return view('pinjaman::simulasiPinjaman.index', compact('skema_pinjaman'));
     }
 
@@ -31,7 +31,7 @@ class SimulasiPinjamanController {
         return view('pinjaman::simulasiPinjaman.hasil', compact('skema'));
     }
 
-    public function hitung(Request $request)
+    public function hitung(SimulasiPinjamanRequest $request)
     {
         $nominal = (int) $request->nominal;
         $tenor = (int) $request->tenor;

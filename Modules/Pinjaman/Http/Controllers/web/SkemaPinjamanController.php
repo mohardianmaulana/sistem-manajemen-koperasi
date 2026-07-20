@@ -2,20 +2,24 @@
 
 namespace Modules\Pinjaman\Http\Controllers\web;
 
+use Exception;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Pinjaman\Http\Requests\SkemaPinjamanRequest;
+use Modules\Pinjaman\Services\JaminanService;
 use Modules\Pinjaman\Services\SkemaPinjamanService;
 
 class SkemaPinjamanController extends Controller
 {
     private SkemaPinjamanService $skemaPinjamanServices;
+    private JaminanService $jaminanService;
 
-    public function __construct(SkemaPinjamanService $skemaPinjamanServices)
+    public function __construct(SkemaPinjamanService $skemaPinjamanServices, JaminanService $jaminanService)
     {
         $this->skemaPinjamanServices = $skemaPinjamanServices;
+        $this->jaminanService = $jaminanService;
     }
 
     /**
@@ -24,7 +28,7 @@ class SkemaPinjamanController extends Controller
      */
     public function index()
     {
-        $fields = ['id', 'nama', 'min_nominal', 'max_nominal', 'min_tenor', 'max_tenor', 'bunga', 'jaminan', 'deskripsi', 'status'];
+        $fields = ['*'];
         $skemaPinjaman = $this->skemaPinjamanServices->getAll($fields);
         return view('pinjaman::skemaPinjaman.index', compact('skemaPinjaman'));
     }
@@ -35,7 +39,9 @@ class SkemaPinjamanController extends Controller
      */
     public function create()
     {
-        return view('pinjaman::skemaPinjaman.create');
+        $fields = ['*'];
+        $jaminan = $this->jaminanService->getAll($fields);
+        return view('pinjaman::skemaPinjaman.create', compact('jaminan'));
     }
 
     /**
@@ -45,8 +51,17 @@ class SkemaPinjamanController extends Controller
      */
     public function store(SkemaPinjamanRequest $request)
     {
-        $skemaPinjaman = $this->skemaPinjamanServices->create($request->validated());
-        return redirect()->route('skemaPinjaman.index')->with('success', 'Skema Pinjaman baru berhasil dibuat');
+        try {
+            $skemaPinjaman = $this->skemaPinjamanServices->
+                                create($request->validated());
+            return redirect()
+                    ->route('skemaPinjaman.index')
+                    ->with('success', 'Skema Pinjaman baru berhasil dibuat');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('skemaPinjaman.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
     }
 
     /**
@@ -79,8 +94,11 @@ class SkemaPinjamanController extends Controller
     public function edit($id)
     {
         $fields = ['*'];
-        $skemaPinjaman = $this->skemaPinjamanServices->getById($fields, $id);
-        return view('pinjaman::skemaPinjaman.edit', compact('skemaPinjaman'));
+        $skemaPinjaman = $this->skemaPinjamanServices
+                            ->getById($fields, $id);
+        $jaminan = $this->jaminanService->getAll($fields);
+        return view('pinjaman::skemaPinjaman.edit', 
+                compact('skemaPinjaman', 'jaminan'));
     }
 
     /**
@@ -92,10 +110,14 @@ class SkemaPinjamanController extends Controller
     public function update(SkemaPinjamanRequest $request, $id)
     {
         try {
-            $skemaPinjaman = $this->skemaPinjamanServices->update($request->validated(), $id);
-            return redirect()->route('skemaPinjaman.index')->with('success', 'Data skema pinjaman berhasil diubah');            
-        } catch (ModelNotFoundException $e) { // jika terjadi ModelNotFoundException, maka detail errornya disimpan ke variabel $e
-            return redirect()->back()->with('error', 'Data skema pinjaman tidak ditemukan');
+            $skemaPinjaman = $this->skemaPinjamanServices
+                                ->update($request->validated(), $id);
+            return redirect()->route('skemaPinjaman.index')
+                    ->with('success', 'Data skema pinjaman berhasil diubah');            
+        } catch (Exception $e) {
+            return redirect()
+                ->route('skemaPinjaman.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
         }
     }
 
@@ -104,13 +126,29 @@ class SkemaPinjamanController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function destroy($id)
+    public function nonaktif($id)
     {
         try {
-            $this->skemaPinjamanServices->delete($id);
-            return redirect()->route('skemaPinjaman.index')->with('success', 'Data skema pinjaman berhasil dihapus');
-        } catch (ModelNotFoundException $e) { // jika terjadi ModelNotFoundException, maka detail errornya disimpan ke variabel $e
-            return redirect()->back()->with('error', 'Data skema pinjaman tidak ditemukan');
+            $this->skemaPinjamanServices->nonaktif($id);
+            return redirect()->route('skemaPinjaman.index')
+                    ->with('success', 'Data skema pinjaman berhasil dinonaktifkan');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('skemaPinjaman.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
+        }
+    }
+
+    public function aktif($id)
+    {
+        try {
+            $this->skemaPinjamanServices->aktif($id);
+            return redirect()->route('skemaPinjaman.index')
+                    ->with('success', 'Data skema pinjaman berhasil diaktifkan');
+        } catch (Exception $e) {
+            return redirect()
+                ->route('skemaPinjaman.index')
+                ->with('error', 'Terjadi kesalahan saat memproses data.');
         }
     }
 }

@@ -14,7 +14,7 @@
 				<h1>Update user</h1>
 				
 				<div class="container mt-4">
-					<form method="post" action="{{ route('users.update', $user->id) }}">
+					<form method="post" action="{{ route('users.update', $user->id) }}" enctype="multipart/form-data">
 						@method('patch')
 						@csrf
 						<div class="mb-3">
@@ -52,8 +52,25 @@
 							@endif
 						</div>
 						<div class="mb-3">
+							<label for="unit" class="form-label">Unit</label>
+							<select name="unit" id="unit" class="form-control" required>
+								<option value="">-- Pilih Unit --</option>
+								@foreach($units as $unit)
+									<option value="{{ $unit->id }}"
+										{{ $user->unit == $unit->id ? 'selected' : '' }}>
+										{{ ucfirst($unit->nama) }}
+									</option>
+								@endforeach
+							</select>
+							@if ($errors->has('unit'))
+								<span class="text-danger text-left">
+									{{ $errors->first('unit') }}
+								</span>
+							@endif
+						</div>
+						<div class="mb-3">
 							<label for="role" class="form-label">Role</label>
-							<select class="form-control select2" 
+							{{-- <select class="form-control select2" 
 								name="role[]" required multiple="multiple">
 								<option value="">Select role</option>
 								@foreach($roles as $role)
@@ -62,10 +79,46 @@
 											? 'selected'
 											: '' }}>{{ $role->name }}</option>
 								@endforeach
+							</select> --}}
+							<select class="form-control select2"
+									name="role_aktif"
+									required>
+								<option value="">-- Pilih Role --</option>
+
+								@foreach($roles as $role)
+									<option value="{{ $role->name }}"
+										{{ $user->role_aktif == $role->name ? 'selected' : '' }}>
+										{{ ucfirst($role->name) }}
+									</option>
+								@endforeach
 							</select>
-							@if ($errors->has('role'))
-								<span class="text-danger text-left">{{ $errors->first('role') }}</span>
+							@if ($errors->has('role_aktif'))
+								<span class="text-danger text-left">{{ $errors->first('role_aktif') }}</span>
 							@endif
+						</div>
+						<div class="form-group">
+							<label>
+								Tanda tangan
+							</label>
+
+							@if($user->tanda_tangan)
+								<div class="mb-1">
+									<small class="text-success">
+                                        <i class="fas fa-check-circle"></i>
+                                        Dokumen sudah diupload
+                                    </small>
+								</div>
+								<div class="mb-3">
+									<img src="{{ asset('tanda_tangan/' . $user->tanda_tangan) }}"
+										class="img-thumbnail"
+										style="max-width:250px">
+								</div>
+							@endif
+
+							<input type="file"
+								name="tanda_tangan"
+								class="form-control"
+								accept="image/*">
 						</div>
 
 						<button type="submit" class="btn btn-primary">Update user</button>

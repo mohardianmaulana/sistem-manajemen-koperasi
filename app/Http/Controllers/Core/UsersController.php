@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Core;
 
 use Illuminate\Http\Request;
 use App\Models\Core\User;
+use App\Models\Core\Unit;
 
 use Spatie\Permission\Models\Role;
 use App\Http\Requests\StoreUserRequest;
@@ -14,7 +15,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use Hash;
 use Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash as FacadesHash;
+use Illuminate\Support\Str;
 
 class UsersController extends Controller
 {
@@ -38,7 +41,8 @@ class UsersController extends Controller
     public function create() 
     {
         $roles = Role::all();
-        return view('users.create', compact('roles'));
+        $units = Unit::all();
+        return view('users.create', compact('roles', 'units'));
     }
 
     /**
@@ -53,12 +57,24 @@ class UsersController extends Controller
     {
         //For demo purposes only. When creating user or inviting a user
         // you should create a generated random password and email it to the user
+        $namaFile = null;
+
+        if ($request->hasFile('tanda_tangan')) {
+
+            $file = $request->file('tanda_tangan');
+
+            $namaFile = time().'_'.$file->getClientOriginalName();
+
+            $file->move(public_path('tanda_tangan'), $namaFile);
+        }
         $usr = $user->create(array_merge($request->validated(), [
             'password' => FacadesHash::make('admin!@#123'),
 			'unit'	=> 0,
 			'staff'	=> 0,
 			'status'	=> 2,
+            'unit' => $request->unit,
             'role_aktif' => $request->role_aktif,
+            'tanda_tangan' => $namaFile,
         ]));
 		
 		$usr->syncRoles($request->role_aktif);
@@ -93,7 +109,8 @@ class UsersController extends Controller
         return view('users.edit', [
             'user' => $user,
             'userRole' => $user->roles->pluck('name')->toArray(),
-            'roles' => Role::latest()->get()
+            'roles' => Role::latest()->get(),
+            'units' => Unit::latest()->get()
         ]);
     }
 
@@ -157,11 +174,41 @@ class UsersController extends Controller
      * 
      * @return \Illuminate\Http\Response
      */
-    public function update(User $user, UpdateUserRequest $request) 
+    public function update(User $user, UserRequest $request) 
     {
-        $user->update($request->validated());
+        $data = $request->validated();
 
-        $user->syncRoles($request->get('role'));
+        // Jika ada file tanda tangan baru
+        if ($request->hasFile('tanda_tangan')) {
+
+            $filePath = public_path(
+                        'tanda_tangan/'.$user->tanda_tangan
+                    );
+
+            // Hapus file lama
+            if ($user->tanda_tangan && File::exists($filePath)) {
+                $oldFile = public_path(
+                        'tanda_tangan/'.$user->tanda_tangan
+                    );
+
+                File::delete($oldFile);
+            }
+
+            // Upload file baru
+            $file = $request->file('tanda_tangan');
+
+            $namaFile = time() . '_' . $file->getClientOriginalName();
+
+            $file->move(public_path('tanda_tangan'), $namaFile);
+
+            $data['tanda_tangan'] = $namaFile;
+        }
+
+        // Update data user
+        $user->update($data);
+
+        // Update role
+        $user->syncRoles($request->role_aktif);
 
         return redirect()->route('users.index')
             ->withSuccess(__('User updated successfully.'));

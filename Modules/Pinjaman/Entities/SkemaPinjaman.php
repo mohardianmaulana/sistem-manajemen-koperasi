@@ -32,4 +32,14 @@ class SkemaPinjaman extends Model
     {
         return $this->hasMany(PengajuanPinjaman::class, 'id_skema_pinjaman');
     }
+
+    public function daftarJaminan()
+    {
+        return $this->belongsToMany(
+            Jaminan::class,
+            'skema_jaminan',
+            'id_skema_pinjaman',
+            'id_jaminan'
+        );
+    }
 }

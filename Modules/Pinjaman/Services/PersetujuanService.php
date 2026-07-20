@@ -40,11 +40,6 @@ class PersetujuanService {
         return $this->persetujuanRepository->getByRole($role);
     }
 
-    public function getPersetujuanAnggota($id)
-    {
-        return $this->persetujuanRepository->getPersetujuanAnggota($id);
-    }
-
     public function getById($fields, $id)
     {
         return $this->persetujuanRepository->getById($fields, $id);
@@ -52,182 +47,255 @@ class PersetujuanService {
 
     public function updateStatusBendaharaSetuju($id)
     {
-        $fields = ['*'];
-        $persetujuan = $this->persetujuanRepository->getById($fields, $id);
-        $updateData = [
-            'disetujui_oleh' => Auth::id(),
-            'status' => 'disetujui',
-            'tanggal_disetujui' => now(),
-            'catatan' => null,
-        ];
+        DB::beginTransaction();
+        try {
+            $fields = ['*'];
+            $persetujuan = $this->persetujuanRepository->getById($fields, $id);
+            $updateData = [
+                'disetujui_oleh' => Auth::id(),
+                'status' => 'disetujui',
+                'tanggal_disetujui' => now(),
+                'catatan' => null,
+            ];
 
 
-        $updatePersetujuan = $this->persetujuanRepository->update($updateData, $id);
+            $updatePersetujuan = $this->persetujuanRepository->update($updateData, $id);
 
-        $dataBaru = [
-            'id_pengajuan' => $persetujuan->id_pengajuan,
-            'role' => 'wadir',
-            'disetujui_oleh' => null,
-            'status' => 'menunggu',
-            'tanggal_disetujui' => null,
-            'catatan' => null,
-        ];
+            $dataBaru = [
+                'id_pengajuan' => $persetujuan->id_pengajuan,
+                'role' => 'wadir',
+                'disetujui_oleh' => null,
+                'status' => 'menunggu',
+                'tanggal_disetujui' => null,
+                'catatan' => null,
+            ];
 
-        $persetujuanBaru = $this->persetujuanRepository->create($dataBaru);
+            $persetujuanBaru = $this->persetujuanRepository->create($dataBaru);
 
-        return $updatePersetujuan;
+            DB::commit();
+            return $updatePersetujuan;
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
     }
 
     public function updateStatusBendaharaTidakSetuju($data, $id)
     {
-        $fields = ['*'];
-        $persetujuan = $this->persetujuanRepository->getById($fields, $id);
-        $updateData = [
-            'disetujui_oleh' => Auth::id(),
-            'status' => 'ditolak',
-            'tanggal_disetujui' => now(),
-            'catatan' => $data['catatan'],
-        ];
+        DB::beginTransaction();
+        try {
+            $fields = ['*'];
+            $persetujuan = $this->persetujuanRepository->getById($fields, $id);
+            $updateData = [
+                'disetujui_oleh' => Auth::id(),
+                'status' => 'ditolak',
+                'tanggal_disetujui' => now(),
+                'catatan' => $data['catatan'],
+            ];
+    
+            $updatePersetujuan = $this->persetujuanRepository->update($updateData, $id);
+    
+            $dataPengajuan = [
+                'status_pengajuan' => 'ditolak',
+            ];
+    
+            $pengajuan = $this->pengajuanPinjamanRepository->update(
+                $dataPengajuan, $persetujuan['id_pengajuan']
+            );
+    
+            DB::commit();
+            return $updatePersetujuan;
+        } catch (Exception $e) {
+            DB::rollBack();
 
-        $updatePersetujuan = $this->persetujuanRepository->update($updateData, $id);
-
-        $dataPengajuan = [
-            'status_pengajuan' => 'ditolak',
-        ];
-
-        $pengajuan = $this->pengajuanPinjamanRepository->update(
-            $dataPengajuan, $persetujuan['id_pengajuan']
-        );
-
-        return $updatePersetujuan;
+            throw $e;
+        }
     }
 
     public function updateStatusWadirSetuju($id)
     {
-        $fields = ['*'];
-        $persetujuan = $this->persetujuanRepository->getById($fields, $id);
-        $updateData = [
-            'disetujui_oleh' => Auth::id(),
-            'status' => 'disetujui',
-            'tanggal_disetujui' => now(),
-            'catatan' => null,
-        ];
+        DB::beginTransaction();
+        try {
 
-        $updatePersetujuan = $this->persetujuanRepository->update($updateData, $id);
+            $fields = ['*'];
+            $persetujuan = $this->persetujuanRepository->getById($fields, $id);
+            $updateData = [
+                'disetujui_oleh' => Auth::id(),
+                'status' => 'disetujui',
+                'tanggal_disetujui' => now(),
+                'catatan' => null,
+            ];
+    
+            $updatePersetujuan = $this->persetujuanRepository->update($updateData, $id);
+    
+            $dataBaru = [
+                'id_pengajuan' => $persetujuan->id_pengajuan,
+                'role' => 'ketua',
+                'disetujui_oleh' => null,
+                'status' => 'menunggu',
+                'tanggal_disetujui' => null,
+                'catatan' => null,
+            ];
+    
+            $persetujuanBaru = $this->persetujuanRepository->create($dataBaru);
+    
+            DB::commit();
+            return $updatePersetujuan;
+        } catch (Exception $e) {
+            DB::rollBack();
 
-        $dataBaru = [
-            'id_pengajuan' => $persetujuan->id_pengajuan,
-            'role' => 'ketua',
-            'disetujui_oleh' => null,
-            'status' => 'menunggu',
-            'tanggal_disetujui' => null,
-            'catatan' => null,
-        ];
-
-        $persetujuanBaru = $this->persetujuanRepository->create($dataBaru);
-
-        return $updatePersetujuan;
+            throw $e;
+        }
     }
 
     public function updateStatusWadirTidakSetuju($data, $id)
     {
-        $fields = ['*'];
-        $persetujuan = $this->persetujuanRepository->getById($fields, $id);
-        $updateData = [
-            'disetujui_oleh' => Auth::id(),
-            'status' => 'ditolak',
-            'tanggal_disetujui' => now(),
-            'catatan' => $data['catatan'],
-        ];
+        DB::beginTransaction();
+        try {
+            $fields = ['*'];
+            $persetujuan = $this->persetujuanRepository->getById($fields, $id);
+            $updateData = [
+                'disetujui_oleh' => Auth::id(),
+                'status' => 'ditolak',
+                'tanggal_disetujui' => now(),
+                'catatan' => $data['catatan'],
+            ];
+    
+            $updatePersetujuan = $this->persetujuanRepository->update($updateData, $id);
+    
+            $dataPengajuan = [
+                'status_pengajuan' => 'ditolak',
+            ];
+    
+            $pengajuan = $this->pengajuanPinjamanRepository->update(
+                $dataPengajuan, $persetujuan['id_pengajuan']
+            );
+    
+            DB::commit();
+            return $updatePersetujuan;
+        } catch (Exception $e) {
+            DB::rollBack();
 
-        $updatePersetujuan = $this->persetujuanRepository->update($updateData, $id);
-
-        $dataPengajuan = [
-            'status_pengajuan' => 'ditolak',
-        ];
-
-        $pengajuan = $this->pengajuanPinjamanRepository->update(
-            $dataPengajuan, $persetujuan['id_pengajuan']
-        );
-
-        return $updatePersetujuan;
+            throw $e;
+        }
     }
 
     public function updateStatusKetuaSetuju($id)
     {
-        $fields = ['*'];
-        $persetujuan = $this->persetujuanRepository->getById($fields, $id);
-        $updateData = [
-            'disetujui_oleh' => Auth::id(),
-            'status' => 'disetujui',
-            'tanggal_disetujui' => now(),
-            'catatan' => null,
-        ];
-
-        $updatePersetujuan = $this->persetujuanRepository->update(
-            $updateData, $id
-        );
-
-        $dataPengajuan = [
-            'status_pengajuan' => 'disetujui',
-        ];
-
-        $pengajuan = $this->pengajuanPinjamanRepository->update(
-            $dataPengajuan, $persetujuan['id_pengajuan']
-        );
-
-        $id_pengajuan = $persetujuan['id_pengajuan'];
-        $pengajuan = $this->pengajuanPinjamanRepository->getById(
-            $fields, $id_pengajuan
-        );
-
-        $id_skema_pinjaman = $pengajuan['id_skema_pinjaman'];
-        $skemaPinjaman = $this->skemaPinjamanRepository->getById(
-            $fields, $id_skema_pinjaman
-        );
-
-        $jumlah_bunga = $this->hitungBunga(
-            $skemaPinjaman['bunga'], $pengajuan['lama_angsuran']
-        );
-        $total_pinjaman = $jumlah_bunga + $pengajuan['jumlah_pengajuan'];
-
-        $dataPinjaman = [
-            'id_pengajuan' => $persetujuan['id_pengajuan'],
-            'jumlah_disetujui' => $pengajuan['jumlah_pengajuan'],
-            'jumlah_bunga' => $jumlah_bunga,
-            'total_pinjaman' => $total_pinjaman,
-            'tanggal_disetujui' => now(),
-            'status_pinjaman' => 'belum_aktif',
-        ];
-        $pinjaman = $this->pinjamanRepository->create($dataPinjaman);
-
-        return $updatePersetujuan;
+        DB::beginTransaction();
+        try {
+            $fields = ['*'];
+            $persetujuan = $this->persetujuanRepository->getById($fields, $id);
+            $updateData = [
+                'disetujui_oleh' => Auth::id(),
+                'status' => 'disetujui',
+                'tanggal_disetujui' => now(),
+                'catatan' => null,
+            ];
+    
+            $updatePersetujuan = $this->persetujuanRepository->update(
+                $updateData, $id
+            );
+    
+            $dataPengajuan = [
+                'status_pengajuan' => 'persetujuan_akhir',
+            ];
+    
+            $pengajuan = $this->pengajuanPinjamanRepository->update(
+                $dataPengajuan, $persetujuan['id_pengajuan']
+            );
+    
+            $id_pengajuan = $persetujuan['id_pengajuan'];
+            $pengajuan = $this->pengajuanPinjamanRepository->getById(
+                $fields, $id_pengajuan
+            );
+    
+            $id_skema_pinjaman = $pengajuan['id_skema_pinjaman'];
+            $skemaPinjaman = $this->skemaPinjamanRepository->getById(
+                $fields, $id_skema_pinjaman
+            );
+    
+            $jumlah_bunga = $this->hitungBunga(
+                $pengajuan['jumlah_pengajuan'], 
+                $skemaPinjaman['bunga'], 
+                $pengajuan['lama_angsuran']
+            );
+            $total_pinjaman = $jumlah_bunga + $pengajuan['jumlah_pengajuan'];
+    
+            $dataPinjaman = [
+                'id_pengajuan' => $persetujuan['id_pengajuan'],
+                'jumlah_disetujui' => $pengajuan['jumlah_pengajuan'],
+                'jumlah_bunga' => $jumlah_bunga,
+                'total_pinjaman' => $total_pinjaman,
+                'tanggal_disetujui' => now(),
+                'status_pinjaman' => 'belum_aktif',
+            ];
+            $pinjaman = $this->pinjamanRepository->create($dataPinjaman);
+    
+            DB::commit();
+            return $updatePersetujuan;
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     public function updateStatusKetuaTidakSetuju($data, $id)
     {
-        $fields = ['*'];
-        $persetujuan = $this->persetujuanRepository->getById($fields, $id);
-        $updateData = [
-            'disetujui_oleh' => Auth::id(),
-            'status' => 'ditolak',
-            'tanggal_disetujui' => now(),
-            'catatan' => $data['catatan'],
+        DB::beginTransaction();
+        try {
+
+            $fields = ['*'];
+            $persetujuan = $this->persetujuanRepository->getById($fields, $id);
+            $updateData = [
+                'disetujui_oleh' => Auth::id(),
+                'status' => 'ditolak',
+                'tanggal_disetujui' => now(),
+                'catatan' => $data['catatan'],
+            ];
+    
+            $updatePersetujuan = $this->persetujuanRepository->update(
+                $updateData, $id
+            );
+    
+            $dataPengajuan = [
+                'status_pengajuan' => 'ditolak',
+            ];
+    
+            $pengajuan = $this->pengajuanPinjamanRepository->update(
+                $dataPengajuan, $persetujuan['id_pengajuan']
+            );
+    
+            DB::commit();
+            return $updatePersetujuan;
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
+    }
+
+    public function persetujuanAkhir($dokumen, $id)
+    {
+        $namaFile = null;
+
+        if ($dokumen) {
+            $namaFile = time() . '_' . $dokumen->getClientOriginalName();
+            $dokumen->move(public_path('dokumen_pinjaman'), $namaFile);
+        }
+
+        $data = [
+            'status_pengajuan' => 'pencairan',
+            'dokumen_ttd'      => $namaFile,
         ];
 
-        $updatePersetujuan = $this->persetujuanRepository->update(
-            $updateData, $id
-        );
+        return $this->pengajuanPinjamanRepository->update($data, $id);
+    }
 
-        $dataPengajuan = [
-            'status_pengajuan' => 'ditolak',
-        ];
-
-        $pengajuan = $this->pengajuanPinjamanRepository->update(
-            $dataPengajuan, $persetujuan['id_pengajuan']
-        );
-
-        return $updatePersetujuan;
+    public function getPencairan($fields)
+    {
+        return $this->pengajuanPinjamanRepository->getPencairan($fields);
     }
 
     public function pencairan($fields, $id)
@@ -236,7 +304,6 @@ class PersetujuanService {
         
         try {
             $pinjaman = $this->pinjamanRepository->getById($fields, $id);
-        
             $data = [
                 'status_pinjaman' => 'aktif',
             ];
@@ -246,6 +313,14 @@ class PersetujuanService {
             $pengajuan = $this->pengajuanPinjamanRepository->getById(
                 $fields, $pinjaman['id_pengajuan']
             );
+
+            $dataPengajuan = [
+                'status_pengajuan' => 'disetujui',
+            ];
+            $updatePengajuan = $this->pengajuanPinjamanRepository->update(
+                $dataPengajuan, $pengajuan['id']
+            );
+
             $lama_angsuran = $pengajuan['lama_angsuran'];
             $jumlah_angsuran = $pinjaman['total_pinjaman'] / $lama_angsuran;
             
@@ -254,7 +329,6 @@ class PersetujuanService {
         
             // Generate data angsuran
             for ($i = 1; $i <= $lama_angsuran; $i++) {
-        
                 $dataAngsuran = [
                     'id_pinjaman' => $pinjaman['id'],
                     'angsuran_ke' => $i,
@@ -263,26 +337,19 @@ class PersetujuanService {
                         addMonths($i - 1),
                     'status_bayar' => 'belum_bayar',
                 ];
-        
                 $angsuran = $this->angsuranRepository->create($dataAngsuran);
             }
-
             DB::commit();
-    
             return $updatePinjaman;
         } catch (Exception $e) {
             DB::rollBack();
-
-            return response()->json([
-                'message' => 'Pencairan gagal',
-                'error' => $e->getMessage()
-            ], 500);
+            throw $e;
         }
     }
 
-    public function hitungBunga($bunga, $tenor)
+    public function hitungBunga($nominal, $bunga, $tenor)
     {
-        $jumlah_bunga = $bunga * $tenor;
+        $jumlah_bunga = ($nominal * $bunga / 100) * $tenor;
         return $jumlah_bunga;
     }
 }

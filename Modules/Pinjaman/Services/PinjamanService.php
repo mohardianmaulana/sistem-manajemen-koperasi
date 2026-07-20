@@ -2,6 +2,7 @@
 
 namespace Modules\Pinjaman\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Modules\Pinjaman\Entities\Pinjaman;
 use Modules\Pinjaman\Repositories\PinjamanRepository;
 
@@ -13,22 +14,9 @@ class PinjamanService {
         $this->pinjamanRepository = $pinjamanRepository;
     }
 
-    public function getAll($fields, $status_pinjaman = null, $id_skema_pinjaman = null)
+    public function monitoring($status = null, $skema = null)
     {
-        $pinjaman = Pinjaman::select($fields)->with('pengajuan.skemaPinjaman');
-
-        if ($status_pinjaman) {
-            $pinjaman->where('status_pinjaman', $status_pinjaman);
-        }
-
-        // FILTER SKEMA
-        if ($id_skema_pinjaman) {
-            $pinjaman->whereHas('pengajuan', function ($q) use ($id_skema_pinjaman) {
-                $q->where('id_skema_pinjaman', $id_skema_pinjaman);
-            });
-        }
-
-        return $pinjaman->get();
+        return $this->pinjamanRepository->monitoring($status, $skema);
     }
 
     public function getById($fields, $id)
@@ -41,13 +29,9 @@ class PinjamanService {
         return $this->pinjamanRepository->cekPinjamanAktif($user_id);
     }
 
-    // public function create($data)
-    // {
-    //     return $this->pinjamanRepository->create($data);
-    // }
-
-    // public function update($data, $id)
-    // {
-    //     return $this->pinjamanRepository->update($data, $id);
-    // }
+    public function getByAnggota($fields)
+    {
+        $user = Auth::id();
+        return $this->pinjamanRepository->getByAnggota($fields, $user);
+    }
 }

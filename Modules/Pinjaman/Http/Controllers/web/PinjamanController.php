@@ -6,6 +6,7 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Pinjaman\Services\PengajuanPinjamanService;
 use Modules\Pinjaman\Services\PinjamanService;
 use Modules\Pinjaman\Services\SkemaPinjamanService;
 
@@ -13,11 +14,13 @@ class PinjamanController extends Controller
 {
     private PinjamanService $pinjamanService;
     private SkemaPinjamanService $skemaPinjamanService;
+    private PengajuanPinjamanService $pengajuanPinjamanService;
 
-    public function __construct(PinjamanService $pinjamanService, SkemaPinjamanService $skemaPinjamanService)
+    public function __construct(PinjamanService $pinjamanService, SkemaPinjamanService $skemaPinjamanService, PengajuanPinjamanService $pengajuanPinjamanService)
     {
         $this->pinjamanService = $pinjamanService;
         $this->skemaPinjamanService = $skemaPinjamanService;
+        $this->pengajuanPinjamanService = $pengajuanPinjamanService;
     }
 
     /**
@@ -26,30 +29,57 @@ class PinjamanController extends Controller
      */
     public function index(Request $request)
     {
-        $fields = ['*'];
-        $pinjaman = $this->pinjamanService->getAll($fields, $request->status_pinjaman, $request->id_skema_pinjaman);
-        $skemaPinjaman = $this->skemaPinjamanService->getAll($fields);
-        return view('pinjaman::pinjaman.index', compact('pinjaman', 'skemaPinjaman'));
+        $status = $request->status_pinjaman;
+        $skema = $request->id_skema_pinjaman;
+
+        $pinjaman = $this->pinjamanService
+            ->monitoring($status, $skema);
+
+        $skemaPinjaman = $this->skemaPinjamanService
+            ->getAll(['*']);
+
+        $dashboard = [
+            'totalAktif' => $pinjaman
+                ->where('status_pinjaman','aktif')
+                ->count(),
+
+            'totalNominal' => $pinjaman
+                ->where('status_pinjaman','aktif')
+                ->sum('total_pinjaman'),
+
+            'jatuhTempo' => $pinjaman->filter(function ($item){
+                return $item->angsuran
+                        ->where('status_bayar','belum_bayar')
+                        ->whereBetween(
+                            'tanggal_jatuh_tempo',
+                            [
+                                now()->startOfMonth(),
+                                now()->endOfMonth()
+                            ]
+                        )->count() > 0;
+            })->count(),
+
+            'gagalDebet' => $pinjaman->filter(function ($item){
+                return $item->angsuran
+                        ->where('status_bayar','gagal_debet')
+                        ->count() > 0;
+            })->count(),
+        ];
+
+        return view(
+            'pinjaman::pinjaman.index',
+            compact('pinjaman', 'dashboard', 'skemaPinjaman')
+        );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     * @return Renderable
-     */
-    // public function create()
-    // {
-    //     return view('pinjaman::create');
-    // }
+    public function indexAnggota()
+    {
+        $fields = ['*'];
+        $pinjaman = $this->pinjamanService->getByAnggota($fields);
+        $pengajuanPinjaman = $this->pengajuanPinjamanService->getByAnggota($fields);
 
-    /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Renderable
-     */
-    // public function store(Request $request)
-    // {
-    //     //
-    // }
+        return view('pinjaman::pinjaman.indexAnggota', compact('pinjaman', 'pengajuanPinjaman'));
+    }
 
     /**
      * Show the specified resource.
@@ -72,35 +102,4 @@ class PinjamanController extends Controller
             ]);
         }
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    // public function edit($id)
-    // {
-    //     return view('pinjaman::edit');
-    // }
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
-    // public function update(Request $request, $id)
-    // {
-    //     //
-    // }
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    // public function destroy($id)
-    // {
-    //     //
-    // }
 }

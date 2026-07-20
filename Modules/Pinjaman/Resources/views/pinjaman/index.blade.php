@@ -11,8 +11,62 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 style="color: black;">Daftar pinjaman</h4>
                     <div class="mt-3 mb-2">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="small-box bg-success">
+                                    <div class="inner">
+                                        <h3>{{ $dashboard['totalAktif'] }}</h3>
+                                        <p>Total Pinjaman Aktif</p>
+                                    </div>
+
+                                    <div class="icon">
+                                        <i class="fas fa-money-check"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="small-box bg-info">
+                                    <div class="inner">
+                                        <h3>
+                                            Rp {{ number_format($dashboard['totalNominal'],0,',','.') }}
+                                        </h3>
+                                        <p>Total Nilai Pinjaman</p>
+                                    </div>
+
+                                    <div class="icon">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="small-box bg-warning">
+                                    <div class="inner">
+                                        <h3>{{ $dashboard['jatuhTempo'] }}</h3>
+                                        <p>Jatuh Tempo Bulan Ini</p>
+                                    </div>
+
+                                    <div class="icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="small-box bg-danger">
+                                    <div class="inner">
+                                        <h3>{{ $dashboard['gagalDebet'] }}</h3>
+                                        <p>Gagal Debet</p>
+                                    </div>
+
+                                    <div class="icon">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <form id="filterForm" action="{{ route('pinjaman.index') }}" method="GET">
                             <div class="d-flex gap-2">
                                 <select name="status_pinjaman"
@@ -66,10 +120,10 @@
                                     <th class="text-center">No</th>
                                     <th class="text-center">Nama</th>
                                     <th class="text-center">Skema pinjaman</th>
-                                    <th class="text-center">Jumlah disetujui</th>
-                                    <th class="text-center">Jumlah bunga</th>
                                     <th class="text-center">Total pinjaman</th>
-                                    <th class="text-center">Tanggal disetujui</th>
+                                    <th class="text-center">Progress</th>
+                                    <th class="text-center">Sisa pinjaman</th>
+                                    <th class="text-center">Jatuh tempo berikutnya</th>
                                     <th class="text-center">Status</th>
                                     <th class="text-center">Detail</th>
                                 </tr>
@@ -84,13 +138,54 @@
                                         </td>
                                         <td>Rp. {{ number_format($item->jumlah_disetujui, 0, ',', '.') }}</td>
                                         <td>
-                                            Rp. {{ number_format($item->jumlah_bunga, 0, ',', '.') }}
+                                            @php
+                                            $totalAngsuran = $item->angsuran->count();
+
+                                            $lunas = $item->angsuran
+                                                        ->where('status_bayar','lunas')
+                                                        ->count();
+
+                                            $belum = $item->angsuran
+                                                        ->where('status_bayar','!=','lunas')
+                                                        ->count();
+
+                                            $progress = $totalAngsuran == 0
+                                                ? 0
+                                                : round(($lunas/$totalAngsuran)*100);
+                                            @endphp
+                                            {{ $lunas }} / {{ $totalAngsuran }}
+
+                                            <div class="progress mt-1">
+                                                <div class="progress-bar bg-success"
+                                                    role="progressbar"
+                                                    style="width: {{ $progress }}%">
+
+                                                </div>
+                                            </div>
                                         </td>
                                         <td>
-                                            Rp. {{ number_format($item->total_pinjaman, 0, ',', '.') }}
+                                            @php
+                                            $sudahBayar = $item->angsuran
+                                                ->where('status_bayar','lunas')
+                                                ->sum('jumlah_angsuran');
+
+                                            $sisa = $item->total_pinjaman - $sudahBayar;
+                                            @endphp
+                                            Rp {{ number_format($sisa,0,',','.') }}
                                         </td>
                                         <td>
-                                            {{ \Carbon\Carbon::parse($item->tanggal_disetujui)->format('d-m-Y') }}
+                                            @php
+                                            $jatuhTempo = $item->angsuran
+                                                    ->where('status_bayar','!=','lunas')
+                                                    ->sortBy('tanggal_jatuh_tempo')
+                                                    ->first();
+                                            @endphp
+                                            @if($jatuhTempo)
+                                            {{ \Carbon\Carbon::parse(
+                                                $jatuhTempo->tanggal_jatuh_tempo)->locale('id')->translatedFormat('d F Y') }}
+                                            @else
+                                            -
+                                            @endif
                                         </td>
                                         <td>
                                             @if ($item->status_pinjaman == 'belum_aktif')
@@ -121,20 +216,6 @@
                                                     Detail
                                             </button>
                                         </td>
-                                        {{-- <td>
-                                            <a href="{{ route('skemaPinjaman.edit', ['id' => $item->id]) }}" class="btn btn-warning btn-sm">
-                                                <i class="fa-solid fa-pen"></i>
-                                            </a>
-                                            <form action="" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-
-                                                <button type="submit"
-                                                        class="btn btn-danger btn-sm">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td> --}}
                                     </tr>
                                 @empty
                                     <tr>
@@ -152,194 +233,207 @@
     </div>
 @stop
 
+@foreach ($pinjaman as $item)
 <div class="modal fade"
     id="detailModal{{ $item->id }}"
     tabindex="-1"
     role="dialog"
     aria-hidden="true">
 
-    <div class="modal-dialog modal-lg" role="document">
-
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-
-            {{-- HEADER --}}
             <div class="modal-header bg-primary">
-
                 <h5 class="modal-title">
-                    Detail Pinjaman
+                    Detail Monitoring Pinjaman
                 </h5>
 
                 <button type="button"
                         class="close text-white"
-                        data-dismiss="modal"
-                        aria-label="Close">
-
-                    <span aria-hidden="true">&times;</span>
-
+                        data-dismiss="modal">
+                    <span>&times;</span>
                 </button>
-
             </div>
 
-            {{-- BODY --}}
             <div class="modal-body">
+                @php
+                    $totalAngsuran = $item->angsuran->count();
+                    $lunas = $item->angsuran->where('status_bayar','lunas')->count();
+                    $gagal = $item->angsuran->where('status_bayar','gagal_debet')->count();
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <table class="table table-bordered">
+                    $progress = $totalAngsuran == 0
+                        ? 0
+                        : round(($lunas/$totalAngsuran)*100);
 
-                        <tr>
-                            <th width="35%">Nama Anggota</th>
-                            <td>{{ $item->pengajuan->users->name }}</td>
-                        </tr>
+                    $sudahBayar = $item->angsuran
+                        ->where('status_bayar','lunas')
+                        ->sum('jumlah_angsuran');
 
-                        <tr>
-                            <th>Skema</th>
-                            <td>{{ $item->pengajuan->skemaPinjaman->nama }}</td>
-                        </tr>
+                    $sisa = $item->total_pinjaman - $sudahBayar;
 
-                        <tr>
-                            <th>Pengajuan</th>
-                            <td>
-                                Rp.
-                                {{ number_format($item->pengajuan->jumlah_pengajuan, 0, ',', '.') }}
-                            </td>
-                        </tr>
+                    $jatuhTempo = $item->angsuran
+                        ->where('status_bayar','!=','lunas')
+                        ->sortBy('tanggal_jatuh_tempo')
+                        ->first();
+                @endphp
 
-                        <tr>
-                            <th>Tenor</th>
-                            <td>
-                                {{ $item->pengajuan->lama_angsuran }}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>Bunga</th>
-                            <td>
-                                {{ $item->pengajuan->skemaPinjaman->bunga }} %
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>No HP</th>
-                            <td>
-                                {{ $item->pengajuan->no_hp }}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>No KTP</th>
-                            <td>
-                                {{ $item->pengajuan->no_ktp }}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>No Rekening</th>
-                            <td>
-                                {{ $item->pengajuan->no_rekening }}
-                            </td>
-                        </tr>
-                        </table>
+                {{-- Ringkasan --}}
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="small-box bg-info">
+                            <div class="inner">
+                                <h4>{{ $lunas }}/{{ $totalAngsuran }}</h4>
+                                <p>Angsuran Lunas</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <table class="table table-bordered">
-                        <tr>
-                            <th>Alamat</th>
-                            <td>
-                                {{ $item->pengajuan->alamat }}
-                            </td>
-                        </tr>
+                    <div class="col-md-3">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h4>{{ $progress }}%</h4>
+                                <p>Progress Pembayaran</p>
+                            </div>
+                        </div>
+                    </div>
 
-                        <tr>
-                            <th>Nama istri/suami</th>
-                            <td>
-                                {{ $item->pengajuan->nama_istri_suami }}
-                            </td>
-                        </tr>
+                    <div class="col-md-3">
+                        <div class="small-box bg-warning">
+                            <div class="inner">
+                                <h4>
+                                    Rp {{ number_format($sisa,0,',','.') }}
+                                </h4>
+                                <p>Sisa Pinjaman</p>
+                            </div>
+                        </div>
+                    </div>
 
-                        <tr>
-                            <th>Jumlah Disetujui</th>
-                            <td>
-                                Rp.
-                                {{ number_format($item->jumlah_disetujui, 0, ',', '.') }}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>Jumlah Bunga</th>
-                            <td>
-                                Rp.
-                                {{ number_format($item->jumlah_bunga, 0, ',', '.') }}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>Total Pinjaman</th>
-                            <td>
-                                Rp.
-                                {{ number_format($item->total_pinjaman, 0, ',', '.') }}
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>Tanggal pengajuan</th>
-                            <td>{{ \Carbon\Carbon::parse($item->pengajuan->tanggal_pengajuan)->format('d-m-Y') }}</td>
-                        </tr>
-                        
-                        <tr>
-                            <th>Tanggal Disetujui</th>
-                            <td>{{ \Carbon\Carbon::parse($item->tanggal_disetujui)->format('d-m-Y') }}</td>
-                        </tr>
-
-                        <tr>
-                            <th>Status Pinjaman</th>
-                            <td>
-
-                                @if ($item->status_pinjaman == 'belum_aktif')
-                                    <span class="badge badge-danger">
-                                        Belum Aktif
-                                    </span>
-
-                                @elseif ($item->status_pinjaman == 'aktif')
-                                    <span class="badge badge-success">
-                                        Aktif
-                                    </span>
-
-                                @elseif ($item->status_pinjaman == 'selesai')
-                                    <span class="badge badge-info">
-                                        Selesai
-                                    </span>
-
-                                @endif
-
-                            </td>
-                        </tr>
-
-                        </table>
+                    <div class="col-md-3">
+                        <div class="small-box bg-danger">
+                            <div class="inner">
+                                <h4>{{ $gagal }}</h4>
+                                <p>Gagal Debet</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+                <div class="row">
+                    {{-- Informasi Pinjaman --}}
+                    <div class="col-md-6">
+                        <table class="table table-bordered">
+                            <tr>
+                                <th width="40%">Nama Anggota</th>
+                                <td>{{ $item->pengajuan->users->name }}</td>
+                            </tr>
+
+                            <tr>
+                                <th>Skema Pinjaman</th>
+                                <td>{{ $item->pengajuan->skemaPinjaman->nama }}</td>
+                            </tr>
+
+                            <tr>
+                                <th>Nominal Disetujui</th>
+                                <td>
+                                    Rp {{ number_format($item->jumlah_disetujui,0,',','.') }}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Total Pinjaman</th>
+                                <td>
+                                    Rp {{ number_format($item->total_pinjaman,0,',','.') }}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Tenor</th>
+                                <td>{{ $item->pengajuan->lama_angsuran }} Bulan</td>
+                            </tr>
+
+                            <tr>
+                                <th>Bunga</th>
+                                <td>{{ $item->pengajuan->skemaPinjaman->bunga }} %</td>
+                            </tr>
+
+                            <tr>
+                                <th>Tanggal Disetujui</th>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($item->tanggal_disetujui)->locale('id')->translatedFormat('d F Y') }}
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th>Jatuh Tempo Berikutnya</th>
+                                <td>
+                                    @if($jatuhTempo)
+                                        {{ \Carbon\Carbon::parse($jatuhTempo->tanggal_jatuh_tempo)->locale('id')->translatedFormat('d F Y') }}
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    {{-- Riwayat Angsuran --}}
+                    <div class="col-md-6">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr class="text-center">
+                                    <th>Angsuran Ke</th>
+                                    <th>Nominal</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach($item->angsuran as $angsuran)
+                                <tr class="text-center">
+                                    <td>{{ $angsuran->angsuran_ke }}</td>
+                                    <td>
+                                        Rp {{ number_format($angsuran->jumlah_angsuran,0,',','.') }}
+                                    </td>
+                                    <td>
+                                        @if($angsuran->status_bayar=='lunas')
+                                            <span class="badge badge-success">
+                                                Lunas
+                                            </span>
+                                        @elseif($angsuran->status_bayar=='gagal_debet')
+                                            <span class="badge badge-danger">
+                                                Gagal debet
+                                            </span>
+                                        @elseif($angsuran->status_bayar=='gagal_verifikasi')
+                                            <span class="badge badge-danger">
+                                                Gagal verifikasi
+                                            </span>
+                                        @elseif($angsuran->status_bayar=='verifikasi')
+                                            <span class="badge badge-primary">
+                                                Verifikasi
+                                            </span>
+                                        @else
+                                            <span class="badge badge-warning">
+                                                Belum Bayar
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            {{-- FOOTER --}}
             <div class="modal-footer">
-
-                <button type="button"
-                        class="btn btn-secondary"
+                <button class="btn btn-secondary"
                         data-dismiss="modal">
-
                     Tutup
-
                 </button>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
+@endforeach
 
 @section('css')
 	 <!--some css

@@ -24,7 +24,7 @@ class SkemaPinjamanFactory extends Factory
                 'Pinjaman Darurat',
             ]),
             'min_nominal' => 500000,
-            'max_nominal' => 10000000,
+            'max_nominal' => 1000000,
             'min_tenor' => 1,
             'max_tenor' => 24,
             'bunga' => 1.00,
