@@ -2,6 +2,8 @@
 
 namespace App\Models\Core;
 
+use App\Models\Core\Staff;
+use App\Models\Core\Unit;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,6 +12,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 use Auth;
+use Modules\SHU\Entities\ShuAnggota;
+use Modules\Simpanan\Entities\MasterSimpananSukarela;
+use Modules\Simpanan\Entities\MasterSimpananWajib;
+use Modules\Simpanan\Entities\SimpananPokok;
+use Modules\Simpanan\Entities\SimpananSukarela;
+use Modules\Simpanan\Entities\SimpananWajib;
 
 class User extends Authenticatable
 {
@@ -23,6 +31,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'nip',
         'email',
         'username',
         'password',
@@ -30,7 +39,12 @@ class User extends Authenticatable
 		'staff',
         'status',
 		'role_aktif',
-		'tanda_tangan',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'alamat',
+        'no_rek',
+        'file_sk',
+        'tanda_tangan',
     ];
 
 	protected static function newFactory()
@@ -55,6 +69,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'tanggal_lahir' => 'date',
     ];
 	
 	public function token()
@@ -91,9 +106,10 @@ class User extends Authenticatable
         return $this->belongsTo(Unit::class, 'unit');
     }
 	
-	public function getUnit(){
-		return $this->hasOne(Unit::class,'id','unit');
-	}
+     public function getUnit()
+    {
+        return $this->belongsTo(Unit::class, 'unit', 'id');
+    }
 	
 	public function getStaff(){
 		return $this->hasOne(Staff::class,'id','staff');
@@ -110,4 +126,34 @@ class User extends Authenticatable
 		if($rol[$this->role_aktif]==$roleCheck)return true;
 		return false;
 	}
+
+	public function simpananPokok()
+    {
+        return $this->hasMany(SimpananPokok::class, 'id_anggota');
+    }
+
+	 public function simpananSukarela()
+    {
+        return $this->hasMany(SimpananSukarela::class, 'id_anggota');
+    }
+
+    public function masterSimpananSukarela()
+    {
+        return $this->hasMany(MasterSimpananSukarela::class, 'id_anggota');
+    }
+
+    public function simpananWajib()
+    {
+        return $this->hasMany(SimpananWajib::class, 'id_anggota');
+    }
+
+    public function masterSimpananWajib()
+    {
+        return $this->hasMany( MasterSimpananWajib::class, 'id_anggota');
+    }
+
+    public function shuAnggota()
+    {
+        return $this->hasMany(ShuAnggota::class, 'id_anggota');
+    }
 }

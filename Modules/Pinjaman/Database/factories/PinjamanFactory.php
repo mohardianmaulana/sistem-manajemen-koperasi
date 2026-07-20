@@ -16,10 +16,16 @@ class PinjamanFactory extends Factory
     public function definition()
     {
         return [
-            'jumlah_disetujui' => 500000,
-            'tanggal_disetujui' => '2026-06-01',
-            'jumlah_bunga' => '90000',
-            'total_pinjaman' => '590000',
+            'id_pengajuan' => 1,
+
+            'jumlah_disetujui' => 5000000,
+
+            'jumlah_bunga' => 500000,
+
+            'total_pinjaman' => 5500000,
+
+            'tanggal_disetujui' => now(),
+
             'status_pinjaman' => 'aktif',
         ];
     }

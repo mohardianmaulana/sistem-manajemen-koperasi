@@ -16,15 +16,17 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-			$table->string('username')->unique();
-            $table->string('email')->unique();
+			$table->string('username')->unique()->nullable();
+            $table->string('email')->unique()->nullable();
 			$table->integer('unit')->nullable()->unsigned();
 			$table->integer('staff')->nullable()->unsigned();//pengusul cuman pada staff no 3 & 4
-            $table->string('status');//status 0 = tidak aktif, 1 = internal, 2 = eksternal
+            $table->string('status')->nullable();//status 0 = tidak aktif, 1 = internal, 2 = eksternal
 			$table->string('role_aktif')->default('0');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('no_rek')->nullable();
             $table->string('tanda_tangan')->nullable();
+            $table->string('dokumen_ttd');
             $table->rememberToken();
             $table->timestamps();
         });

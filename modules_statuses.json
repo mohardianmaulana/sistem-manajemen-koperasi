@@ -1,4 +1,7 @@
 {
     "Kepegawaian": true,
-    "Pinjaman": true
+    "Pinjaman": true,
+    "Simpanan": true,
+    "SHU": true,
+    "User": true
 }
