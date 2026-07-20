@@ -26,7 +26,6 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('no_rek')->nullable();
             $table->string('tanda_tangan')->nullable();
-            $table->string('dokumen_ttd');
             $table->rememberToken();
             $table->timestamps();
         });
