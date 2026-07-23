@@ -28,8 +28,9 @@ class SimpananSukarelaController extends Controller
     public function index()
     {
          $data = $this->service->getAll();
+         $summary = $this->service->getSummary();
 
-         return view('simpanan::simpanansukarela.indexSimpananSukarela', compact('data'));
+         return view('simpanan::simpanansukarela.indexSimpananSukarela', compact('data', 'summary'));
     }
 
     /**

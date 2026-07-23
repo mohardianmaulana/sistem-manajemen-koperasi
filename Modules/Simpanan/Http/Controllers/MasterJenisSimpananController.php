@@ -6,14 +6,20 @@ use Illuminate\Contracts\Support\Renderable;
 use Modules\Simpanan\Http\Requests\MasterJenisSimpananRequest;
 use Illuminate\Routing\Controller;
 use Modules\Simpanan\Services\MasterJenisSimpananService;
+use Modules\Simpanan\Services\SimpananSukarelaService;
 
 class MasterJenisSimpananController extends Controller
 {
-    protected $service;
 
-    public function __construct(MasterJenisSimpananService $service)
-    {
+    protected $service;
+    protected $simpananSukarelaService;
+
+    public function __construct(
+        MasterJenisSimpananService $service,
+        SimpananSukarelaService $simpananSukarelaService
+    ) {
         $this->service = $service;
+        $this->simpananSukarelaService = $simpananSukarelaService;
     }
     /**
      * Display a listing of the resource.
@@ -42,9 +48,18 @@ class MasterJenisSimpananController extends Controller
      */
     public function store(MasterJenisSimpananRequest $request)
     {
-         $this->service->store($request->validated());
+         $jadwal = $this->service->store($request->validated());
 
-         return redirect()->route('master-jenis-simpanan.index')->with('success', 'Data berhasil ditambahkan');
+    if (
+        $jadwal->jenis == 'Simpanan Sukarela' &&
+        $this->service->isActive($jadwal)
+    ) {
+        $this->simpananSukarelaService->generatePeriode($jadwal);
+    }
+
+    return redirect()
+        ->route('master-jenis.index')
+        ->with('success', 'Jadwal berhasil ditambahkan.');
     }
 
     /**
@@ -66,8 +81,21 @@ class MasterJenisSimpananController extends Controller
      */
     public function update(MasterJenisSimpananRequest $request, $id)
     {
-        $this->service->update($id, $request->validated());
+            $jadwal = $this->service->update(
+            $id,
+            $request->validated()
+        );
 
-        return redirect()->route('master-jenis-simpanan.index')->with('success', 'Data berhasil diubah');
+        
+        if (
+            $jadwal->nama_jenis_simpanan == 'Simpanan Sukarela' &&
+            $this->service->isActive($jadwal)
+        ) {
+            $this->simpananSukarelaService->generatePeriode($jadwal);
+        }
+
+        return redirect()
+            ->route('master-jenis-simpanan.index')
+            ->with('success', 'Jadwal berhasil diperbarui.');
     }
 }

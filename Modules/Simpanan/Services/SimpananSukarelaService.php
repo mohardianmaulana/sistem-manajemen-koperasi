@@ -4,6 +4,7 @@ namespace Modules\Simpanan\Services;
 
 use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Support\Carbon;
 use Modules\Simpanan\Repositories\SimpananSukarelaRepository;
 use Modules\Simpanan\Services\MasterJenisSimpananService as ServicesMasterJenisSimpananService;
 
@@ -25,13 +26,29 @@ class SimpananSukarelaService
      */
     public function getAll()
     {
-        if (Auth::user()->hasRole('admin')) {
-        return $this->repository->getAll();
-        }
+        $idAnggota = Auth::user()->hasRole('admin')
+            ? null
+            : Auth::id();
 
-        return $this->repository->getAll(Auth::id());
+        return $this->repository->getAll(
+            $idAnggota,
+            request('bulan'),
+            request('tahun')
+        );
     }
 
+    public function getSummary()
+    {
+        $idAnggota = Auth::user()->hasRole('admin')
+            ? null
+            : Auth::id();
+
+        return $this->repository->getSummary(
+            $idAnggota,
+            request('bulan'),
+            request('tahun')
+        );
+    }
     /**
      * CREATE
      */
@@ -129,13 +146,44 @@ class SimpananSukarelaService
         return $master;
     }
 
-     public function exportAutoDebit()
+    public function exportAutoDebit()
     {
-        return $this->repository->exportAutoDebit();
+        return $this->repository->exportAutoDebit(
+            request('bulan'),
+            request('tahun')
+        );
     }
 
+    /**
+     * Total autodebit.
+     */
     public function totalAutoDebit()
     {
-        return $this->repository->totalAutoDebit();
+        return $this->repository->totalAutoDebit(
+            request('bulan'),
+            request('tahun')
+        );
+    }
+
+    public function generatePeriode($jadwal)
+    {
+        $masters = $this->repository->getMasterSiapGenerate();
+
+        foreach ($masters as $master) {
+
+            if ($this->repository->sudahAdaPeriode(
+                $master->id_anggota,
+                $jadwal->tanggal_mulai
+            )) {
+                continue;
+            }
+
+            $this->repository->createPeriode([
+                'id_anggota' => $master->id_anggota,
+                'nilai'      => $master->nilai,
+                'periode'    => $jadwal->tanggal_mulai,
+                'tahun'      => Carbon::parse($jadwal->tanggal_mulai)->year,
+            ]);
+        }
     }
 }

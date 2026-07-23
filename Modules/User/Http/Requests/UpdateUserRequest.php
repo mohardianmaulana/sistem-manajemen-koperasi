@@ -41,6 +41,8 @@ class UpdateUserRequest extends FormRequest
 
             'staff' => 'required|exists:staffs,id',
 
+            'role_aktif' => 'required|exists:roles,name',
+
             'status' => 'required',
 
             'file_sk' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -66,7 +68,7 @@ class UpdateUserRequest extends FormRequest
 
             'email.unique' => 'Email sudah digunakan.',
             
-            'role' => 'required|exists:roles,name',
+            'role_aktif.required'=>'Hak akses harus diberikan'
 
         ];
     }
