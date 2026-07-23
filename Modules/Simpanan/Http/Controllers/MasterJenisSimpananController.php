@@ -58,7 +58,7 @@ class MasterJenisSimpananController extends Controller
     }
 
     return redirect()
-        ->route('master-jenis.index')
+        ->route('master-jenis-simpanan.index')
         ->with('success', 'Jadwal berhasil ditambahkan.');
     }
 

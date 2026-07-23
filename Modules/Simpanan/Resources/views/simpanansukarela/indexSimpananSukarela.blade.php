@@ -388,118 +388,145 @@
 
                         </td>
 
-                        <td class="text-center align-middle">
+                       <td class="text-center align-middle">
 
-                            @if($item->status == 'pending')
+    @switch($item->status)
 
-                                <span class="badge badge-warning">
+        @case('pending')
 
-                                    <i class="fas fa-clock"></i>
+            <span class="badge badge-warning">
 
-                                    Pending
+                <i class="fas fa-clock"></i>
 
-                                </span>
+                Pending
 
-                            @elseif($item->status == 'selesai')
+            </span>
 
-                                <span class="badge badge-success">
+            @break
 
-                                    <i class="fas fa-check-circle"></i>
+        @case('selesai')
 
-                                    Selesai
+            <span class="badge badge-success">
 
-                                </span>
+                <i class="fas fa-check-circle"></i>
 
-                            @else
+                Selesai
 
-                                <span class="badge badge-danger">
+            </span>
 
-                                    <i class="fas fa-times-circle"></i>
+            @break
 
-                                    Tidak Berhasil
+        @case('tidak berhasil')
 
-                                </span>
+            <span class="badge badge-danger">
 
-                            @endif
+                <i class="fas fa-times-circle"></i>
 
-                        </td>
+                Tidak Berhasil
 
-                        <td class="text-center align-middle">
+            </span>
 
-                            @role('admin')
+            @break
 
-                            <a
-                                href="{{ route('simpanan-sukarela.show', $item->id) }}"
-                                class="btn btn-success btn-sm">
+    @endswitch
 
-                                <i class="fas fa-check-circle"></i>
+</td>
 
-                                Verifikasi
+<td class="text-center align-middle">
 
-                            </a>
+    {{-- ================= ADMIN ================= --}}
+    @role('admin')
 
-                        @else
+        @if($item->status == 'selesai')
 
-                            @if($item->status == 'pending')
+            <button
+                class="btn btn-success btn-sm"
+                disabled>
 
-                                <a
-                                    href="{{ route('simpanan-sukarela.show', $item->id) }}"
-                                    class="btn btn-warning btn-sm">
+                <i class="fas fa-check"></i>
 
-                                    <i class="fas fa-edit"></i>
+                Selesai
 
-                                    Ubah
+            </button>
 
-                                </a>
+        @else
 
-                            @elseif($item->status == 'selesai')
+            <a
+                href="{{ route('simpanan-sukarela.verifikasi', $item->id) }}"
+                class="btn btn-success btn-sm">
 
-                                <button
-                                    class="btn btn-success btn-sm"
-                                    disabled>
+                <i class="fas fa-check-circle"></i>
 
-                                    <i class="fas fa-check"></i>
+                Verifikasi
 
-                                    Selesai
+            </a>
 
-                                </button>
+        @endif
 
-                            @else
+    @endrole
 
-                                <a
-                                    href="{{ route('simpanan-sukarela.show', $item->id) }}"
-                                    class="btn btn-danger btn-sm">
+    {{-- ================= ANGGOTA ================= --}}
+    @role('anggota')
 
-                                    <i class="fas fa-upload"></i>
+        @if($item->status == 'pending')
 
-                                    Upload Bukti
+            <a
+                href="{{ route('simpanan-sukarela.edit', $item->id) }}"
+                class="btn btn-warning btn-sm">
 
-                                </a>
+                <i class="fas fa-edit"></i>
 
-                            @endif
+                Ubah
 
-                        @endrole
+            </a>
 
-                    </td>
+        @elseif($item->status == 'tidak berhasil')
 
-                    </tr>
+            <a
+                href="{{ route('simpanan-sukarela.upload-bukti', $item->id) }}"
+                class="btn btn-danger btn-sm">
 
-                @empty
+                <i class="fas fa-upload"></i>
 
-                    <tr>
+                Upload Bukti
 
-                        <td
-                            colspan="8"
-                            class="text-center text-muted">
+            </a>
 
-                            Belum ada data simpanan sukarela.
+        @elseif($item->status == 'selesai')
 
-                        </td>
+            <button
+                class="btn btn-success btn-sm"
+                disabled>
 
-                    </tr>
+                <i class="fas fa-check"></i>
 
-                @endforelse
+                Selesai
 
+            </button>
+
+        @endif
+
+    @endrole
+
+</td>
+
+</tr>
+
+@empty
+
+<tr>
+
+    <td
+        colspan="8"
+        class="text-center text-muted">
+
+        Belum ada data simpanan sukarela.
+
+    </td>
+
+</tr>
+
+@endforelse
             </tbody>
 
         </table>

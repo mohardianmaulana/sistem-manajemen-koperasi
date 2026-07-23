@@ -13,6 +13,7 @@ class UpdateUserRequest extends FormRequest
      */
      public function rules()
     {
+ 
         $id = $this->route('id');
 
         return [
@@ -41,7 +42,7 @@ class UpdateUserRequest extends FormRequest
 
             'staff' => 'required|exists:staffs,id',
 
-            'role_aktif' => 'required|exists:roles,name',
+            'role' => 'required|exists:roles,name',
 
             'status' => 'required',
 
@@ -72,6 +73,8 @@ class UpdateUserRequest extends FormRequest
 
         ];
     }
+
+    
 
     /**
      * Determine if the user is authorized to make this request.

@@ -8,6 +8,9 @@ use Modules\Simpanan\Services\SimpananSukarelaService;
 use Illuminate\Routing\Controller;
 use Modules\Simpanan\Services\MasterJenisSimpananService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Modules\Simpanan\Http\Requests\UpdatePengajuanRequest;
+use Modules\Simpanan\Http\Requests\UpdateStatusRequest;
+use Modules\Simpanan\Http\Requests\UploadBuktiRequest;
 
 class SimpananSukarelaController extends Controller
 {
@@ -85,9 +88,12 @@ class SimpananSukarelaController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function show($id)
-    { 
+   public function show($id)
+    {
         try {
+
+            $this->masterJenisSimpananService
+                ->cekJadwalAktif('Simpanan Sukarela');
 
             $simpanan = $this->service->findById($id);
 
@@ -104,29 +110,98 @@ class SimpananSukarelaController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    public function update($id, MasterSimpananSukarelaRequest $request)
+    public function updatePengajuan(UpdatePengajuanRequest $request, $id)
     {
-        
         try {
 
-        $this->service->update($id, $request->validated());
+            $this->service->updatePengajuan(
+                $id,
+                $request->validated()
+            );
 
-        return redirect()
-            ->route('simpanan-sukarela.index')
-            ->with('success', 'Data simpanan berhasil diperbarui');
+            return redirect()
+                ->route('simpanan-sukarela.index')
+                ->with('success', 'Pengajuan berhasil diperbarui.');
 
         } catch (\Exception $e) {
 
-            return redirect()
-             ->back()
-             ->withInput()
-             ->with('error', $e->getMessage());
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
+    }
 
+    /**
+     * Form upload bukti
+     */
+    public function uploadBuktiForm($id)
+    {
+        $simpanan = $this->service->findById($id);
+
+        return view(
+            'simpanan::simpanansukarela.uploadBukti',
+            compact('simpanan')
+        );
+    }
+
+    /**
+     * Upload bukti transfer
+     */
+    public function uploadBukti(UploadBuktiRequest $request, $id)
+    {
+        try {
+
+            $this->service->uploadBukti(
+                $id,
+                $request->validated()
+            );
+
+            return redirect()
+                ->route('simpanan-sukarela.index')
+                ->with('success', 'Bukti pembayaran berhasil diunggah.');
+
+        } catch (\Exception $e) {
+
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Form verifikasi
+     */
+    public function verifikasi($id)
+    {
+        $simpanan = $this->service->findById($id);
+
+        return view(
+            'simpanan::simpanansukarela.verifikasi',
+            compact('simpanan')
+        );
+    }
+
+    /**
+     * Update status pengajuan
+     */
+    public function updateStatus(UpdateStatusRequest $request, $id)
+    {
+        try {
+
+            $this->service->updateStatus(
+                $id,
+                $request->validated()
+            );
+
+            return redirect()
+                ->route('simpanan-sukarela.index')
+                ->with('success', 'Status pengajuan berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
         }
     }
 

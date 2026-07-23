@@ -34,13 +34,17 @@ Route::prefix('simpanan-sukarela')->middleware(['auth'])->group(function () {
         Route::middleware(['role:anggota'])->group(function () {
             Route::get('/create','SimpananSukarelaController@create')->name('simpanan-sukarela.create');
             Route::post('/store','SimpananSukarelaController@store')->name('simpanan-sukarela.store');
+            Route::get('/{id}','SimpananSukarelaController@show')->name('simpanan-sukarela.show');
+            Route::get('/{id}/edit', 'SimpananSukarelaController@edit')->name('simpanan-sukarela.edit');
+            Route::put('/{id}', 'SimpananSukarelaController@updatePengajuan')->name('simpanan-sukarela.update');
+            Route::get('/{id}/upload-bukti', 'SimpananSukarelaController@uploadBuktiForm')->name('simpanan-sukarela.upload-bukti');
+            Route::put('/{id}/upload-bukti', 'SimpananSukarelaController@uploadBukti')->name('simpanan-sukarela.upload-bukti.store');
         });
         Route::middleware(['role:admin'])->group(function () {
             Route::get('/export-auto-debit','SimpananSukarelaController@exportAutoDebit')->name('simpanan-sukarela.export-auto-debit');
-
-        });
-        Route::get('/{id}','SimpananSukarelaController@show')->name('simpanan-sukarela.show');
-        Route::put('/{id}','SimpananSukarelaController@update')->name('simpanan-sukarela.update');
+            Route::get('/{id}/verifikasi', 'SimpananSukarelaController@verifikasi')->name('simpanan-sukarela.verifikasi');
+            Route::put('/{id}/verifikasi', 'SimpananSukarelaController@updateStatus')->name('simpanan-sukarela.update-status');
+        }); 
     });
 
 Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {

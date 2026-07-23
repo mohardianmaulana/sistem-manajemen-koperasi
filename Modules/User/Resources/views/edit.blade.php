@@ -466,7 +466,7 @@
                     </label>
 
                     <select
-                        name="role"
+                        name="role_aktif"
                         class="form-control @error('role') is-invalid @enderror">
 
                         <option value="">-- Pilih Role --</option>
@@ -485,7 +485,7 @@
 
                     </select>
 
-                    @error('role')
+                    @error('role_aktif')
                         <span class="invalid-feedback d-block">
                             {{ $message }}
                         </span>
