@@ -161,49 +161,6 @@
 
                     </div>
 
-                    <div class="row">
-
-                        {{-- Persentase Jasa Pengurus --}}
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-
-                                <label>
-
-                                    Persentase Jasa Pengurus (%)
-                                    <span class="text-danger">*</span>
-
-                                </label>
-
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    step="0.01"
-                                    name="persen_jasa_pengurus"
-                                    class="form-control @error('persen_jasa_pengurus') is-invalid @enderror"
-                                    value="{{ old('persen_jasa_pengurus',0) }}">
-
-                                @error('persen_jasa_pengurus')
-
-                                    <span class="invalid-feedback d-block">
-
-                                        {{ $message }}
-
-                                    </span>
-
-                                @enderror
-
-                                <small class="text-muted">
-
-                                    Persentase nominal jasa pengurus yang akan
-                                    dialokasikan kepada anggota.
-
-                                </small>
-
-                            </div>
-
-                        </div>
 
                         {{-- Persentase Pajak --}}
                         <div class="col-md-6">
@@ -247,53 +204,18 @@
                         </div>
 
                     </div>
+                    <div class="card-footer text-right">
+        <button
+            type="submit"
+            id="btnHitung"
+            class="btn btn-success"
+            style="border-radius:10px">
 
-                    <hr>
+            <i class="fas fa-calculator"></i>
+            Hitung SHU Anggota
 
-                    <div class="alert alert-info">
-
-                        <h5>
-
-                            <i class="fas fa-info-circle"></i>
-                            Informasi Perhitungan
-
-                        </h5>
-
-                        <ul class="mb-0">
-
-                            <li>Menghitung SHU Jasa Simpanan setiap anggota.</li>
-
-                            <li>Menghitung SHU Jasa Pinjaman setiap anggota.</li>
-
-                            <li>Mengalokasikan persentase Jasa Pengurus kepada anggota.</li>
-
-                            <li>Menghitung total SHU sebelum pajak.</li>
-
-                            <li>Menghitung potongan pajak.</li>
-
-                            <li>Menghasilkan SHU akhir yang diterima setiap anggota.</li>
-
-                            <li>Menyimpan hasil perhitungan ke database.</li>
-
-                        </ul>
-
-                    </div>
-
-                    <div class="mt-3">
-
-                        <button
-                            type="submit"
-                            id="btnHitung"
-                            class="btn btn-primary"
-                            style="border-radius:10px">
-
-                            <i class="fas fa-calculator"></i>
-
-                            Hitung SHU Anggota
-
-                        </button>
-
-                    </div>
+        </button>
+    </div>
 
                 </form>
 

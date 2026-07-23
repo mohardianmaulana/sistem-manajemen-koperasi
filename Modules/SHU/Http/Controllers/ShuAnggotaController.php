@@ -49,8 +49,6 @@ class ShuAnggotaController extends Controller
 
             $request->periode_akhir,
 
-            $request->persen_jasa_pengurus,
-
             $request->persen_pajak
 
         );

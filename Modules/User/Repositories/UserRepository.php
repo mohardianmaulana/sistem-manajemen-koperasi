@@ -55,4 +55,27 @@ class UserRepository
     {
         return Role::orderBy('name')->get();
     }
+
+    public function findByNip($nip)
+    {    
+        return User::where('nip', $nip)->exists();
+    }
+
+    public function getDashboardSummary()
+    {
+        $query = User::query();
+
+        return [
+            'totalUser' => $query->count(),
+
+            'pendingUser' => User::where(function ($query) {
+                $query->whereNull('username')
+                    ->orWhereNull('email');
+            })->count(),
+
+            'activeUser' => User::whereNotNull('username')
+                ->whereNotNull('email')
+                ->count(),
+        ];
+    }
 }

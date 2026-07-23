@@ -17,7 +17,6 @@ class CreateShuAnggotaTable extends Migration
             $table->id();
             $table->bigInteger('shu_simpanan');
             $table->bigInteger('shu_pinjaman');
-            $table->bigInteger('jasa_pengurus');
             $table->bigInteger('pajak');
             $table->bigInteger('shu_anggota');
             $table->date('periode_awal');

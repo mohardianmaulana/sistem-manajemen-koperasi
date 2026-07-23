@@ -65,6 +65,8 @@ class UpdateUserRequest extends FormRequest
             'email.required' => 'Email wajib diisi.',
 
             'email.unique' => 'Email sudah digunakan.',
+            
+            'role' => 'required|exists:roles,name',
 
         ];
     }

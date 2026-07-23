@@ -98,6 +98,7 @@ class PengajuanPinjamanController extends Controller
      */
     public function store(StorePengajuanPinjamanRequest $request)
     {
+        // dd($request->all());
         try {
             $user_id = Auth::id();
             if ($this->pinjamanService->cekPinjamanAktif($user_id)) {
@@ -107,10 +108,13 @@ class PengajuanPinjamanController extends Controller
                         'pinjaman' => 'Anda masih memiliki pinjaman yang belum selesai.'
                     ]);
             }
-            $this->pengajuanPinjamanService->create($request->validated());
+            // dd($request->validated());
+            $pengajuan = $this->pengajuanPinjamanService->create($request->validated());
+            
 
             return redirect()->route('pengajuanPinjaman.indexAnggota')->with('success', 'Pengajuan pinjaman berhasil diajukan');
         } catch (Exception $e) {
+            // dd($e);
             return redirect()
                 ->route('pengajuanPinjaman.indexAnggota')
                 ->with('error', 'Terjadi kesalahan saat memproses data.');

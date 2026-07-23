@@ -28,8 +28,12 @@ class UserController extends Controller
      public function index()
     {
         $users = $this->service->getAll();
+        $summary = $this->service->getDashboardSummary();
+         return view('user::index', compact(
+        'users',
+        'summary'
+    ));
 
-        return view('user::index', compact('users'));
     }
 
     /**
@@ -59,8 +63,11 @@ class UserController extends Controller
         $this->service->store($request);
 
         return redirect()
-            ->route('user.index')
-            ->with('success', 'Data user berhasil ditambahkan.');
+            ->route('login.show')
+            ->with(
+                'success',
+                'Pendaftaran berhasil. Silakan menunggu proses verifikasi oleh pengurus koperasi.'
+            );
     }
 
     /**

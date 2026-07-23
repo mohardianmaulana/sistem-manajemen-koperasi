@@ -75,6 +75,29 @@
                 <div class="col-lg-4 col-md-7">
                     <div class="card bg-secondary mt-4 border-0 mb-0">
                         <div class="card-body">
+                               @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle mr-1"></i>
+                {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        @endif
+
+        {{-- Pesan error --}}
+        @if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul class="mb-0 pl-3">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            </div>
+        @endif
 							@if (config('services.oauth_server.sso_enable'))
 								{{-- Login For SSO --}}
 								<div class="text-center mb-1">
@@ -123,6 +146,7 @@
 										@enderror
 									</div>
 
+
 									{{-- Login field --}}
 									<div class="row">
 										<div class="col-7">
@@ -141,6 +165,14 @@
 												Masuk
 											</button>
 										</div>
+                                        <div class="text-center mt-3">
+                                            <small class="text-muted">
+                                                Belum memiliki akun?
+                                                <a href="{{ route('user.create') }}" class="font-weight-bold">
+                                                    Daftar di sini
+                                                </a>
+                                            </small>
+                                        </div>
 									</div>
 
 								</form>

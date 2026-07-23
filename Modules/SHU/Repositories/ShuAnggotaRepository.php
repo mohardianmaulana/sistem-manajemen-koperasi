@@ -18,7 +18,7 @@ class ShuAnggotaRepository
         if ($idAnggota !== null) {
         $query->where('id_anggota', $idAnggota);
         }
-        return $query->paginate(5);
+        return $query->paginate(10);
     }
     
     public function getShuKoperasi(
@@ -72,33 +72,40 @@ class ShuAnggotaRepository
     public function totalJasaPinjamanSemua(
     $periodeAwal,
     $periodeAkhir
-    )
-    {
+    ) {
         $total = 0;
 
-        $pinjaman = Pinjaman::with('pengajuan')
-            ->whereBetween('tanggal_disetujui',[$periodeAwal, $periodeAkhir])
-            ->get();
+        $pinjaman = Pinjaman::with('pengajuan')->get();
 
         foreach ($pinjaman as $item) {
+
+            // Lewati jika lama angsuran tidak ada
+            if (!$item->pengajuan || $item->pengajuan->lama_angsuran <= 0) {
+                continue;
+            }
+
+            // Bunga per angsuran
             $bungaPerAngsuran =
                 $item->jumlah_bunga /
                 $item->pengajuan->lama_angsuran;
 
+            // Jumlah angsuran yang sudah dibayar pada periode
             $jumlahLunas = Angsuran::where('id_pinjaman', $item->id)
-                ->where('status_bayar','lunas')
-                ->whereBetween('tanggal_jatuh_tempo',[$periodeAwal, $periodeAkhir])
+                ->where('status_bayar', 'lunas')
+                ->whereBetween(
+                    'tanggal_jatuh_tempo',
+                    [$periodeAwal, $periodeAkhir]
+                )
                 ->count();
 
-            $total +=
-                $bungaPerAngsuran *
-                $jumlahLunas;
+            // Jasa pinjaman yang sudah diterima koperasi
+            $total += $bungaPerAngsuran * $jumlahLunas;
         }
 
         return round($total);
     }
 
-    public function totalJasaPinjamanAnggota(
+   public function totalJasaPinjamanAnggota(
     $idAnggota,
     $periodeAwal,
     $periodeAkhir
@@ -116,18 +123,22 @@ class ShuAnggotaRepository
                 'pengajuan_pinjaman.id_anggota',
                 $idAnggota
             )
-            ->whereBetween(
-                'pinjaman.tanggal_disetujui',
-                [$periodeAwal, $periodeAkhir]
-            )
             ->select('pinjaman.*')
             ->get();
 
         foreach ($pinjaman as $item) {
+
+            // Lewati jika lama angsuran tidak ada
+            if (!$item->pengajuan || $item->pengajuan->lama_angsuran <= 0) {
+                continue;
+            }
+
+            // Bunga per angsuran
             $bungaPerAngsuran =
                 $item->jumlah_bunga /
                 $item->pengajuan->lama_angsuran;
 
+            // Jumlah angsuran yang dibayar pada periode
             $jumlahLunas = Angsuran::where(
                     'id_pinjaman',
                     $item->id
@@ -141,9 +152,9 @@ class ShuAnggotaRepository
                     [$periodeAwal, $periodeAkhir]
                 )
                 ->count();
-            $total +=
-                $bungaPerAngsuran *
-                $jumlahLunas;
+
+            // Jasa pinjaman anggota yang sudah dibayar
+            $total += $bungaPerAngsuran * $jumlahLunas;
         }
 
         return round($total);
@@ -155,7 +166,6 @@ class ShuAnggotaRepository
     $periodeAkhir,
     $shuSimpanan,
     $shuPinjaman,
-    $jasaPengurus,
     $shuAnggota,
     $pajak
     )
@@ -172,8 +182,6 @@ class ShuAnggotaRepository
                 'shu_simpanan'  => round($shuSimpanan),
 
                 'shu_pinjaman'  => round($shuPinjaman),
-
-                'jasa_pengurus' => round($jasaPengurus),
 
                 'shu_anggota'   => round($shuAnggota),
 

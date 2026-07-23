@@ -23,9 +23,15 @@ class SimpananWajibController extends Controller
      */
     public function index()
     {
-        $data = $this->service->getAll();
+        $this->service->autoGeneratePeriode();
 
-         return view('simpanan::simpananwajib.indexSimpananWajib', compact('data'));
+        $data = $this->service->getAll();
+        $summary = $this->service->getSummary();
+
+        return view(
+            'simpanan::simpananwajib.indexSimpananWajib',
+            compact('data', 'summary')
+        );
     }
 
     /**
@@ -73,7 +79,7 @@ class SimpananWajibController extends Controller
          return redirect()->route('simpanan-wajib.index')->with('success', 'Data simpanan berhasil diperbarui');
     }
 
-    public function exportAutoDebit()
+   public function exportAutoDebit(Request $request)
     {
         $data = $this->service->exportAutoDebit();
 
@@ -83,7 +89,7 @@ class SimpananWajibController extends Controller
                 ->back()
                 ->with(
                     'error',
-                    'Belum terdapat data auto debit.'
+                    'Tidak terdapat data auto debit sesuai filter yang dipilih.'
                 );
 
         }
@@ -91,11 +97,10 @@ class SimpananWajibController extends Controller
         $pdf = Pdf::loadView(
             'simpanan::pdf',
             [
-
-                'data' => $data,
-
-                'total' => $this->service->totalAutoDebit(),
-
+                'data'   => $data,
+                'total'  => $this->service->totalAutoDebit(),
+                'bulan'  => $request->bulan,
+                'tahun'  => $request->tahun,
             ]
         );
 
@@ -103,5 +108,7 @@ class SimpananWajibController extends Controller
             'Daftar Auto Debit Simpanan Wajib.pdf'
         );
     }
+
+    
 
 }

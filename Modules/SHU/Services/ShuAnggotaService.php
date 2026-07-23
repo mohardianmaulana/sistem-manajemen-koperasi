@@ -28,7 +28,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
     public function hitungSemuaAnggota(
     $periodeAwal,
     $periodeAkhir,
-    $persenJasaPengurus,
+  
     $persenPajak
     ) {
         DB::beginTransaction();
@@ -125,18 +125,6 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
                     $shu->jasa_pinjaman
                 );
 
-                /**
-                 * Menghitung Jasa Pengurus
-                 */
-                $jasaPengurus = $this->hitungJasaPengurus(
-
-                    $shu->jasa_pengurus,
-
-                    $persenJasaPengurus,
-
-                    $users->count()
-
-                );
 
                 /**
                  * Menghitung Total SHU sebelum pajak
@@ -147,7 +135,6 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
                     $shuPinjaman,
 
-                    $jasaPengurus
 
                 );
 
@@ -188,8 +175,6 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
                     $shuSimpanan,
 
                     $shuPinjaman,
-
-                    $jasaPengurus,
 
                     $shuAnggota,
 
@@ -263,46 +248,22 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
     private function hitungTotalShu(
     $shuSimpanan,
-    $shuPinjaman,
-    $jasaPengurus
+    $shuPinjaman
     ) {
         return round(
-
             $shuSimpanan +
-            $shuPinjaman +
-            $jasaPengurus
-
+            $shuPinjaman
         );
     }
+
     private function hitungShuAnggota(
-    $totalShu,
-    $pajak
+        $totalShu,
+        $pajak
     ) {
         return round(
-
             $totalShu -
             $pajak
-
         );
     }
 
-    private function hitungJasaPengurus(
-    $nominalJasaPengurus,
-    $persenJasaPengurus,
-    $jumlahAnggota
-    ) {
-        if ($jumlahAnggota <= 0) {
-            return 0;
-        }
-
-        $nominalDibagikan = round(
-            $nominalJasaPengurus *
-            $persenJasaPengurus / 100
-        );
-
-        return round(
-            $nominalDibagikan /
-            $jumlahAnggota
-        );
-    }
 }

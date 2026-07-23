@@ -4,6 +4,7 @@ namespace Modules\User\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Modules\User\Repositories\UserRepository;
 
 class UserService
@@ -36,61 +37,79 @@ class UserService
      */
     public function store($request)
     {
-            return DB::transaction(function () use ($request) {
+        return DB::transaction(function () use ($request) {
 
-                $data = $request->validated();
+            $data = $request->validated();
 
-                // Upload SK
-                if ($request->hasFile('file_sk')) {
+            // Cek apakah NIP sudah pernah terdaftar
+            $user = $this->repository->findByNip($data['nip']);
 
-                    $data['file_sk'] = $request->file('file_sk')
-                        ->store('file-sk', 'public');
+            if ($user) {
 
+                if ($user->status == 1) {
+                    throw ValidationException::withMessages([
+                        'nip' => 'Pendaftaran Anda sedang menunggu proses verifikasi.'
+                    ]);
                 }
 
-                /**
-                 * Data default saat pendaftaran
-                 */
-                $data['username'] = null;
-                $data['email'] = null;
-                $data['password'] = null;
-                $data['staff'] = null;
-                $data['no_rek'] = null;
-                $data['role_aktif'] = '0';
+                if ($user->status == 2) {
+                    throw ValidationException::withMessages([
+                        'nip' => 'NIP tersebut sudah terdaftar dan telah memiliki akun.'
+                    ]);
+                }
+            }
 
-                /**
-                 * Status Menunggu Verifikasi
-                 */
-                $data['status'] = 1;
+            if ($request->hasFile('file_sk')) {
+                $data['file_sk'] = $request->file('file_sk')
+                    ->store('file-sk', 'public');
+            }
 
-                return $this->repository->store($data);
+            $data['username'] = null;
+            $data['email'] = null;
+            $data['password'] = null;
+            $data['staff'] = null;
+            $data['no_rek'] = null;
+            $data['role_aktif'] = '0';
+            $data['status'] = 1;
 
-            });
+            return $this->repository->store($data);
+        });
     }
-
     /**
      * Mengubah data user
      */
-    public function update($request, $id)
+   public function update($request, $id)
     {
         return DB::transaction(function () use ($request, $id) {
 
             $data = $request->validated();
 
-            // Password diubah jika diisi
             if (!empty($data['password'])) {
                 $data['password'] = Hash::make($data['password']);
             } else {
                 unset($data['password']);
             }
 
-            // Upload SK baru jika ada
             if ($request->hasFile('file_sk')) {
                 $data['file_sk'] = $request->file('file_sk')
                     ->store('file-sk', 'public');
             }
 
-            return $this->repository->update($id, $data);
+            // Role aktif sesuai pilihan admin
+            $data['role_aktif'] = $request->role;
+
+            // User otomatis menjadi aktif setelah diverifikasi
+            $data['status'] = 2;
+
+            // Hapus karena bukan kolom tabel users
+            unset($data['role']);
+
+            $user = $this->repository->update($id, $data);
+
+            // Sinkronkan role Spatie
+            $user->syncRoles($request->role);
+
+            return $user;
         });
     }
 
@@ -121,5 +140,10 @@ class UserService
     public function getAllStaff()
     {
         return $this->repository->getAllStaff();
+    }
+
+    public function getDashboardSummary()
+    {
+        return $this->repository->getDashboardSummary();
     }
 }

@@ -83,7 +83,7 @@
                     <th>Awal Periode</th>
                     <th>Akhir Periode</th>
                     <th>Nama Anggota</th>
-                    <th>Jasa Pengurus</th>
+
                     <th>SHU Simpanan</th>
                     <th>SHU Pinjaman</th>
                     <th>Pajak</th>
@@ -113,10 +113,6 @@
 
                     <td>
                         {{ $item->user->name }}
-                    </td>
-
-                    <td class="text-right">
-                        Rp {{ number_format($item->jasa_pengurus, 0, ',', '.') }}
                     </td>
 
                     <td class="text-right">
@@ -161,6 +157,9 @@
 
         </table>
 
+        <div class="mt-3">
+            {{ $data->links() }}
+        </div>
     </div>
 
 </div>

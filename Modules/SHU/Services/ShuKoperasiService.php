@@ -1,7 +1,7 @@
 <?php
 namespace Modules\SHU\Services;
 
-
+use Exception;
 use Modules\SHU\Repositories\ShuKoperasiRepository;
 
 class ShuKoperasiService
@@ -91,7 +91,7 @@ class ShuKoperasiService
 
         if ($totalPersen != 100) {
 
-            throw new \Exception(
+            throw new Exception(
                 'Total persentase SHU harus tepat 100%.'
             );
 

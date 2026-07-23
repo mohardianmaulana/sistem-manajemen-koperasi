@@ -15,7 +15,7 @@ class SimpananSukarelaRepository
             $query->where('id_anggota', $idAnggota);
         }
 
-        return $query->paginate(5);
+        return $query->paginate(10);
     }
 
     public function store(array $data)

@@ -11,7 +11,6 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-use Auth;
 use Modules\SHU\Entities\ShuAnggota;
 use Modules\Simpanan\Entities\MasterSimpananSukarela;
 use Modules\Simpanan\Entities\MasterSimpananWajib;
@@ -43,6 +42,7 @@ class User extends Authenticatable
         'tanggal_lahir',
         'alamat',
         'no_rek',
+        'no_hp',
         'file_sk',
         'tanda_tangan',
     ];

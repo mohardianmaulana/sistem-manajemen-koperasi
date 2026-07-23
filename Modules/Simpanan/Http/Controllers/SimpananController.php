@@ -23,8 +23,9 @@ class SimpananController extends Controller
     public function index()
     {
          $simpanan = $this->simpananPokokService->getAll();
+         $summary = $this->simpananPokokService->getSummary();
 
-         return view('simpanan::simpananpokok.indexSimpananPokok', compact('simpanan'));
+         return view('simpanan::simpananpokok.indexSimpananPokok', compact('simpanan', 'summary'));
     }
 
     /**

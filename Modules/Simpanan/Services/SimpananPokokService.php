@@ -11,13 +11,21 @@
     public function __construct(SimpananPokokRepository $repository) {
         $this->repository = $repository;
     }
-    public function getAll()
-    {
-        if (Auth::user()->hasRole('admin')) {
-        return $this->repository->getAll();
-        }
 
-        return $this->repository->getAll(Auth::id());
+   public function getAll()
+    {
+        $bulan = request('bulan');
+        $tahun = request('tahun');
+
+        $idAnggota = Auth::user()->hasRole('admin')
+            ? null
+            : Auth::id();
+
+        return $this->repository->getAll(
+            $idAnggota,
+            $bulan,
+            $tahun
+        );
     }
 
     public function getAllUser()
@@ -66,5 +74,21 @@
         }
 
         return $this->repository->update($id, $data);
+    }
+
+    public function getSummary()
+    {
+        $bulan = request('bulan');
+        $tahun = request('tahun');
+
+        $idAnggota = Auth::user()->hasRole('admin')
+            ? null
+            : Auth::id();
+
+        return $this->repository->getSummary(
+            $idAnggota,
+            $bulan,
+            $tahun
+        );
     }
  }
