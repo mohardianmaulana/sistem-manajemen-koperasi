@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,6 +11,12 @@
 |
 */
 
-Route::prefix('unit')->group(function() {
-    Route::get('/', 'UnitController@index');
-});
+Route::prefix('unit')->middleware(['auth', 'role:admin'])->group(function () {
+        Route::get('/', 'UnitController@index')->name('unit.index');
+        Route::get('/create', 'UnitController@create')->name('unit.create');
+        Route::post('/store', 'UnitController@store')->name('unit.store');
+        Route::get('/{id}', 'UnitController@show')->name('unit.show');
+        Route::get('/{id}/edit', 'UnitController@edit')->name('unit.edit');
+        Route::put('/{id}', 'UnitController@update')->name('unit.update');
+        Route::delete('/{id}', 'UnitController@destroy')->name('unit.destroy');
+    });

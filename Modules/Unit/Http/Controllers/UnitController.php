@@ -5,6 +5,9 @@ namespace Modules\Unit\Http\Controllers;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Unit\Services\UnitService;
+use Modules\Unit\Http\Requests\StoreUnitRequest;
+use Modules\Unit\Http\Requests\UpdateUnitRequest;
 
 class UnitController extends Controller
 {
@@ -12,14 +15,27 @@ class UnitController extends Controller
      * Display a listing of the resource.
      * @return Renderable
      */
-    public function index()
+   protected $service;
+
+    public function __construct(UnitService $service)
     {
-        return view('unit::index');
+        $this->service = $service;
     }
 
     /**
-     * Show the form for creating a new resource.
-     * @return Renderable
+     * Menampilkan daftar unit.
+     */
+    public function index(Request $request)
+    {
+        $search = $request->search;
+
+        $units = $this->service->getAll($search);
+
+        return view('unit::index', compact('units'));
+    }
+
+    /**
+     * Menampilkan form tambah unit.
      */
     public function create()
     {
@@ -27,53 +43,93 @@ class UnitController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Renderable
+     * Menyimpan data unit.
      */
-    public function store(Request $request)
+    public function store(StoreUnitRequest $request)
     {
-        //
+        try {
+
+            $this->service->store($request->validated());
+
+            return redirect()
+                ->route('unit.index')
+                ->with('success', 'Data unit berhasil ditambahkan.');
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+
+        }
     }
 
     /**
-     * Show the specified resource.
-     * @param int $id
-     * @return Renderable
+     * Menampilkan detail unit.
      */
     public function show($id)
     {
-        return view('unit::show');
+        $unit = $this->service->findById($id);
+
+        return view('unit::show', compact('unit'));
     }
 
     /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Renderable
+     * Menampilkan form edit unit.
      */
     public function edit($id)
     {
-        return view('unit::edit');
+        $unit = $this->service->findById($id);
+
+        return view('unit::edit', compact('unit'));
     }
 
     /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
+     * Memperbarui data unit.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUnitRequest $request, $id)
     {
-        //
+        try {
+
+            $this->service->update(
+                $request->validated(),
+                $id
+            );
+
+            return redirect()
+                ->route('unit.index')
+                ->with('success', 'Data unit berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+
+        }
     }
 
     /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
+     * Menghapus data unit.
      */
     public function destroy($id)
     {
-        //
+        try {
+
+            $this->service->destroy($id);
+
+            return redirect()
+                ->route('unit.index')
+                ->with('success', 'Data unit berhasil dihapus.');
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
+
+        }
     }
 }

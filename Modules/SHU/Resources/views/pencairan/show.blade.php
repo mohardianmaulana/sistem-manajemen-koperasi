@@ -188,6 +188,22 @@
 
                                 <th>
 
+                                    Nomor Rekening
+
+                                </th>
+
+                                <td>
+
+                                    {{ $data->shuAnggota->user->no_rek }}
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <th>
+
                                     Periode SHU
 
                                 </th>
