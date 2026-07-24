@@ -25,15 +25,13 @@ class UserController extends Controller
      * Display a listing of the resource.
      * @return Renderable
      */
-     public function index()
+     public function index(Request $request)
     {
-        $users = $this->service->getAll();
-        $summary = $this->service->getDashboardSummary();
-         return view('user::index', compact(
-        'users',
-        'summary'
-    ));
+        $summary = $this->service->summary();
 
+        $users = $this->service->getAll($request->search);
+
+        return view('user::index', compact('users', 'summary'));
     }
 
     /**

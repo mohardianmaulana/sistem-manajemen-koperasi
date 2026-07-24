@@ -52,11 +52,52 @@
 
 <div class="card">
 
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header">
 
-        <h5 class="mb-0">
-            Daftar Pendaftaran Anggota
-        </h5>
+        <div class="row align-items-center">
+
+            <div class="col-md-8">
+
+                <form action="{{ route('user.index') }}" method="GET">
+
+                    <div class="input-group">
+
+                        <input
+                            type="text"
+                            name="search"
+                            class="form-control"
+                            placeholder="Cari nama, NIP, atau unit..."
+                            value="{{ request('search') }}">
+
+                        <div class="input-group-append">
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Cari
+                            </button>
+
+                            @if(request()->filled('search'))
+                                <a href="{{ route('user.index') }}" class="btn btn-secondary">
+                                    Reset
+                                </a>
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="col-md-4 text-right">
+
+                <h5 class="mb-0 mt-2">
+                    Daftar Pendaftaran Anggota
+                </h5>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -109,21 +150,13 @@
                                 {{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}
                             </td>
 
-                            <td>
-                                {{ $item->name }}
-                            </td>
+                            <td>{{ $item->name }}</td>
 
-                            <td>
-                                {{ $item->nip ?? '-' }}
-                            </td>
+                            <td>{{ $item->nip ?? '-' }}</td>
 
-                            <td>
-                                {{ optional($item->getUnit)->nama ?? '-' }}
-                            </td>
+                            <td>{{ optional($item->getUnit)->nama ?? '-' }}</td>
 
-                            <td>
-                                {{ $item->no_hp ?? '-' }}
-                            </td>
+                            <td>{{ $item->no_hp ?? '-' }}</td>
 
                             <td class="text-center">
 

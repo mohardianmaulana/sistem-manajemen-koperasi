@@ -19,9 +19,9 @@ class UserService
     /**
      * Menampilkan seluruh data user
      */
-    public function getAll()
+    public function getAll($search = null)
     {
-        return $this->repository->getAll();
+        return $this->repository->getAll($search);
     }
 
     /**
@@ -32,6 +32,10 @@ class UserService
         return $this->repository->findById($id);
     }
 
+    public function summary()
+    {
+        return $this->repository->summary();
+    }
     /**
      * Menyimpan data user
      */
