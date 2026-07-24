@@ -16,13 +16,47 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
         $this->repository = $repository;
     }
 
-    public function getAll()
-    {
-        if (Auth::user()->hasRole('admin')) {
-        return $this->repository->getAll();
+        public function getAll()
+        {
+            return $this->repository->getAll();
         }
 
+        public function getByAnggota()
+        {
+            return $this->repository->getAll(Auth::id());
+        }
+
+     public function getAdminData()
+    {
         return $this->repository->getAll();
+    }
+
+    public function getDashboard()
+    {
+        return [
+            'summary'        => $this->repository->getSummary(Auth::id()),
+            'totalShu'       => $this->repository->getTotalShu(Auth::id()),
+            'totalSimpanan'  => $this->repository->getTotalShuSimpanan(Auth::id()),
+            'totalPinjaman'  => $this->repository->getTotalShuPinjaman(Auth::id()),
+            'totalPajak'     => $this->repository->getTotalPajak(Auth::id()),
+            'grafik'         => $this->repository->getGrafik(Auth::id()),
+            'riwayat'        => $this->repository->getRiwayat(Auth::id()),
+        ];
+    }
+
+    public function getSummary()
+    {
+        return $this->repository->getSummary(Auth::id());
+    }
+
+    public function getRiwayat()
+    {
+        return $this->repository->getRiwayat(Auth::id());
+    }
+
+     public function getGrafik()
+    {
+        return $this->repository->getGrafik(Auth::id());
     }
 
     public function hitungSemuaAnggota(

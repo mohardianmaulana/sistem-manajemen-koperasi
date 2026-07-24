@@ -3,5 +3,6 @@
     "Pinjaman": true,
     "Simpanan": true,
     "SHU": true,
-    "User": true
+    "User": true,
+    "Unit": true
 }

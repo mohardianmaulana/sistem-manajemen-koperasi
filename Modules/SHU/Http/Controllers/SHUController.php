@@ -19,11 +19,21 @@ class SHUController extends Controller
      * Display a listing of the resource.
      * @return Renderable
      */
-    public function index()
+   public function index(Request $request)
     {
-        $data = $this->shuKoperasiService->getAll();
+        $tahun = $request->tahun ?? date('Y');
 
-        return view('shu::shukoperasi.index', compact('data'));
+        $data = $this->shuKoperasiService->getAll();
+        $summary = $this->shuKoperasiService->getSummary($tahun);
+
+        return view(
+            'shu::shukoperasi.index',
+            compact(
+                'data',
+                'summary',
+                'tahun'
+            )
+        );
     }
 
     /**

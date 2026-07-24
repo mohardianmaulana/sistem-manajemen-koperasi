@@ -12,15 +12,85 @@ use Modules\Simpanan\Entities\SimpananWajib;
 
 class ShuAnggotaRepository
 {
-    public function getAll($idAnggota=null)
+    public function getAll($idAnggota = null)
     {
         $query = ShuAnggota::with('user');
+
         if ($idAnggota !== null) {
-        $query->where('id_anggota', $idAnggota);
+            $query->where('id_anggota', $idAnggota);
         }
-        return $query->paginate(10);
+
+        return $query
+            ->orderByDesc('periode_akhir')
+            ->paginate(10);
+    }
+
+    public function getSummary($idAnggota)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->orderByDesc('periode_akhir')
+            ->first();
+    }
+
+    public function getTotalShu($idAnggota)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->sum('shu_anggota');
     }
     
+
+    public function getTotalShuSimpanan($idAnggota)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->sum('shu_simpanan');
+    }
+
+    public function getTotalShuPinjaman($idAnggota)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->sum('shu_pinjaman');
+    }
+
+    public function getTotalPajak($idAnggota)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->sum('pajak');
+    }
+
+    public function getRiwayat($idAnggota)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->orderByDesc('periode_akhir')
+            ->paginate(10);
+    }
+
+    public function getByPeriode($idAnggota, $tahun)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->whereYear('periode_akhir', $tahun)
+            ->first();
+    }
+
+    public function getDaftarTahun($idAnggota)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->selectRaw('YEAR(periode_akhir) as tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun');
+    }
+
+    public function getGrafik($idAnggota)
+    {
+        return ShuAnggota::where('id_anggota', $idAnggota)
+            ->orderBy('periode_akhir')
+            ->get([
+                'periode_akhir',
+                'shu_anggota'
+            ]);
+    }
+
+
     public function getShuKoperasi(
     $periodeAwal,
     $periodeAkhir

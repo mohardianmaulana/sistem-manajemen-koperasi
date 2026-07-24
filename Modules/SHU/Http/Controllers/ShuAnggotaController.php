@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\SHU\Services\ShuAnggotaService;
 use Modules\SHU\Http\Requests\ShuAnggotaRequest;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class ShuAnggotaController extends Controller
 {
@@ -21,9 +22,19 @@ class ShuAnggotaController extends Controller
      */
     public function index()
     {
-        $data = $this->shuAnggotaService->getAll();
+        if (Auth::user()->hasRole('admin')) {
+            return view(
+                'shu::shuanggota.dasboard',
+                [
+                    'data' => $this->shuAnggotaService->getAll()
+                ]
+            );
+        }
 
-        return view('shu::shuanggota.index', compact('data'));
+        return view(
+            'shu::shuanggota.index',
+            $this->shuAnggotaService->getDashboard()
+        );
     }
 
     public function create()

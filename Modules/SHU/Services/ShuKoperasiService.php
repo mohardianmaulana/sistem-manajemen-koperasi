@@ -22,6 +22,11 @@ class ShuKoperasiService
         return $this->repository->getAll();
     }
 
+    public function getSummary()
+    {
+        return $this->repository->getSummary();
+    }
+
     /**
      * Menyimpan SHU koperasi.
      */

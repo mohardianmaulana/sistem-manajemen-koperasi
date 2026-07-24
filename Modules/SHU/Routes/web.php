@@ -15,7 +15,7 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 Route::prefix('shu')->middleware(['auth',])->group(function() {
     Route::get('/', 'ShuAnggotaController@index')->name('shu.index');
     Route::middleware(['role:admin'])->group(function () {
-        Route::get('/create', 'ShuAnggotaController@create')->name('shu.create');
+        Route::get('/create', 'ShuAnggotaController@create')->name('shu.generate');
         Route::post('/hitung', 'ShuAnggotaController@store')->name('shu.store');
     });
 });
