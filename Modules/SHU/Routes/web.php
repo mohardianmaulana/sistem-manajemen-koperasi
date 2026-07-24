@@ -27,3 +27,22 @@ Route::prefix('shu-koperasi')->middleware(['auth', 'role:admin'])->group(functio
     Route::get('/{id}', 'SHUController@show')->name('shu-koperasi.show');
     Route::put('/{id}/update', 'SHUController@update')->name('shu-koperasi.update');
 });
+
+Route::prefix('pencairan')->middleware(['auth', 'role:admin'])->group(function () {
+    
+    Route::put('/{id}/approve', 'PencairanController@approve')->name('pencairan.approve');
+    Route::put('/{id}/reject', 'PencairanController@reject')->name('pencairan.reject');
+    Route::put('/{id}/cairkan', 'PencairanController@cairkan')->name('pencairan.cairkan');
+    Route::delete('/{id}/delete', 'PencairanController@destroy')->name('pencairan.destroy');
+});
+Route::prefix('pencairan')->middleware(['auth'])->group(function (){
+    Route::get('/', 'PencairanController@index')->name('pencairan.index');
+    Route::get('/{id}', 'PencairanController@show')->name('pengajuan-pencairan.edit');
+});
+
+Route::prefix('pengajuan-pencairan')->middleware(['auth', 'role:anggota'])->group(function () {
+    Route::get('/create', 'PencairanController@create')->name('pengajuan-pencairan.index');
+    Route::post('/store', 'PencairanController@store')->name('pengajuan-pencairan.store');
+    Route::get('/pengajuan-pencairan/{id}/edit', 'PencairanController@edit')->name('pengajuan-pencairan.edit');
+    Route::put('/pengajuan-pencairan/{id}', 'PencairanController@update')->name('pengajuan-pencairan.update');
+});

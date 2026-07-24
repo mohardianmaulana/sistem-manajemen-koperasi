@@ -21,17 +21,13 @@
                                 Periode
 
                                 <strong>
-
                                     {{ \Carbon\Carbon::parse($summary->periode_awal)->translatedFormat('d F Y') }}
-
                                 </strong>
 
                                 -
 
                                 <strong>
-
                                     {{ \Carbon\Carbon::parse($summary->periode_akhir)->translatedFormat('d F Y') }}
-
                                 </strong>
 
                             </p>
@@ -41,6 +37,86 @@
                                 Rp {{ number_format($summary->shu_anggota,0,',','.') }}
 
                             </h1>
+
+                            {{-- Tombol Pengajuan Pencairan --}}
+                            <div class="mb-3">
+
+                                @if(!$summary->pencairan)
+
+                                    <form action="{{ route('pengajuan-pencairan.index') }}">
+
+                                        @csrf
+
+                                        <input type="hidden"
+                                               name="id_shu_anggota"
+                                               value="{{ $summary->id }}">
+
+                                        <button type="submit"
+                                                class="btn btn-success">
+
+                                            <i class="fas fa-hand-holding-usd"></i>
+
+                                            Ajukan Pencairan SHU
+
+                                        </button>
+
+                                    </form>
+
+                                @elseif($summary->pencairan->status == 'menunggu')
+
+                                    <button class="btn btn-warning" disabled>
+
+                                        <i class="fas fa-clock"></i>
+
+                                        Menunggu Persetujuan
+
+                                    </button>
+
+                                @elseif($summary->pencairan->status == 'disetujui')
+
+                                    <button class="btn btn-primary" disabled>
+
+                                        <i class="fas fa-check-circle"></i>
+
+                                        Pengajuan Disetujui
+
+                                    </button>
+
+                                @elseif($summary->pencairan->status == 'ditolak')
+
+                                    <button class="btn btn-danger" disabled>
+
+                                        <i class="fas fa-times-circle"></i>
+
+                                        Pengajuan Ditolak
+
+                                    </button>
+
+                                    @if($summary->pencairan->keterangan)
+
+                                        <div class="alert alert-danger mt-3 mb-0">
+
+                                            <strong>Alasan Penolakan :</strong><br>
+
+                                            {{ $summary->pencairan->keterangan }}
+
+                                        </div>
+
+                                    @endif
+
+                                @elseif($summary->pencairan->status == 'dicairkan')
+
+                                    <button class="btn btn-success" disabled>
+
+                                        <i class="fas fa-money-check-alt"></i>
+
+                                        SHU Telah Dicairkan
+
+                                    </button>
+
+                                @endif
+
+                            </div>
 
                             <span class="badge badge-success">
 
@@ -72,7 +148,7 @@
 
             @if($summary)
 
-                <div class="card-footer">
+                <div class="card-footer d-flex justify-content-between align-items-center">
 
                     <small class="text-muted">
 
@@ -81,6 +157,44 @@
                         {{ $summary->updated_at->translatedFormat('d F Y H:i') }}
 
                     </small>
+
+                    @if($summary->pencairan)
+
+                        <small>
+
+                            Status :
+
+                            @switch($summary->pencairan->status)
+
+                                @case('menunggu')
+                                    <span class="badge badge-warning">
+                                        Menunggu
+                                    </span>
+                                    @break
+
+                                @case('disetujui')
+                                    <span class="badge badge-primary">
+                                        Disetujui
+                                    </span>
+                                    @break
+
+                                @case('ditolak')
+                                    <span class="badge badge-danger">
+                                        Ditolak
+                                    </span>
+                                    @break
+
+                                @case('dicairkan')
+                                    <span class="badge badge-success">
+                                        Dicairkan
+                                    </span>
+                                    @break
+
+                            @endswitch
+
+                        </small>
+
+                    @endif
 
                 </div>
 

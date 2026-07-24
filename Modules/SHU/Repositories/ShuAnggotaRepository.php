@@ -261,4 +261,12 @@ class ShuAnggotaRepository
         );
         
     }
+
+    public function findById($id)
+    {
+        return ShuAnggota::with([
+            'user',
+            'pencairan'
+        ])->findOrFail($id);
+    }
 }

@@ -14,11 +14,15 @@ class CreatePencairanShuTable extends Migration
     public function up()
     {
         Schema::create('pencairan_shu', function (Blueprint $table) {
-              $table->id();
+
+        $table->id();
 
         $table->foreignId('id_shu_anggota')
-              ->constrained('shu_anggota')
-              ->cascadeOnDelete();
+            ->constrained('shu_anggota')
+            ->cascadeOnDelete();
+
+        // Nominal SHU yang diajukan untuk dicairkan
+        $table->bigInteger('nominal_pengajuan');
 
         $table->date('tanggal_pengajuan')->nullable();
         $table->date('tanggal_persetujuan')->nullable();
@@ -34,11 +38,10 @@ class CreatePencairanShuTable extends Migration
 
         $table->text('keterangan')->nullable();
 
-        // Jika ingin mengetahui siapa yang menyetujui
         $table->foreignId('disetujui_oleh')
-              ->nullable()
-              ->constrained('users')
-              ->nullOnDelete();
+            ->nullable()
+            ->constrained('users')
+            ->nullOnDelete();
 
         $table->timestamps();
     });

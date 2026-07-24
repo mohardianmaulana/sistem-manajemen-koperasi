@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\SHU\Entities\PencairanShu;
 use Spatie\Permission\Traits\HasRoles;
 
 use Modules\SHU\Entities\ShuAnggota;
@@ -155,5 +156,10 @@ class User extends Authenticatable
     public function shuAnggota()
     {
         return $this->hasMany(ShuAnggota::class, 'id_anggota');
+    }
+
+    public function pencairanShuDisetujui()
+    {
+        return $this->hasMany(PencairanShu::class,'disetujui_oleh');
     }
 }
