@@ -169,7 +169,7 @@ class PencairanController extends Controller
     public function cairkan(UploadBuktiPencairanShuRequest $request, $id )
     {
         try {
-            $this->service->store(
+            $this->service->cairkan(
                 $request,
                 $id
             );

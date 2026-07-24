@@ -37,11 +37,11 @@ Route::prefix('pencairan')->middleware(['auth', 'role:admin'])->group(function (
 });
 Route::prefix('pencairan')->middleware(['auth'])->group(function (){
     Route::get('/', 'PencairanController@index')->name('pencairan.index');
-    Route::get('/{id}', 'PencairanController@show')->name('pengajuan-pencairan.edit');
+    Route::get('/{id}', 'PencairanController@show')->name('pencairan.show');
 });
 
 Route::prefix('pengajuan-pencairan')->middleware(['auth', 'role:anggota'])->group(function () {
-    Route::get('/create', 'PencairanController@create')->name('pengajuan-pencairan.index');
+    Route::get('/create', 'PencairanController@create')->name('pengajuan-pencairan.form');
     Route::post('/store', 'PencairanController@store')->name('pengajuan-pencairan.store');
     Route::get('/pengajuan-pencairan/{id}/edit', 'PencairanController@edit')->name('pengajuan-pencairan.edit');
     Route::put('/pengajuan-pencairan/{id}', 'PencairanController@update')->name('pengajuan-pencairan.update');

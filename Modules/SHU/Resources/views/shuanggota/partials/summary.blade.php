@@ -43,7 +43,7 @@
 
                                 @if(!$summary->pencairan)
 
-                                    <form action="{{ route('pengajuan-pencairan.index') }}">
+                                    <form action="{{ route('pengajuan-pencairan.form') }}">
 
                                         @csrf
 

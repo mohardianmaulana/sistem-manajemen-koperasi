@@ -446,23 +446,6 @@
         TOMBOL
 ============================ --}}
 
-@role('anggota')
-
-<div class="mb-3">
-
-    <a
-        href="{{ route('pengajuan-pencairan.index') }}"
-        class="btn btn-success">
-
-        <i class="fas fa-plus"></i>
-
-        Ajukan Pencairan SHU
-
-    </a>
-
-</div>
-
-@endrole
 <div class="card shadow">
 
     <div class="card-header">
@@ -572,7 +555,7 @@
 
                             {{-- Detail --}}
                             <a
-                                href="{{ route('pengajuan-pencairan.edit',$item->id) }}"
+                                href="{{ route('pencairan.show',$item->id) }}"
                                 class="btn btn-info btn-sm">
 
                                 <i class="fas fa-eye"></i>

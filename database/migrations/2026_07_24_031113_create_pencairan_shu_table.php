@@ -24,6 +24,7 @@ class CreatePencairanShuTable extends Migration
         // Nominal SHU yang diajukan untuk dicairkan
         $table->bigInteger('nominal_pengajuan');
 
+        $table->string('bukti')->nullable();
         $table->date('tanggal_pengajuan')->nullable();
         $table->date('tanggal_persetujuan')->nullable();
         $table->date('tanggal_pencairan')->nullable();

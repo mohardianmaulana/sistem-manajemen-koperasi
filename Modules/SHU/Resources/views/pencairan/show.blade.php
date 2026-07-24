@@ -688,7 +688,7 @@
             @if($data->status == 'menunggu')
 
                 <a
-                    href="{{ route('pengajuan-pencairan.edit',$data->id) }}"
+                    href="{{ route('pencairan.show',$data->id) }}"
                     class="btn btn-warning">
 
                     <i class="fas fa-edit"></i>

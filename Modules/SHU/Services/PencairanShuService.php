@@ -3,11 +3,11 @@
 namespace Modules\SHU\Services;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Modules\SHU\Entities\PencairanShu;
 use Modules\SHU\Repositories\PencairanShuRepository;
 use Modules\SHU\Repositories\ShuAnggotaRepository;
-use Illuminate\Http\Request;
 
 class PencairanShuService
 {
@@ -32,38 +32,39 @@ class PencairanShuService
         return $this->repository->findById($id);
     }
 
-   public function store(Request $request, $id)
+    public function store($idShuAnggota, $nominalPengajuan)
     {
-        $pencairan = $this->repository->findById($id);
+        $shu = $this->shuRepository->findById($idShuAnggota);
 
-        if (!$pencairan) {
-            throw new \Exception('Data pencairan SHU tidak ditemukan.');
+        if (!$shu) {
+            throw new \Exception('Data SHU tidak ditemukan.');
         }
 
-        if ($pencairan->status != PencairanShu::STATUS_DISETUJUI) {
+        $totalShu = $shu->shu_anggota;
+
+        $totalDicairkan = $this->repository
+            ->totalNominalDicairkan($idShuAnggota);
+
+        $totalDiproses = $this->repository
+            ->totalNominalDiproses($idShuAnggota);
+
+        $sisaShu = $totalShu - $totalDicairkan - $totalDiproses;
+
+        if ($nominalPengajuan <= 0) {
+            throw new \Exception('Nominal pencairan harus lebih dari nol.');
+        }
+
+        if ($nominalPengajuan > $sisaShu) {
             throw new \Exception(
-                'Pengajuan belum disetujui atau sudah dicairkan.'
+                'Nominal pencairan melebihi sisa SHU yang tersedia.'
             );
         }
 
-        $pathBukti = null;
-
-        if ($request->hasFile('bukti')) {
-
-            $pathBukti = $request
-                ->file('bukti')
-                ->store('bukti-pencairan-shu', 'public');
-
-        }
-
-        return $this->repository->update($id, [
-
-            'bukti'              => $pathBukti,
-
-            'status'             => PencairanShu::STATUS_DICAIRKAN,
-
-            'tanggal_pencairan'  => Carbon::today(),
-
+        return $this->repository->store([
+            'id_shu_anggota'    => $idShuAnggota,
+            'nominal_pengajuan' => $nominalPengajuan,
+            'tanggal_pengajuan' => Carbon::today(),
+            'status'            => PencairanShu::STATUS_MENUNGGU,
         ]);
     }
 
@@ -85,39 +86,39 @@ class PencairanShuService
     }
 
    public function cairkan(Request $request, $id)
-    {
-        $pencairan = $this->repository->findById($id);
+{
+    $pencairan = $this->repository->findById($id);
 
-        if (!$pencairan) {
-            throw new \Exception('Data pencairan SHU tidak ditemukan.');
-        }
-
-        if ($pencairan->status != PencairanShu::STATUS_DISETUJUI) {
-            throw new \Exception(
-                'Pengajuan belum disetujui atau sudah dicairkan.'
-            );
-        }
-
-        $pathBukti = null;
-
-        if ($request->hasFile('bukti')) {
-
-            $pathBukti = $request
-                ->file('bukti')
-                ->store('bukti-pencairan-shu', 'public');
-
-        }
-
-        return $this->repository->update($id, [
-
-            'bukti'              => $pathBukti,
-
-            'status'             => PencairanShu::STATUS_DICAIRKAN,
-
-            'tanggal_pencairan'  => Carbon::today(),
-
-        ]);
+    if (!$pencairan) {
+        throw new \Exception('Data pencairan SHU tidak ditemukan.');
     }
+
+    if ($pencairan->status != PencairanShu::STATUS_DISETUJUI) {
+        throw new \Exception(
+            'Pengajuan belum disetujui atau sudah dicairkan.'
+        );
+    }
+
+    $pathBukti = null;
+
+    if ($request->hasFile('bukti')) {
+
+        $pathBukti = $request
+            ->file('bukti')
+            ->store('bukti-pencairan-shu', 'public');
+
+    }
+
+    return $this->repository->update($id, [
+
+        'bukti'              => $pathBukti,
+
+        'status'             => PencairanShu::STATUS_DICAIRKAN,
+
+        'tanggal_pencairan'  => Carbon::today(),
+
+    ]);
+}
 
     public function delete($id)
     {
