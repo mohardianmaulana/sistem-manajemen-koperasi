@@ -26,6 +26,7 @@ class PengajuanPinjamanFactory extends Factory
             'no_rekening' => '1234567890',
             'alamat' => 'Jl. Banyuwangi',
             'nama_istri_suami' => 'Seseorang',
+            'dokumen_ttd' => 'dummy.pdf',
         ];
     }
 }

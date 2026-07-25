@@ -50,28 +50,24 @@ class SHUController extends Controller
      * @param Request $request
      * @return Renderable
      */
-    public function store(ShuKoperasiRequest $request)
-{
-    try {
+   public function store(ShuKoperasiRequest $request)
+    {
+        try {
 
-        $this->shuKoperasiService->store(
-            $request->validated()
-        );
+            $this->shuKoperasiService->store($request->validated());
 
-        return redirect()
-            ->route('shu-koperasi.index')
-            ->with('success', 'Data SHU berhasil ditambahkan.');
+            return redirect()
+                ->route('shu-koperasi.index')
+                ->with('success', 'Data SHU koperasi berhasil disimpan.');
 
-    } catch (\Exception $e) {
+        } catch (\Exception $e) {
 
-        return redirect()
-            ->back()
-            ->withInput()
-            ->withErrors([
-                'persentase' => $e->getMessage(),
-            ]);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
-}
 
     /**
      * Show the specified resource.

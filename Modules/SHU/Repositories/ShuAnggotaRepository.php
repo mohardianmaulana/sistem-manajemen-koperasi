@@ -5,6 +5,7 @@ namespace Modules\SHU\Repositories;
 use App\Models\Core\User;
 use Modules\Pinjaman\Entities\Angsuran;
 use Modules\Pinjaman\Entities\Pinjaman;
+use Modules\SHU\Entities\PencairanShu;
 use Modules\SHU\Entities\ShuAnggota;
 use Modules\SHU\Entities\ShuKoperasi;
 use Modules\Simpanan\Entities\SimpananSukarela;
@@ -27,9 +28,29 @@ class ShuAnggotaRepository
 
     public function getSummary($idAnggota)
     {
-        return ShuAnggota::where('id_anggota', $idAnggota)
+        $summary = ShuAnggota::with('pencairan')
+            ->where('id_anggota', $idAnggota)
             ->orderByDesc('periode_akhir')
             ->first();
+
+        if (!$summary) {
+            return null;
+        }
+
+        $totalDicairkan = PencairanShu::where('id_shu_anggota', $summary->id)
+            ->where('status', PencairanShu::STATUS_DICAIRKAN)
+            ->sum('nominal_pengajuan');
+
+        $totalDiproses = PencairanShu::where('id_shu_anggota', $summary->id)
+            ->whereIn('status', [
+                PencairanShu::STATUS_MENUNGGU,
+                PencairanShu::STATUS_DISETUJUI,
+            ])
+            ->sum('nominal_pengajuan');
+
+        $summary->sisa_shu = $summary->shu_anggota - $totalDicairkan - $totalDiproses;
+
+        return $summary;
     }
 
     public function getTotalShu($idAnggota)
@@ -240,26 +261,15 @@ class ShuAnggotaRepository
     $pajak
     )
     {
-        return ShuAnggota::updateOrCreate(
-
-            [
-                'id_anggota'   => $idAnggota,
-                'periode_awal' => $periodeAwal,
-                'periode_akhir'=> $periodeAkhir,
-            ],
-
-            [
-                'shu_simpanan'  => round($shuSimpanan),
-
-                'shu_pinjaman'  => round($shuPinjaman),
-
-                'shu_anggota'   => round($shuAnggota),
-
-                'pajak'         => round($pajak),
-            ]
-
-        );
-        
+        return ShuAnggota::create([
+            'id_anggota'    => $idAnggota,
+            'periode_awal'  => $periodeAwal,
+            'periode_akhir' => $periodeAkhir,
+            'shu_simpanan'  => round($shuSimpanan),
+            'shu_pinjaman'  => round($shuPinjaman),
+            'shu_anggota'   => round($shuAnggota),
+            'pajak'         => round($pajak),
+        ]);
     }
 
     public function findById($id)
@@ -269,4 +279,13 @@ class ShuAnggotaRepository
             'pencairan'
         ])->findOrFail($id);
     }
+
+    public function sudahAdaPeriode($periodeAwal, $periodeAkhir)
+    {
+        return ShuAnggota::where('periode_awal', $periodeAwal)
+            ->where('periode_akhir', $periodeAkhir)
+            ->exists();
+    }
+
+
 }

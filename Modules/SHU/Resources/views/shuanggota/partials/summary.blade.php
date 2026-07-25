@@ -34,25 +34,25 @@
 
                             <h1 class="font-weight-bold text-success mb-3">
 
-                                Rp {{ number_format($summary->shu_anggota,0,',','.') }}
+                                Rp {{ number_format($summary->sisa_shu, 0, ',', '.') }}
 
                             </h1>
 
                             {{-- Tombol Pengajuan Pencairan --}}
                             <div class="mb-3">
 
-                                @if(!$summary->pencairan)
+                                @if(
+                                    !$summary->pencairan ||
+                                    in_array($summary->pencairan->status, ['ditolak', 'dicairkan'])
+                                )
 
-                                    <form action="{{ route('pengajuan-pencairan.form') }}">
-
-                                        @csrf
+                                    <form action="{{ route('pengajuan-pencairan.form') }}" method="GET">
 
                                         <input type="hidden"
-                                               name="id_shu_anggota"
-                                               value="{{ $summary->id }}">
+                                            name="id_shu_anggota"
+                                            value="{{ $summary->id }}">
 
-                                        <button type="submit"
-                                                class="btn btn-success">
+                                        <button type="submit" class="btn btn-success">
 
                                             <i class="fas fa-hand-holding-usd"></i>
 
@@ -61,6 +61,22 @@
                                         </button>
 
                                     </form>
+
+                                    @if(
+                                        $summary->pencairan &&
+                                        $summary->pencairan->status == 'ditolak' &&
+                                        $summary->pencairan->keterangan
+                                    )
+
+                                        <div class="alert alert-danger mt-3 mb-0">
+
+                                            <strong>Pengajuan sebelumnya ditolak.</strong><br>
+
+                                            Alasan: {{ $summary->pencairan->keterangan }}
+
+                                        </div>
+
+                                    @endif
 
                                 @elseif($summary->pencairan->status == 'menunggu')
 
@@ -79,38 +95,6 @@
                                         <i class="fas fa-check-circle"></i>
 
                                         Pengajuan Disetujui
-
-                                    </button>
-
-                                @elseif($summary->pencairan->status == 'ditolak')
-
-                                    <button class="btn btn-danger" disabled>
-
-                                        <i class="fas fa-times-circle"></i>
-
-                                        Pengajuan Ditolak
-
-                                    </button>
-
-                                    @if($summary->pencairan->keterangan)
-
-                                        <div class="alert alert-danger mt-3 mb-0">
-
-                                            <strong>Alasan Penolakan :</strong><br>
-
-                                            {{ $summary->pencairan->keterangan }}
-
-                                        </div>
-
-                                    @endif
-
-                                @elseif($summary->pencairan->status == 'dicairkan')
-
-                                    <button class="btn btn-success" disabled>
-
-                                        <i class="fas fa-money-check-alt"></i>
-
-                                        SHU Telah Dicairkan
 
                                     </button>
 

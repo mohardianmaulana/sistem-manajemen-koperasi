@@ -44,4 +44,10 @@ class ShuKoperasiRepository
         return $shu;
     }
    
+    public function sudahAdaPeriode($periodeAwal, $periodeAkhir)
+    {
+        return ShuKoperasi::where('periode_awal', $periodeAwal)
+            ->where('periode_akhir', $periodeAkhir)
+            ->exists();
+    }
 }

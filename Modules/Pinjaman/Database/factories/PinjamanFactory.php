@@ -27,6 +27,7 @@ class PinjamanFactory extends Factory
             'tanggal_disetujui' => now(),
 
             'status_pinjaman' => 'aktif',
+            
         ];
     }
 }

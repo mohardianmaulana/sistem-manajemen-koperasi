@@ -32,8 +32,16 @@ class ShuKoperasiService
      */
    public function store(array $data)
     {
-        $this->validasiPersentase($data);
+        if ($this->repository->sudahAdaPeriode(
+            $data['periode_awal'],
+            $data['periode_akhir']
+        )) {
+            throw new \Exception(
+                'Data SHU koperasi untuk periode tersebut sudah tersedia.'
+            );
+        }
 
+        $this->validasiPersentase($data);
         $this->hitungNominal($data);
 
         return $this->repository->store($data);

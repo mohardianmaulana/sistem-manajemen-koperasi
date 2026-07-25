@@ -115,9 +115,12 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
             }
 
-            /**
-             * Mengambil seluruh anggota
-             */
+               if ($this->repository->sudahAdaPeriode($periodeAwal, $periodeAkhir)) {
+                    throw new Exception(
+                        "Perhitungan SHU untuk periode tersebut sudah pernah dilakukan."
+                    );
+                }
+                
             $users = $this->repository->getUsers();
 
             foreach ($users as $user) {
