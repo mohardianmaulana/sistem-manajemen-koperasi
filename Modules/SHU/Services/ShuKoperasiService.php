@@ -3,7 +3,6 @@ namespace Modules\SHU\Services;
 
 use Exception;
 use Modules\SHU\Repositories\ShuKoperasiRepository;
-use Exception;
 
 class ShuKoperasiService
 {
