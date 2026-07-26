@@ -3,6 +3,7 @@ namespace Modules\SHU\Services;
 
 use Exception;
 use Modules\SHU\Repositories\ShuKoperasiRepository;
+use Exception;
 
 class ShuKoperasiService
 {
@@ -36,7 +37,7 @@ class ShuKoperasiService
             $data['periode_awal'],
             $data['periode_akhir']
         )) {
-            throw new \Exception(
+            throw new Exception(
                 'Data SHU koperasi untuk periode tersebut sudah tersedia.'
             );
         }

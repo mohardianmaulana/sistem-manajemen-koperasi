@@ -907,6 +907,21 @@
                             readonly>
 
                     </div>
+                    <div class="form-group">
+
+                        <label>
+
+                            Rekening anggota
+
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="{{ optional($item->shuAnggota->user)->no_rek }}"
+                            readonly>
+
+                    </div>
 
                     <div class="form-group">
 

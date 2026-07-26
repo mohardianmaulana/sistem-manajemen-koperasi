@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Modules\SHU\Entities\PencairanShu;
 use Modules\SHU\Repositories\PencairanShuRepository;
 use Modules\SHU\Repositories\ShuAnggotaRepository;
+use Exception;
 
 class PencairanShuService
 {
@@ -24,6 +25,10 @@ class PencairanShuService
 
     public function getAll($status = null)
     {
+        if (Auth::user()->hasRole('anggota')) {
+            return $this->repository->getByAnggota(Auth::id());
+        }
+
         return $this->repository->getAll($status);
     }
 
@@ -37,7 +42,7 @@ class PencairanShuService
         $shu = $this->shuRepository->findById($idShuAnggota);
 
         if (!$shu) {
-            throw new \Exception('Data SHU tidak ditemukan.');
+            throw new Exception('Data SHU tidak ditemukan.');
         }
 
         $totalShu = $shu->shu_anggota;
@@ -51,11 +56,11 @@ class PencairanShuService
         $sisaShu = $totalShu - $totalDicairkan - $totalDiproses;
 
         if ($nominalPengajuan <= 0) {
-            throw new \Exception('Nominal pencairan harus lebih dari nol.');
+            throw new Exception('Nominal pencairan harus lebih dari nol.');
         }
 
         if ($nominalPengajuan > $sisaShu) {
-            throw new \Exception(
+            throw new Exception(
                 'Nominal pencairan melebihi sisa SHU yang tersedia.'
             );
         }
@@ -90,11 +95,11 @@ class PencairanShuService
     $pencairan = $this->repository->findById($id);
 
     if (!$pencairan) {
-        throw new \Exception('Data pencairan SHU tidak ditemukan.');
+        throw new Exception('Data pencairan SHU tidak ditemukan.');
     }
 
     if ($pencairan->status != PencairanShu::STATUS_DISETUJUI) {
-        throw new \Exception(
+        throw new Exception(
             'Pengajuan belum disetujui atau sudah dicairkan.'
         );
     }
@@ -141,7 +146,7 @@ class PencairanShuService
         $shu = $this->shuRepository->findById($idShuAnggota);
 
         if (!$shu) {
-            throw new \Exception('Data SHU tidak ditemukan.');
+            throw new Exception('Data SHU tidak ditemukan.');
         }
 
         $dicairkan = $this->repository
@@ -179,7 +184,7 @@ class PencairanShuService
         $pencairan = $this->repository->findById($id);
 
         if ($pencairan->status !== PencairanShu::STATUS_MENUNGGU) {
-            throw new \Exception(
+            throw new Exception(
                 'Pengajuan yang sudah diproses tidak dapat diubah.'
             );
         }
@@ -195,7 +200,7 @@ class PencairanShuService
 
         if ($pencairan->status != PencairanShu::STATUS_DISETUJUI) {
 
-            throw new \Exception(
+            throw new Exception(
                 'Pengajuan belum disetujui.'
             );
         }

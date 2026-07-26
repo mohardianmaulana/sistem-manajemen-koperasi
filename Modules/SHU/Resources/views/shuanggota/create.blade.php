@@ -223,7 +223,6 @@
 
         </div>
 
-    </div>
 </div>
 
 @stop

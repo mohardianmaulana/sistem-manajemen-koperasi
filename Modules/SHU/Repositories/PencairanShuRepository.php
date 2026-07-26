@@ -135,4 +135,14 @@ class PencairanShuRepository
             PencairanShu::STATUS_DITOLAK
         )->count();
     }
+
+    public function getByAnggota($idAnggota)
+    {
+        return PencairanShu::with('shuAnggota')
+            ->whereHas('shuAnggota', function ($query) use ($idAnggota) {
+                $query->where('id_anggota', $idAnggota);
+            })
+            ->latest()
+            ->paginate(10);
+    }
 }

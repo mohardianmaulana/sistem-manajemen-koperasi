@@ -386,7 +386,7 @@
                             id="password"
                             name="password"
                             autocomplete="new-password"
-                            placeholder="Masukkan password baru"
+                            placeholder="Masukkan password"
                             class="form-control @error('password') is-invalid @enderror">
 
                         <div class="input-group-append">
@@ -466,7 +466,7 @@
                     </label>
 
                     <select
-                        name="role_aktif"
+                        name="role"
                         class="form-control @error('role') is-invalid @enderror">
 
                         <option value="">-- Pilih Role --</option>

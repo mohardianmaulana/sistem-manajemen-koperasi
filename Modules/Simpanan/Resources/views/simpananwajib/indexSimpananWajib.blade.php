@@ -456,15 +456,15 @@
 
                                 @else
 
-                                    <button
-                                        class="btn btn-danger btn-sm"
-                                        disabled>
 
-                                        <i class="fas fa-times"></i>
+                                    <a href="{{ route('simpanan-wajib.show',$item->id) }}"
+                                       class="btn btn-primary btn-sm"
+                                       title="Upload Bukti Transfer">
 
-                                        Gagal
+                                        <i class="fas fa-upload"></i>
+                                        Upload Bukti
 
-                                    </button>
+                                    </a>
 
                                 @endif
 
