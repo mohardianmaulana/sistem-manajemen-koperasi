@@ -26,13 +26,6 @@ class ShuAnggotaRequest extends FormRequest
                 'after_or_equal:periode_awal',
             ],
 
-            'persen_jasa_pengurus' => [
-                'required',
-                'numeric',
-                'min:0',
-                'max:100',
-            ],
-
             'persen_pajak' => [
                 'required',
                 'numeric',

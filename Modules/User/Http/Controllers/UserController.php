@@ -25,11 +25,13 @@ class UserController extends Controller
      * Display a listing of the resource.
      * @return Renderable
      */
-     public function index()
+     public function index(Request $request)
     {
-        $users = $this->service->getAll();
+        $summary = $this->service->summary();
 
-        return view('user::index', compact('users'));
+        $users = $this->service->getAll($request->search);
+
+        return view('user::index', compact('users', 'summary'));
     }
 
     /**
@@ -59,8 +61,11 @@ class UserController extends Controller
         $this->service->store($request);
 
         return redirect()
-            ->route('user.index')
-            ->with('success', 'Data user berhasil ditambahkan.');
+            ->route('login.show')
+            ->with(
+                'success',
+                'Pendaftaran berhasil. Silakan menunggu proses verifikasi oleh pengurus koperasi.'
+            );
     }
 
     /**

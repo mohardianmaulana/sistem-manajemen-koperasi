@@ -13,6 +13,7 @@ class UpdateUserRequest extends FormRequest
      */
      public function rules()
     {
+ 
         $id = $this->route('id');
 
         return [
@@ -41,6 +42,8 @@ class UpdateUserRequest extends FormRequest
 
             'staff' => 'required|exists:staffs,id',
 
+            'role' => 'required|exists:roles,name',
+
             'status' => 'required',
 
             'file_sk' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -65,9 +68,13 @@ class UpdateUserRequest extends FormRequest
             'email.required' => 'Email wajib diisi.',
 
             'email.unique' => 'Email sudah digunakan.',
+            
+            'role_aktif.required'=>'Hak akses harus diberikan'
 
         ];
     }
+
+    
 
     /**
      * Determine if the user is authorized to make this request.

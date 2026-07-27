@@ -9,11 +9,21 @@ use Spatie\Permission\Models\Role;
 
 class UserRepository
 {
-    public function getAll()
+    public function getAll($search = null)
     {
         return User::with(['getUnit', 'getStaff', 'roles'])
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('nip', 'like', '%' . $search . '%')
+                    ->orWhereHas('getUnit', function ($unit) use ($search) {
+                        $unit->where('nama', 'like', '%' . $search . '%');
+                    });
+                });
+            })
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
     }
 
     public function findById($id)
@@ -54,5 +64,44 @@ class UserRepository
     public function getAllRole()
     {
         return Role::orderBy('name')->get();
+    }
+
+    public function findByNip($nip)
+    {    
+        return User::where('nip', $nip)->exists();
+    }
+
+    public function getDashboardSummary()
+    {
+        $query = User::query();
+
+        return [
+            'totalUser' => $query->count(),
+
+            'pendingUser' => User::where(function ($query) {
+                $query->whereNull('username')
+                    ->orWhereNull('email');
+            })->count(),
+
+            'activeUser' => User::whereNotNull('username')
+                ->whereNotNull('email')
+                ->count(),
+        ];
+    }
+
+    public function summary()
+    {
+        return [
+            'totalUser' => User::count(),
+
+            'pendingUser' => User::where(function ($query) {
+                $query->whereNull('username')
+                    ->orWhereNull('email');
+            })->count(),
+
+            'activeUser' => User::whereNotNull('username')
+                                ->whereNotNull('email')
+                                ->count(),
+        ];
     }
 }

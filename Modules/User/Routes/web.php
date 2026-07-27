@@ -13,10 +13,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('user')->middleware(['auth', 'role:admin'])->group(function () {
         Route::get('/', 'UserController@index')->name('user.index');
-        Route::get('/create', 'UserController@create')->name('user.create');
-        Route::post('/', 'UserController@store')->name('user.store');
         Route::get('/{id}/edit', 'UserController@edit') ->name('user.edit');
         Route::put('/{id}', 'UserController@update')->name('user.update');
         Route::delete('/{id}', 'UserController@destroy')->name('user.destroy');
 
     });
+Route::prefix('register')->group(function () {
+
+    Route::get('/', 'UserController@create')
+        ->name('user.create');
+
+    Route::post('/store', 'UserController@store')
+        ->name('user.store');
+
+});

@@ -38,7 +38,26 @@
             </div>
 
             <div class="card-body">
+                @if(session('error'))
 
+                    <div class="alert alert-danger alert-dismissible fade show">
+
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+
+                        {{ session('error') }}
+
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="alert">
+
+                            <span>&times;</span>
+
+                        </button>
+
+                    </div>
+
+                @endif
                 <form
                     action="{{ route('shu-koperasi.store') }}"
                     method="POST">

@@ -1,7 +1,7 @@
 <?php
 namespace Modules\SHU\Services;
 
-
+use Exception;
 use Modules\SHU\Repositories\ShuKoperasiRepository;
 
 class ShuKoperasiService
@@ -22,13 +22,26 @@ class ShuKoperasiService
         return $this->repository->getAll();
     }
 
+    public function getSummary()
+    {
+        return $this->repository->getSummary();
+    }
+
     /**
      * Menyimpan SHU koperasi.
      */
    public function store(array $data)
     {
-        $this->validasiPersentase($data);
+        if ($this->repository->sudahAdaPeriode(
+            $data['periode_awal'],
+            $data['periode_akhir']
+        )) {
+            throw new Exception(
+                'Data SHU koperasi untuk periode tersebut sudah tersedia.'
+            );
+        }
 
+        $this->validasiPersentase($data);
         $this->hitungNominal($data);
 
         return $this->repository->store($data);
@@ -91,7 +104,7 @@ class ShuKoperasiService
 
         if ($totalPersen != 100) {
 
-            throw new \Exception(
+            throw new Exception(
                 'Total persentase SHU harus tepat 100%.'
             );
 

@@ -11,10 +11,14 @@ class ShuKoperasiRepository
      */
     public function getAll()
     {
-        return ShuKoperasi::paginate(5);
+        return ShuKoperasi::paginate(10);
     }
 
-    /**
+    public function getSummary()
+    {
+        return ShuKoperasi::latest('periode_akhir')->first();
+    }
+        /**
      * Menyimpan data.
      */
     public function store(array $data)
@@ -40,4 +44,10 @@ class ShuKoperasiRepository
         return $shu;
     }
    
+    public function sudahAdaPeriode($periodeAwal, $periodeAkhir)
+    {
+        return ShuKoperasi::where('periode_awal', $periodeAwal)
+            ->where('periode_akhir', $periodeAkhir)
+            ->exists();
+    }
 }

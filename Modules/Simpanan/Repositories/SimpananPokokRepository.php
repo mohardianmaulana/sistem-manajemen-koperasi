@@ -8,15 +8,25 @@ use Modules\Simpanan\Entities\SimpananPokok;
 
 class SimpananPokokRepository
 {
-    public function getAll($idAnggota = null)
+    public function getAll($idAnggota = null, $bulan = null, $tahun = null)
     {
         $query = SimpananPokok::with('user');
-        if ($idAnggota !== null) {
-        $query->where('id_anggota', $idAnggota);
+
+        if (!is_null($idAnggota)) {
+            $query->where('id_anggota', $idAnggota);
+        }
+
+        if (!empty($bulan)) {
+            $query->whereMonth('tanggal', $bulan);
+        }
+
+        if (!empty($tahun)) {
+            $query->whereYear('tanggal', $tahun);
+        }
+
+        return $query->latest()->paginate(10)->withQueryString();
     }
 
-    return $query->paginate(5);
-    }
 
     public function getAllUser()
     {
@@ -42,4 +52,32 @@ class SimpananPokokRepository
         return $simpanan;
     }
 
+    public function getSummary($idAnggota = null, $bulan = null, $tahun = null)
+    {
+        $query = SimpananPokok::query();
+
+        if (!is_null($idAnggota)) {
+            $query->where('id_anggota', $idAnggota);
+        }
+
+        if (!empty($bulan)) {
+            $query->whereMonth('tanggal', $bulan);
+        }
+
+        if (!empty($tahun)) {
+            $query->whereYear('tanggal', $tahun);
+        }
+
+        return [
+            'totalNominal' => (clone $query)->sum('nilai'),
+
+            'pending' => (clone $query)
+                ->where('status', 'pending')
+                ->count(),
+
+            'selesai' => (clone $query)
+                ->where('status', 'selesai')
+                ->count(),
+        ];
+    }
 }

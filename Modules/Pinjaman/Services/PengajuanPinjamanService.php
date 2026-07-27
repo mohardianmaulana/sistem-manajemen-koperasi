@@ -46,7 +46,7 @@ class PengajuanPinjamanService {
             $data['status_pengajuan'] = 'menunggu';
             $pengajuanPinjaman = $this->pengajuanPinjamanRepository
                                         ->create($data);
-
+            // dd($jaminan);
             foreach ($jaminan as $item) {
                 $file = $item['file'];
                 $namaFile = time() . '_' . $file->getClientOriginalName();

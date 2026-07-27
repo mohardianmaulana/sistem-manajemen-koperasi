@@ -12,7 +12,7 @@
     <div class="col-md-8">
 
         <div class="mb-3">
-            <a href="{{ route('user.index') }}"
+            <a href="{{ route('login.show') }}"
                 class="btn btn-secondary"
                 style="border-radius:10px">
 

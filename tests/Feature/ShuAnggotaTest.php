@@ -64,7 +64,6 @@ class ShuAnggotaTest extends TestCase
             'periode_akhir' => '2026-12-31',
             'jasa_simpanan' => 1000000,
             'jasa_pinjaman' => 500000,
-            'jasa_pengurus' => 150000,
             'dana_cadangan' => 200000,
             'dana_sosial'   => 100000,
             'total_shu'     => 1950000,
@@ -132,7 +131,6 @@ class ShuAnggotaTest extends TestCase
 
             'periode_akhir'         => '2026-12-31',
 
-            'persen_jasa_pengurus'  => 20,
 
             'persen_pajak'          => 10,
 
@@ -197,7 +195,6 @@ class ShuAnggotaTest extends TestCase
 
                 'periode_akhir' => '2026-12-31',
 
-                'persen_jasa_pengurus' => 20,
 
                 'persen_pajak' => 10,
 
@@ -259,7 +256,6 @@ class ShuAnggotaTest extends TestCase
             'periode_akhir' => '2026-12-31',
             'jasa_simpanan' => 1000000,
             'jasa_pinjaman' => 500000,
-            'jasa_pengurus' => 150000,
             'dana_cadangan' => 200000,
             'dana_sosial'   => 100000,
             'total_shu'     => 1950000,
@@ -279,7 +275,6 @@ class ShuAnggotaTest extends TestCase
 
                 'periode_akhir' => '2026-12-31',
 
-                'persen_jasa_pengurus' => 20,
 
                 'persen_pajak' => 10,
 
@@ -342,7 +337,6 @@ class ShuAnggotaTest extends TestCase
 
             'periode_akhir' => '2026-12-31',
 
-            'persen_jasa_pengurus' => 20,
 
             'persen_pajak' => 10,
 
@@ -393,8 +387,6 @@ class ShuAnggotaTest extends TestCase
 
             'periode_akhir' => '2026-01-01',
 
-            'persen_jasa_pengurus' => 20,
-
             'persen_pajak' => 10,
 
         ]);
@@ -443,8 +435,6 @@ class ShuAnggotaTest extends TestCase
             'periode_awal' => '2026-01-01',
 
             'periode_akhir' => '',
-
-            'persen_jasa_pengurus' => 20,
 
             'persen_pajak' => 10,
 
@@ -495,8 +485,6 @@ class ShuAnggotaTest extends TestCase
 
             'periode_akhir' => '2026-12-31',
 
-            'persen_jasa_pengurus' => 20,
-
             'persen_pajak' => '',
 
         ]);
@@ -507,54 +495,4 @@ class ShuAnggotaTest extends TestCase
         $response->assertSessionHasErrors('persen_pajak');
     }
 
-    public function test_gagal_menghitung_shu_jika_persen_jasa_pengurus_kosong()
-    {
-        /**
-         * Membuat role admin
-         */
-        Role::firstOrCreate([
-            'name' => 'admin',
-            'guard_name' => 'web',
-        ]);
-
-        /**
-         * Membuat role anggota
-         */
-        Role::firstOrCreate([
-            'name' => 'anggota',
-            'guard_name' => 'web',
-        ]);
-
-        /**
-         * Login sebagai admin sekaligus anggota
-         */
-        $user = User::factory()->create();
-
-        $user->assignRole([
-            'admin',
-            'anggota',
-        ]);
-
-        $this->actingAs($user);
-
-        /**
-         * Mengirim request tanpa persen jasa pengurus
-         */
-        $response = $this->post(route('shu.store'), [
-
-            'periode_awal' => '2026-01-01',
-
-            'periode_akhir' => '2026-12-31',
-
-            'persen_jasa_pengurus' => '',
-
-            'persen_pajak' => 10,
-
-        ]);
-
-        /**
-         * Validasi gagal
-         */
-        $response->assertSessionHasErrors('persen_jasa_pengurus');
-    }
 }

@@ -19,11 +19,21 @@ class SHUController extends Controller
      * Display a listing of the resource.
      * @return Renderable
      */
-    public function index()
+   public function index(Request $request)
     {
-        $data = $this->shuKoperasiService->getAll();
+        $tahun = $request->tahun ?? date('Y');
 
-        return view('shu::shukoperasi.index', compact('data'));
+        $data = $this->shuKoperasiService->getAll();
+        $summary = $this->shuKoperasiService->getSummary($tahun);
+
+        return view(
+            'shu::shukoperasi.index',
+            compact(
+                'data',
+                'summary',
+                'tahun'
+            )
+        );
     }
 
     /**
@@ -40,28 +50,24 @@ class SHUController extends Controller
      * @param Request $request
      * @return Renderable
      */
-    public function store(ShuKoperasiRequest $request)
-{
-    try {
+   public function store(ShuKoperasiRequest $request)
+    {
+        try {
 
-        $this->shuKoperasiService->store(
-            $request->validated()
-        );
+            $this->shuKoperasiService->store($request->validated());
 
-        return redirect()
-            ->route('shu-koperasi.index')
-            ->with('success', 'Data SHU berhasil ditambahkan.');
+            return redirect()
+                ->route('shu-koperasi.index')
+                ->with('success', 'Data SHU koperasi berhasil disimpan.');
 
-    } catch (\Exception $e) {
+        } catch (\Exception $e) {
 
-        return redirect()
-            ->back()
-            ->withInput()
-            ->withErrors([
-                'persentase' => $e->getMessage(),
-            ]);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
-}
 
     /**
      * Show the specified resource.

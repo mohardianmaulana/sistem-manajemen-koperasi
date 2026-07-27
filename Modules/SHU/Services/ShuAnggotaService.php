@@ -5,6 +5,7 @@ namespace Modules\SHU\Services;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
 use Modules\SHU\Repositories\ShuAnggotaRepository;
 
 
@@ -16,19 +17,53 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
         $this->repository = $repository;
     }
 
-    public function getAll()
-    {
-        if (Auth::user()->hasRole('admin')) {
-        return $this->repository->getAll();
+        public function getAll()
+        {
+            return $this->repository->getAll();
         }
 
+        public function getByAnggota()
+        {
+            return $this->repository->getAll(Auth::id());
+        }
+
+     public function getAdminData()
+    {
         return $this->repository->getAll();
+    }
+
+    public function getDashboard()
+    {
+        return [
+            'summary'        => $this->repository->getSummary(Auth::id()),
+            'totalShu'       => $this->repository->getTotalShu(Auth::id()),
+            'totalSimpanan'  => $this->repository->getTotalShuSimpanan(Auth::id()),
+            'totalPinjaman'  => $this->repository->getTotalShuPinjaman(Auth::id()),
+            'totalPajak'     => $this->repository->getTotalPajak(Auth::id()),
+            'grafik'         => $this->repository->getGrafik(Auth::id()),
+            'riwayat'        => $this->repository->getRiwayat(Auth::id()),
+        ];
+    }
+
+    public function getSummary()
+    {
+        return $this->repository->getSummary(Auth::id());
+    }
+
+    public function getRiwayat()
+    {
+        return $this->repository->getRiwayat(Auth::id());
+    }
+
+     public function getGrafik()
+    {
+        return $this->repository->getGrafik(Auth::id());
     }
 
     public function hitungSemuaAnggota(
     $periodeAwal,
     $periodeAkhir,
-    $persenJasaPengurus,
+  
     $persenPajak
     ) {
         DB::beginTransaction();
@@ -80,9 +115,12 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
             }
 
-            /**
-             * Mengambil seluruh anggota
-             */
+               if ($this->repository->sudahAdaPeriode($periodeAwal, $periodeAkhir)) {
+                    throw new Exception(
+                        "Perhitungan SHU untuk periode tersebut sudah pernah dilakukan."
+                    );
+                }
+                
             $users = $this->repository->getUsers();
 
             foreach ($users as $user) {
@@ -125,18 +163,6 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
                     $shu->jasa_pinjaman
                 );
 
-                /**
-                 * Menghitung Jasa Pengurus
-                 */
-                $jasaPengurus = $this->hitungJasaPengurus(
-
-                    $shu->jasa_pengurus,
-
-                    $persenJasaPengurus,
-
-                    $users->count()
-
-                );
 
                 /**
                  * Menghitung Total SHU sebelum pajak
@@ -147,7 +173,6 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
                     $shuPinjaman,
 
-                    $jasaPengurus
 
                 );
 
@@ -188,8 +213,6 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
                     $shuSimpanan,
 
                     $shuPinjaman,
-
-                    $jasaPengurus,
 
                     $shuAnggota,
 
@@ -263,46 +286,22 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
     private function hitungTotalShu(
     $shuSimpanan,
-    $shuPinjaman,
-    $jasaPengurus
+    $shuPinjaman
     ) {
         return round(
-
             $shuSimpanan +
-            $shuPinjaman +
-            $jasaPengurus
-
+            $shuPinjaman
         );
     }
+
     private function hitungShuAnggota(
-    $totalShu,
-    $pajak
+        $totalShu,
+        $pajak
     ) {
         return round(
-
             $totalShu -
             $pajak
-
         );
     }
 
-    private function hitungJasaPengurus(
-    $nominalJasaPengurus,
-    $persenJasaPengurus,
-    $jumlahAnggota
-    ) {
-        if ($jumlahAnggota <= 0) {
-            return 0;
-        }
-
-        $nominalDibagikan = round(
-            $nominalJasaPengurus *
-            $persenJasaPengurus / 100
-        );
-
-        return round(
-            $nominalDibagikan /
-            $jumlahAnggota
-        );
-    }
 }

@@ -30,7 +30,7 @@ class StorePengajuanPinjamanRequest extends FormRequest
             'nama_istri_suami' => 'required|string',
             'jaminan' => 'nullable|array',
             'jaminan.*.id_jaminan' => 'required_with:jaminan|exists:jaminan,id',
-            'jaminan.*.file' => 'required_with:jaminan|file|mimes:pdf|max:2048',
+            'jaminan.*.file' => 'required_with:jaminan|file|mimes:pdf|max:10048',
         ];
     }
 

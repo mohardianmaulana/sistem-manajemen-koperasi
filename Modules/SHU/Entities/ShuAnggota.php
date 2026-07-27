@@ -31,4 +31,12 @@ class ShuAnggota extends Model
     {
         return $this->belongsTo(User::class, 'id_anggota');
     }
+
+    public function pencairan()
+    {
+        return $this->hasOne(
+            PencairanShu::class,
+            'id_shu_anggota'
+        );
+    }
 }
