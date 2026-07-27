@@ -29,7 +29,7 @@ class CreatePengajuanPinjamanTable extends Migration
             $table->string('no_rekening');
             $table->string('alamat');
             $table->string('nama_istri_suami');
-            $table->string('dokumen_ttd');
+            $table->string('dokumen_ttd')->nullable();
 
             $table->foreign('id_anggota')->references('id')
                     ->on('users')->onDelete('cascade');

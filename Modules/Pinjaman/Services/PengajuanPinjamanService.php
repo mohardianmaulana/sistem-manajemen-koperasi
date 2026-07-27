@@ -177,7 +177,7 @@ class PengajuanPinjamanService {
     
             $data = [
                 'id_pengajuan' => $id,
-                'role' => 'bendahara',
+                'role' => 'ketua',
                 'disetujui_oleh' => null,
                 'status' => 'menunggu',
                 'tanggal_disetujui' => null,
@@ -295,15 +295,19 @@ class PengajuanPinjamanService {
                 'keterangan' => $keterangan,
             ];
             
-            $this->pengajuanPinjamanRepository->updatePivotJaminan(
+            $updatePivot = $this->pengajuanPinjamanRepository->updatePivotJaminan(
                 $idPengajuan,
                 $idJaminan,
                 $data
             );
 
+            $updatePengajuanPinjaman = $this->pengajuanPinjamanRepository->update([
+                'status_pengajuan' => 'revisi'
+                ], $pengajuan->id);
+
             DB::commit();
 
-            return true;
+            return $updatePivot;
 
         } catch (Exception $e) {
             DB::rollBack();

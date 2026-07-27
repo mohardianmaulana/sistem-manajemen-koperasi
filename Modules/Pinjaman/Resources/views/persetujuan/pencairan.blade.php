@@ -70,7 +70,7 @@
                                             </button>
                                         </td>
                                         <td>
-                                            <form action="{{ route('persetujuan.pencairan', $item->id) }}"
+                                            <form action="{{ route('persetujuan.pencairan', $item->pinjaman->id) }}"
                                                 method="POST"
                                                 style="display:inline;">
                                                 @csrf

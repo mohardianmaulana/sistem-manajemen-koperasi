@@ -9,6 +9,7 @@ use Modules\Pinjaman\Entities\Jaminan;
 use Modules\Pinjaman\Entities\PengajuanPinjaman;
 use Modules\Pinjaman\Entities\Pinjaman;
 use Modules\Pinjaman\Entities\SkemaPinjaman;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class PengajuanPinjamanTest extends TestCase
@@ -23,7 +24,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_sukses()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -62,7 +71,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_gagal_masih_ada_pinjaman_yang_berjalan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -112,7 +129,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_gagal_jumlah_pengajuan_dan_lama_angsuran_kurang_dari_0()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -141,7 +166,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_gagal_jumlah_pengajuan_dan_lama_angsuran_kurang_atau_lebih_besar_dari_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -170,7 +203,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_gagal_no_hp_no_ktp_dan_no_rekening_tidak_sesuai_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -200,7 +241,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_dengan_jaminan_sukses()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -251,7 +300,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_dengan_jaminan_gagal_jumlah_pengajuan_dan_lama_angsuran_kurang_dari_0()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -290,7 +347,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_dengan_jaminan_gagal_jumlah_pengajuan_dan_lama_angsuran_kurang_atau_lebih_besar_dari_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -329,7 +394,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_dengan_jaminan_gagal_no_hp_no_ktp_dan_no_rekening_tidak_sesuai_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -368,7 +441,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_create_pengajuan_pinjaman_dengan_jaminan_gagal_file_jaminan_tidak_sesuai_dengan_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -404,7 +485,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_sukses()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -449,7 +538,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_gagal_jumlah_pengajuan_dan_lama_angsuran_kurang_dari_0()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -497,7 +594,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_gagal_jumlah_pengajuan_dan_lama_angsuran_kurang_atau_lebih_besar_dari_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -544,7 +649,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_gagal_no_hp_no_ktp_dan_no_rekening_tidak_sesuai_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -592,7 +705,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_dengan_jaminan_sukses()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -648,7 +769,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_dengan_jaminan_gagal_jumlah_pengajuan_dan_lama_angsuran_kurang_dari_0()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -705,7 +834,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_dengan_jaminan_gagal_jumlah_pengajuan_dan_lama_angsuran_kurang_atau_lebih_besar_dari_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -761,7 +898,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_dengan_jaminan_gagal_no_hp_no_ktp_dan_no_rekening_tidak_sesuai_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -819,7 +964,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_pengajuan_pinjaman_dengan_jaminan_gagal_file_jaminan_tidak_sesuai_dengan_ketentuan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -874,7 +1027,15 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_status_verifikasi_pengajuan_pinjaman_dengan_jaminan()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
@@ -898,14 +1059,23 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_status_verifikasi_file_jaminan()
     {
-        $user = User::factory()->create();
+        $role1 = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        $user1 = User::factory()->create();
+
+        $user1->assignRole($role1);
+
+        $this->actingAs($user1);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'ada',
         ]);
         $skema_pinjaman->daftarJaminan()->attach($jaminan->id);
         $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
         ]);
         $pengajuan->jaminan()->attach($jaminan->id, [
@@ -913,11 +1083,22 @@ class PengajuanPinjamanTest extends TestCase
             'status_verifikasi' => 'menunggu',
         ]);
 
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
+
         $response = $this->patch("pengajuan_pinjaman/updateStatus/{$pengajuan->id}");
 
         $this->assertDatabaseHas('pengajuan_pinjaman', [
             'id' => $pengajuan->id,
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
             'status_pengajuan' => 'verifikasi',
         ]);
@@ -935,14 +1116,23 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_status_tolak_verifikasi_file_jaminan()
     {
-        $user = User::factory()->create();
+        $role1 = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        $user1 = User::factory()->create();
+
+        $user1->assignRole($role1);
+
+        $this->actingAs($user1);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'ada',
         ]);
         $skema_pinjaman->daftarJaminan()->attach($jaminan->id);
         $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
         ]);
         $pengajuan->jaminan()->attach($jaminan->id, [
@@ -950,11 +1140,22 @@ class PengajuanPinjamanTest extends TestCase
             'status_verifikasi' => 'menunggu',
         ]);
 
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
+
         $response = $this->patch("pengajuan_pinjaman/updateStatus/{$pengajuan->id}");
 
         $this->assertDatabaseHas('pengajuan_pinjaman', [
             'id' => $pengajuan->id,
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
             'status_pengajuan' => 'verifikasi',
         ]);
@@ -974,18 +1175,38 @@ class PengajuanPinjamanTest extends TestCase
 
     public function test_update_status_persetujuan_awal_pengajuan_pinjaman()
     {
-        $user = User::factory()->create();
+        $role1 = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        $user1 = User::factory()->create();
+
+        $user1->assignRole($role1);
+
+        $this->actingAs($user1);
         $skema_pinjaman = SkemaPinjaman::factory()->create();
         $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
         ]);
+
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
 
         $response = $this->patch("pengajuan_pinjaman/updateStatus/{$pengajuan->id}");
 
         $this->assertDatabaseHas('pengajuan_pinjaman', [
             'id' => $pengajuan->id,
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
             'status_pengajuan' => 'verifikasi',
         ]);
@@ -1008,20 +1229,29 @@ class PengajuanPinjamanTest extends TestCase
         $this->assertDatabaseHas('persetujuan', 
         [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
+            'role' => 'ketua',
         ]);
     }
 
     public function test_update_status_persetujuan_awal_pengajuan_pinjaman_dengan_jaminan()
     {
-        $user = User::factory()->create();
+        $role1 = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        $user1 = User::factory()->create();
+
+        $user1->assignRole($role1);
+
+        $this->actingAs($user1);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'ada',
         ]);
         $skema_pinjaman->daftarJaminan()->attach($jaminan->id);
         $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
         ]);
         $pengajuan->jaminan()->attach($jaminan->id, [
@@ -1029,11 +1259,22 @@ class PengajuanPinjamanTest extends TestCase
             'status_verifikasi' => 'menunggu',
         ]);
 
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
+
         $response = $this->patch("pengajuan_pinjaman/updateStatus/{$pengajuan->id}");
 
         $this->assertDatabaseHas('pengajuan_pinjaman', [
             'id' => $pengajuan->id,
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
             'status_pengajuan' => 'verifikasi',
         ]);
@@ -1063,20 +1304,29 @@ class PengajuanPinjamanTest extends TestCase
         $this->assertDatabaseHas('persetujuan', 
         [
             'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
+            'role' => 'ketua',
         ]);
     }
 
     public function test_update_status_persetujuan_awal_pengajuan_pinjaman_dengan_jaminan_gagal_file_belum_verifikasi()
     {
-        $user = User::factory()->create();
+        $role1 = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        $user1 = User::factory()->create();
+
+        $user1->assignRole($role1);
+
+        $this->actingAs($user1);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'ada',
         ]);
         $skema_pinjaman->daftarJaminan()->attach($jaminan->id);
         $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
         ]);
         $pengajuan->jaminan()->attach($jaminan->id, [
@@ -1090,11 +1340,22 @@ class PengajuanPinjamanTest extends TestCase
             'status_verifikasi' => 'menunggu',
         ]);
 
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
+
         $response = $this->patch("pengajuan_pinjaman/updateStatus/{$pengajuan->id}");
 
         $this->assertDatabaseHas('pengajuan_pinjaman', [
             'id' => $pengajuan->id,
-            'id_anggota' => $user->id,
+            'id_anggota' => $user1->id,
             'id_skema_pinjaman' => $skema_pinjaman->id,
             'status_pengajuan' => 'verifikasi',
         ]);

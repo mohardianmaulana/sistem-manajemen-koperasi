@@ -20,6 +20,7 @@ class CreateAngsuranTable extends Migration
             $table->integer('jumlah_angsuran');
             $table->date('tanggal_jatuh_tempo');
             $table->enum('status_bayar', ['gagal_debet', 'belum_bayar', 'lunas', 'verifikasi', 'gagal_verifikasi']);
+            $table->string('catatan_verifikasi', 200)->nullable();
 
             $table->foreign('id_pinjaman')->references('id')
                     ->on('pinjaman')->onDelete('cascade');

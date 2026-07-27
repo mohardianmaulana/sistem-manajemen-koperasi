@@ -272,7 +272,11 @@
                                                         class="form-control
                                                         @error('jaminan.'.$loop->index.'.file')
                                                         is-invalid
-                                                        @enderror">
+                                                        @enderror"
+                                                        accept=".pdf">
+                                                        <small class="form-text text-muted">
+                                                            Format file <strong>PDF</strong> dengan ukuran maksimal <strong>2 MB</strong>.
+                                                        </small>
                                                     @error('jaminan.'.$loop->index.'.file')
                                                         <span class="invalid-feedback d-block">
                                                             {{ $message }}

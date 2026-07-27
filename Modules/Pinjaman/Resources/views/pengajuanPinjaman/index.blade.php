@@ -43,6 +43,7 @@
                                     <th class="text-center">Jumlah pengajuan</th>
                                     <th class="text-center">Lama angsuran</th>
                                     <th class="text-center">Tanggal pengajuan</th>
+                                    <th class="text-center">Status</th>
                                     <th class="text-center">Detail</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
@@ -61,6 +62,37 @@
                                         </td>
                                         <td>
                                             {{ \Carbon\Carbon::parse($item->tanggal_pengajuan)->locale('id')->translatedFormat('d F Y') }}
+                                        </td>
+                                        <td>
+                                            @if($item->status_pengajuan == 'menunggu')
+                                                <span class="badge badge-warning">
+                                                    Menunggu
+                                                </span>
+                                            @elseif($item->status_pengajuan == 'disetujui')
+                                                <span class="badge badge-success">
+                                                    Disetujui
+                                                </span>
+                                            @elseif($item->status_pengajuan == 'revisi')
+                                                <span class="badge badge-danger">
+                                                    Revisi jaminan
+                                                </span>
+                                            @elseif($item->status_pengajuan == 'verifikasi')
+                                                <span class="badge badge-info">
+                                                    Verifikasi
+                                                </span>
+                                            @elseif($item->status_pengajuan == 'persetujuan_awal')
+                                                <span class="badge badge-primary">
+                                                    Persetujuan awal
+                                                </span>
+                                            @elseif($item->status_pengajuan == 'persetujuan_akhir')
+                                                <span class="badge badge-primary">
+                                                    Persetujuan akhir
+                                                </span>
+                                            @else
+                                                <span class="badge badge-danger">
+                                                    Ditolak
+                                                </span>
+                                            @endif
                                         </td>
                                         <td>
                                             <button class="btn btn-primary btn-sm" 
@@ -120,7 +152,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">
+                                        <td colspan="9" class="text-center">
                                             Data pinjaman belum tersedia
                                         </td>
                                     </tr>
@@ -431,7 +463,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="text-center text-muted">
+                                <td colspan="5" class="text-center text-muted">
                                     Tidak ada dokumen jaminan.
                                 </td>
                             </tr>

@@ -82,6 +82,8 @@
                 <th width="10%">Angsuran</th>
                 <th width="18%">Jatuh Tempo</th>
                 <th width="20%">Nominal</th>
+                <th width="20%">Tunggakan</th>
+                <th width="20%">Total</th>
             </tr>
         </thead>
 
@@ -108,6 +110,14 @@
                     <td class="text-right">
                         Rp {{ number_format($item->jumlah_angsuran,0,',','.') }}
                     </td>
+
+                    <td class="text-right">
+                        Rp {{ number_format($item->tunggakan,0,',','.') }}
+                    </td>
+
+                    <td class="text-right">
+                        Rp {{ number_format($item->total_tagihan,0,',','.') }}
+                    </td>
                 </tr>
 
             @empty
@@ -125,12 +135,12 @@
         @if($tagihan->count() > 0)
         <tfoot>
             <tr>
-                <th colspan="4" class="text-right">
+                <th colspan="6" class="text-right">
                     Total Tagihan
                 </th>
 
                 <th class="text-right">
-                    Rp {{ number_format($tagihan->sum('jumlah_angsuran'),0,',','.') }}
+                    Rp {{ number_format($tagihan->sum('total_tagihan'),0,',','.') }}
                 </th>
 
             </tr>

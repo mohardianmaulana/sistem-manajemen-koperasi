@@ -61,6 +61,7 @@ class PembayaranController extends Controller
 
     public function storeAutoDebet(PembayaranRequest $request)
     {
+        // dd($request->all());
         try {
             $pembayaran = $this->pembayaranService->createAuto($request);
             return redirect()->route('angsuran.index')->with('success', 'Pembayaran auto debet berhasil dilakukan');
@@ -114,7 +115,7 @@ class PembayaranController extends Controller
     public function gagalUpdate(Request $request, $id)
     {
         try {
-            $pembayaran = $this->pembayaranService->gagalUpdate(['catatan' => $request->catatan], $id);
+            $pembayaran = $this->pembayaranService->gagalUpdate($request->catatan_verifikasi, $id);
             return redirect()->route('pembayaran.indexVerifikasi')->with('success', 'Pembayaran berhasil diverifikasi');           
         } catch (Exception $e) {
             return redirect()

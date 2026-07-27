@@ -25,6 +25,7 @@
 @stop
 
 @section('content')
+    @if($angsuran->isNotEmpty())
     <div class="row">
         <div class="col-12">
             @if (session('success'))
@@ -154,34 +155,62 @@
                                                     Menunggu Auto Debet
                                                 </button>
                                             @elseif ($item->status_bayar == 'gagal_debet')
-                                                <button type="button"
-                                                    class="btn btn-warning btn-sm btn-bayar text-white"
-                                                    data-toggle="modal"
-                                                    data-target="#modalBayar"
-                                                    data-id="{{ $item->id }}"
-                                                    data-jumlah="{{ $item->jumlah_angsuran }}">
-                                                    Bayar
-                                                </button>
+                                                @php
+                                                    $jatuhTempo = \Carbon\Carbon::parse($item->tanggal_jatuh_tempo);
+                                                    $masihBulanYangSama =
+                                                        $jatuhTempo->month == now()->month &&
+                                                        $jatuhTempo->year == now()->year;
+                                                @endphp
+                                                @if($masihBulanYangSama)
+                                                    <button type="button"
+                                                        class="btn btn-warning btn-sm btn-bayar text-white"
+                                                        data-toggle="modal"
+                                                        data-target="#modalBayar"
+                                                        data-id="{{ $item->id }}"
+                                                        data-jumlah="{{ $item->jumlah_angsuran }}"
+                                                        data-total="{{ $item->total_tagihan }}">
+                                                        Bayar
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-secondary btn-sm" disabled>
+                                                        Digabung Tagihan Berikutnya
+                                                    </button>
+                                                @endif
                                             @elseif ($item->status_bayar == 'verifikasi')
                                                 <button class="btn btn-primary btn-sm" disabled>
                                                     Verifikasi
                                                 </button>
                                             @elseif ($item->status_bayar == 'gagal_verifikasi')
-                                                <button type="button"
-                                                    class="btn btn-warning btn-sm btn-bayar-gagal text-white"
-                                                    data-toggle="modal"
-                                                    data-target="#modalBayarGagalVerifikasi"
-                                                    data-id="{{ $item->id }}"
-                                                    data-jumlah="{{ $item->jumlah_angsuran }}"
-                                                    data-catatan="{{ $item->pembayaran->catatan }}">
-                                                    Bayar
-                                                </button>
+                                                @php
+                                                    $jatuhTempo = \Carbon\Carbon::parse($item->tanggal_jatuh_tempo);
+                                                    $masihBulanYangSama =
+                                                        $jatuhTempo->month == now()->month &&
+                                                        $jatuhTempo->year == now()->year;
+                                                @endphp
+                                                @if($masihBulanYangSama)
+                                                    <button type="button"
+                                                        class="btn btn-warning btn-sm btn-bayar-gagal text-white"
+                                                        data-toggle="modal"
+                                                        data-target="#modalBayarGagalVerifikasi"
+                                                        data-id="{{ $item->id }}"
+                                                        data-jumlah="{{ $item->jumlah_angsuran }}"
+                                                        data-total="{{ $item->total_tagihan }}"
+                                                        data-catatan="{{ $item->catatan_verifikasi }}">
+                                                        Bayar
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-secondary btn-sm" disabled>
+                                                        Digabung Tagihan Berikutnya
+                                                    </button>
+                                                @endif
                                             @elseif ($item->status_bayar == 'lunas')
+                                                @if($item->pembayaran)
                                                 <button class="btn btn-primary btn-sm" 
                                                         data-toggle="modal" 
                                                         data-target="#detailModal{{ $item->id }}">
                                                         Detail
                                                 </button>
+                                                @endif
                                                 <button class="btn btn-success btn-sm" disabled>
                                                     Sudah Lunas
                                                 </button>
@@ -202,6 +231,11 @@
             </div>
         </div>
     </div>
+    @else
+    <div class="alert alert-info text-center">
+        Anda belum memiliki pinjaman aktif.
+    </div>
+    @endif
 @stop
 
 <div class="modal fade" id="modalBayar" tabindex="-1" role="dialog">
@@ -218,6 +252,10 @@
                     name="id_angsuran"
                     id="id_angsuran">
 
+                <input type="hidden"
+                    name="jumlah_bayar"
+                    id="total_tagihan_input">
+
                 <div class="modal-header">
                     <h5 class="modal-title">
                         Pembayaran Angsuran
@@ -233,12 +271,32 @@
                 <div class="modal-body">
 
                     <div class="form-group">
-                        <label>Nominal Pembayaran</label>
+                        <label>Rincian Pembayaran</label>
 
-                        <input type="text"
-                            id="jumlah_angsuran"
-                            class="form-control"
-                            readonly>
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th width="50%">Angsuran Bulan Ini</th>
+                                    <td class="text-right">
+                                        <span id="angsuran_bulan_ini"></span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Total Tunggakan</th>
+                                    <td class="text-right">
+                                        <span id="total_tunggakan"></span>
+                                    </td>
+                                </tr>
+
+                                <tr class="table-primary">
+                                    <th>Total Pembayaran</th>
+                                    <td class="text-right font-weight-bold">
+                                        <span id="total_pembayaran"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div class="form-group text-center">
@@ -262,6 +320,9 @@
                             class="form-control"
                             accept="image/*"
                             required>
+                        <small class="form-text text-muted">
+                            Format file <strong>JPG, PNG, JPEG</strong> dengan ukuran maksimal <strong>2 MB</strong>.
+                        </small>
                     </div>
 
                 </div>
@@ -301,6 +362,10 @@
                     name="id_angsuran"
                     id="id_angsuran_gagal">
 
+                <input type="hidden"
+                    name="jumlah_bayar"
+                    id="total_tagihan_gagal">
+
                 <div class="modal-header">
                     <h5 class="modal-title">
                         Pembayaran Angsuran
@@ -324,12 +389,32 @@
                             readonly>
                     </div>
                     <div class="form-group">
-                        <label>Nominal Pembayaran</label>
+                        <label>Rincian Pembayaran</label>
 
-                        <input type="text"
-                            id="jumlah_angsuran_gagal"
-                            class="form-control"
-                            readonly>
+                        <table class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <th width="50%">Angsuran Bulan Ini</th>
+                                    <td class="text-right">
+                                        <span id="jumlah_angsuran_gagal"></span>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <th>Total Tunggakan</th>
+                                    <td class="text-right">
+                                        <span id="total_tunggakan_gagal"></span>
+                                    </td>
+                                </tr>
+
+                                <tr class="table-primary">
+                                    <th>Total Pembayaran</th>
+                                    <td class="text-right font-weight-bold">
+                                        <span id="total_pembayaran_gagal"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div class="form-group text-center">
@@ -353,6 +438,9 @@
                             class="form-control"
                             accept="image/*"
                             required>
+                            <small class="form-text text-muted">
+                                Format file <strong>JPG, PNG, JPEG</strong> dengan ukuran maksimal <strong>2 MB</strong>.
+                            </small>
                     </div>
 
                 </div>
@@ -449,12 +537,16 @@
                         <tr>
                             <th>Bukti pembayaran</th>
                             <td>
-                                <a href="{{ asset('bukti_pembayaran/'.$item->pembayaran?->bukti_pembayaran) }}"
+                                @if($item->pembayaran && $item->pembayaran->bukti_pembayaran)
+                                    <a href="{{ asset('bukti_pembayaran/'.$item->pembayaran->bukti_pembayaran) }}"
                                         target="_blank"
                                         class="btn btn-info btn-sm">
                                         <i class="fas fa-eye"></i>
                                         Lihat
-                                </a>
+                                    </a>
+                                @else
+                                    -
+                                @endif
                             </td>
                         </tr>
 
@@ -476,9 +568,7 @@
                 <button type="button"
                         class="btn btn-secondary"
                         data-dismiss="modal">
-
                     Tutup
-
                 </button>
 
             </div>
@@ -501,25 +591,51 @@
 $(document).ready(function () {
 
     $('.btn-bayar').click(function () {
+
         let id = $(this).data('id');
-        let jumlah = $(this).data('jumlah');
+        let jumlah = Number($(this).data('jumlah'));
+        let total  = Number($(this).data('total'));
+
+        let tunggakan = total - jumlah;
 
         $('#id_angsuran').val(id);
+        $('#total_tagihan_input').val(total);
 
-        $('#jumlah_angsuran').val(
-            'Rp. ' + Number(jumlah).toLocaleString('id-ID')
+        $('#angsuran_bulan_ini').text(
+            'Rp. ' + jumlah.toLocaleString('id-ID')
         );
+
+        $('#total_tunggakan').text(
+            'Rp. ' + tunggakan.toLocaleString('id-ID')
+        );
+
+        $('#total_pembayaran').text(
+            'Rp. ' + total.toLocaleString('id-ID')
+        );
+
     });
 
     $('.btn-bayar-gagal').click(function () {
         let id = $(this).data('id');
         let jumlah = $(this).data('jumlah');
         let catatan = $(this).data('catatan');
+        let total  = Number($(this).data('total'));
+
+        let tunggakan = total - jumlah;
 
         $('#id_angsuran_gagal').val(id);
+        $('#total_tagihan_gagal').val(total);
 
-        $('#jumlah_angsuran_gagal').val(
-            'Rp. ' + Number(jumlah).toLocaleString('id-ID')
+        $('#jumlah_angsuran_gagal').text(
+            'Rp. ' + jumlah.toLocaleString('id-ID')
+        );
+
+        $('#total_tunggakan_gagal').text(
+            'Rp. ' + tunggakan.toLocaleString('id-ID')
+        );
+
+        $('#total_pembayaran_gagal').text(
+            'Rp. ' + total.toLocaleString('id-ID')
         );
 
         $('#catatan').val(catatan);

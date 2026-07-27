@@ -78,7 +78,7 @@
                                                 </span>
                                             @elseif ($item->angsuran->status_bayar == 'gagal_verifikasi')
                                                 <span class="badge badge-danger">
-                                                    {{ $item->status_pinjaman }}
+                                                    Gagal verifikasi
                                                 </span>
                                             @endif
                                         </td>
@@ -113,7 +113,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">
+                                        <td colspan="8" class="text-center">
                                             Data verifikasi pembayaran belum tersedia
                                         </td>
                                     </tr>
@@ -180,7 +180,7 @@
                         <span class="text-danger">*</span>
 
                         <textarea
-                            name="catatan"
+                            name="catatan_verifikasi"
                             class="form-control"
                             rows="4"
                             placeholder="Masukkan alasan mengapa pembayaran ditolak..."

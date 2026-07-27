@@ -51,13 +51,6 @@ class AngsuranController extends Controller
         return view('pinjaman::angsuran.indexAnggota', compact('angsuran'));
     }
 
-    public function indexVerifikasi()
-    {
-        $fields = ['*'];
-        $angsuran = $this->angsuranService->getVerifikasi($fields);
-        return view('pinjaman::angsuran.indexVerifikasi', compact('angsuran'));
-    }
-
     public function gagalDebet($id)
     {
         try {

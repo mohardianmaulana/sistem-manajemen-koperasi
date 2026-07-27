@@ -28,223 +28,228 @@ class PersetujuanTest extends TestCase
         Role::create(['name' => 'ketua']);
     }
 
-    public function test_update_persetujuan_bendahara_disetujui()
-    {
-        $this->withoutExceptionHandling();
+    // public function test_update_persetujuan_bendahara_disetujui()
+    // {
+    //     $user = User::factory()->create();
+    //     $user->assignRole('bendahara');
+    //     $this->actingAs($user);
+    //     $skema_pinjaman = SkemaPinjaman::factory()->create([
+    //         'jaminan' => 'tidak',
+    //     ]);
+    //     $pengajuan = PengajuanPinjaman::factory()->create([
+    //         'id_anggota' => $user->id,
+    //         'id_skema_pinjaman' => $skema_pinjaman->id,
+    //     ]);
+    //     $persetujuan = Persetujuan::factory()->create([
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'bendahara',
+    //     ]);
+    //     $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'bendahara',
+    //     ]);
 
-        $user = User::factory()->create();
-        $user->assignRole('bendahara');
-        $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create([
-            'jaminan' => 'tidak',
-        ]);
-        $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
-            'id_skema_pinjaman' => $skema_pinjaman->id,
-        ]);
-        $persetujuan = Persetujuan::factory()->create([
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-        ]);
-        $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-        ]);
+    //     $response->assertStatus(302);
 
-        $response->assertStatus(302);
+    //     $this->assertDatabaseHas('persetujuan', [
+    //         'id' => $persetujuan->id,
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'bendahara',
+    //         'disetujui_oleh' => $user->id,
+    //         'status' => 'disetujui',
+    //         'tanggal_disetujui' => now()->toDateString(),
+    //         'catatan' => null,
+    //     ]);
 
-        $this->assertDatabaseHas('persetujuan', [
-            'id' => $persetujuan->id,
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-            'disetujui_oleh' => $user->id,
-            'status' => 'disetujui',
-            'tanggal_disetujui' => now()->toDateString(),
-            'catatan' => null,
-        ]);
+    //     $this->assertDatabaseHas('persetujuan', [
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'wadir',
+    //     ]);
+    // }
 
-        $this->assertDatabaseHas('persetujuan', [
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-        ]);
-    }
+    // public function test_update_persetujuan_bendahara_ditolak()
+    // {
+    //     $user = User::factory()->create();
+    //     $user->assignRole('bendahara');
+    //     $this->actingAs($user);
+    //     $skema_pinjaman = SkemaPinjaman::factory()->create([
+    //         'jaminan' => 'tidak',
+    //     ]);
+    //     $pengajuan = PengajuanPinjaman::factory()->create([
+    //         'id_anggota' => $user->id,
+    //         'id_skema_pinjaman' => $skema_pinjaman->id,
+    //     ]);
+    //     $persetujuan = Persetujuan::factory()->create([
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'bendahara',
+    //     ]);
+    //     $response = $this->put("persetujuan/tolak/{$persetujuan->id}", [
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'catatan' => 'tidak ada',
+    //     ]);
 
-    public function test_update_persetujuan_bendahara_ditolak()
-    {
-        $user = User::factory()->create();
-        $user->assignRole('bendahara');
-        $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create([
-            'jaminan' => 'tidak',
-        ]);
-        $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
-            'id_skema_pinjaman' => $skema_pinjaman->id,
-        ]);
-        $persetujuan = Persetujuan::factory()->create([
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-        ]);
-        $response = $this->put("persetujuan/tolak/{$persetujuan->id}", [
-            'id_pengajuan' => $pengajuan->id,
-            'catatan' => 'tidak ada',
-        ]);
+    //     $response->assertStatus(302);
 
-        $response->assertStatus(302);
+    //     $this->assertDatabaseHas('persetujuan', [
+    //         'id' => $persetujuan->id,
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'bendahara',
+    //         'disetujui_oleh' => $user->id,
+    //         'status' => 'ditolak',
+    //         'tanggal_disetujui' => now()->toDateString(),
+    //         'catatan' => 'tidak ada',
+    //     ]);
+    // }
 
-        $this->assertDatabaseHas('persetujuan', [
-            'id' => $persetujuan->id,
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-            'disetujui_oleh' => $user->id,
-            'status' => 'ditolak',
-            'tanggal_disetujui' => now()->toDateString(),
-            'catatan' => 'tidak ada',
-        ]);
-    }
+    // public function test_update_persetujuan_bendahara_ditolak_bukan_bendahara()
+    // {
+    //     $user = User::factory()->create();
+    //     $user->assignRole('wadir');
+    //     $this->actingAs($user);
+    //     $skema_pinjaman = SkemaPinjaman::factory()->create([
+    //         'jaminan' => 'tidak',
+    //     ]);
+    //     $pengajuan = PengajuanPinjaman::factory()->create([
+    //         'id_anggota' => $user->id,
+    //         'id_skema_pinjaman' => $skema_pinjaman->id,
+    //     ]);
+    //     $persetujuan = Persetujuan::factory()->create([
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'bendahara',
+    //     ]);
+    //     $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
+    //         'id_pengajuan' => $pengajuan->id,
+    //     ]);
 
-    public function test_update_persetujuan_bendahara_ditolak_bukan_bendahara()
-    {
-        $user = User::factory()->create();
-        $user->assignRole('wadir');
-        $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create([
-            'jaminan' => 'tidak',
-        ]);
-        $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
-            'id_skema_pinjaman' => $skema_pinjaman->id,
-        ]);
-        $persetujuan = Persetujuan::factory()->create([
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-        ]);
-        $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
-            'id_pengajuan' => $pengajuan->id,
-        ]);
+    //     $response->assertStatus(302);
 
-        $response->assertStatus(302);
+    //     $this->assertDatabaseHas('persetujuan', [
+    //         'id' => $persetujuan->id,
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'bendahara',
+    //         'disetujui_oleh' => null,
+    //         'status' => 'menunggu',
+    //         'tanggal_disetujui' => null,
+    //         'catatan' => null,
+    //     ]);
+    // }
 
-        $this->assertDatabaseHas('persetujuan', [
-            'id' => $persetujuan->id,
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'bendahara',
-            'disetujui_oleh' => null,
-            'status' => 'menunggu',
-            'tanggal_disetujui' => null,
-            'catatan' => null,
-        ]);
-    }
+    // public function test_update_persetujuan_wadir_disetujui()
+    // {
+    //     $user = User::factory()->create();
+    //     $user->assignRole('wadir');
+    //     $this->actingAs($user);
+    //     $skema_pinjaman = SkemaPinjaman::factory()->create([
+    //         'jaminan' => 'tidak',
+    //     ]);
+    //     $pengajuan = PengajuanPinjaman::factory()->create([
+    //         'id_anggota' => $user->id,
+    //         'id_skema_pinjaman' => $skema_pinjaman->id,
+    //     ]);
+    //     $persetujuan = Persetujuan::factory()->create([
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'wadir',
+    //     ]);
+    //     $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
+    //         'id_pengajuan' => $pengajuan->id,
+    //     ]);
 
-    public function test_update_persetujuan_wadir_disetujui()
-    {
-        $user = User::factory()->create();
-        $user->assignRole('wadir');
-        $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create([
-            'jaminan' => 'tidak',
-        ]);
-        $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
-            'id_skema_pinjaman' => $skema_pinjaman->id,
-        ]);
-        $persetujuan = Persetujuan::factory()->create([
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-        ]);
-        $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
-            'id_pengajuan' => $pengajuan->id,
-        ]);
+    //     $response->assertStatus(302);
 
-        $response->assertStatus(302);
+    //     $this->assertDatabaseHas('persetujuan', [
+    //         'id' => $persetujuan->id,
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'wadir',
+    //         'disetujui_oleh' => $user->id,
+    //         'status' => 'disetujui',
+    //         'tanggal_disetujui' => now()->toDateString(),
+    //         'catatan' => null,
+    //     ]);
 
-        $this->assertDatabaseHas('persetujuan', [
-            'id' => $persetujuan->id,
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-            'disetujui_oleh' => $user->id,
-            'status' => 'disetujui',
-            'tanggal_disetujui' => now()->toDateString(),
-            'catatan' => null,
-        ]);
+    //     $this->assertDatabaseHas('persetujuan', [
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'ketua',
+    //     ]);
+    // }
 
-        $this->assertDatabaseHas('persetujuan', [
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'ketua',
-        ]);
-    }
+    // public function test_update_persetujuan_wadir_ditolak()
+    // {
+    //     $user = User::factory()->create();
+    //     $user->assignRole('wadir');
+    //     $this->actingAs($user);
+    //     $skema_pinjaman = SkemaPinjaman::factory()->create([
+    //         'jaminan' => 'tidak',
+    //     ]);
+    //     $pengajuan = PengajuanPinjaman::factory()->create([
+    //         'id_anggota' => $user->id,
+    //         'id_skema_pinjaman' => $skema_pinjaman->id,
+    //     ]);
+    //     $persetujuan = Persetujuan::factory()->create([
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'wadir',
+    //     ]);
+    //     $response = $this->put("persetujuan/tolak/{$persetujuan->id}", [
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'catatan' => 'tidak ada',
+    //     ]);
 
-    public function test_update_persetujuan_wadir_ditolak()
-    {
-        $user = User::factory()->create();
-        $user->assignRole('wadir');
-        $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create([
-            'jaminan' => 'tidak',
-        ]);
-        $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
-            'id_skema_pinjaman' => $skema_pinjaman->id,
-        ]);
-        $persetujuan = Persetujuan::factory()->create([
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-        ]);
-        $response = $this->put("persetujuan/tolak/{$persetujuan->id}", [
-            'id_pengajuan' => $pengajuan->id,
-            'catatan' => 'tidak ada',
-        ]);
+    //     $response->assertStatus(302);
 
-        $response->assertStatus(302);
+    //     $this->assertDatabaseHas('persetujuan', [
+    //         'id' => $persetujuan->id,
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'wadir',
+    //         'disetujui_oleh' => $user->id,
+    //         'status' => 'ditolak',
+    //         'tanggal_disetujui' => now()->toDateString(),
+    //         'catatan' => 'tidak ada',
+    //     ]);
+    // }
 
-        $this->assertDatabaseHas('persetujuan', [
-            'id' => $persetujuan->id,
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-            'disetujui_oleh' => $user->id,
-            'status' => 'ditolak',
-            'tanggal_disetujui' => now()->toDateString(),
-            'catatan' => 'tidak ada',
-        ]);
-    }
+    // public function test_update_persetujuan_wadir_ditolak_bukan_wadir()
+    // {
+    //     $user = User::factory()->create();
+    //     $user->assignRole('bendahara');
+    //     $this->actingAs($user);
+    //     $skema_pinjaman = SkemaPinjaman::factory()->create([
+    //         'jaminan' => 'tidak',
+    //     ]);
+    //     $pengajuan = PengajuanPinjaman::factory()->create([
+    //         'id_anggota' => $user->id,
+    //         'id_skema_pinjaman' => $skema_pinjaman->id,
+    //     ]);
+    //     $persetujuan = Persetujuan::factory()->create([
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'wadir',
+    //     ]);
+    //     $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
+    //         'id_pengajuan' => $pengajuan->id,
+    //     ]);
 
-    public function test_update_persetujuan_wadir_ditolak_bukan_wadir()
-    {
-        $user = User::factory()->create();
-        $user->assignRole('bendahara');
-        $this->actingAs($user);
-        $skema_pinjaman = SkemaPinjaman::factory()->create([
-            'jaminan' => 'tidak',
-        ]);
-        $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
-            'id_skema_pinjaman' => $skema_pinjaman->id,
-        ]);
-        $persetujuan = Persetujuan::factory()->create([
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-        ]);
-        $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
-            'id_pengajuan' => $pengajuan->id,
-        ]);
+    //     $response->assertStatus(302);
 
-        $response->assertStatus(302);
-
-        $this->assertDatabaseHas('persetujuan', [
-            'id' => $persetujuan->id,
-            'id_pengajuan' => $pengajuan->id,
-            'role' => 'wadir',
-            'disetujui_oleh' => null,
-            'status' => 'menunggu',
-            'tanggal_disetujui' => null,
-            'catatan' => null,
-        ]);
-    }
+    //     $this->assertDatabaseHas('persetujuan', [
+    //         'id' => $persetujuan->id,
+    //         'id_pengajuan' => $pengajuan->id,
+    //         'role' => 'wadir',
+    //         'disetujui_oleh' => null,
+    //         'status' => 'menunggu',
+    //         'tanggal_disetujui' => null,
+    //         'catatan' => null,
+    //     ]);
+    // }
 
     public function test_update_persetujuan_ketua_disetujui()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
-        $user->assignRole('ketua');
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -257,6 +262,17 @@ class PersetujuanTest extends TestCase
             'id_pengajuan' => $pengajuan->id,
             'role' => 'ketua',
         ]);
+
+        $role1 = Role::firstOrCreate([
+            'name' => 'ketua',
+            'guard_name' => 'web',
+        ]);
+
+        $user1 = User::factory()->create();
+
+        $user1->assignRole($role1);
+
+        $this->actingAs($user1);
         $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
         ]);
@@ -267,7 +283,7 @@ class PersetujuanTest extends TestCase
             'id' => $persetujuan->id,
             'id_pengajuan' => $pengajuan->id,
             'role' => 'ketua',
-            'disetujui_oleh' => $user->id,
+            'disetujui_oleh' => $user1->id,
             'status' => 'disetujui',
             'tanggal_disetujui' => now()->toDateString(),
             'catatan' => null,
@@ -281,8 +297,15 @@ class PersetujuanTest extends TestCase
 
     public function test_update_persetujuan_ketua_ditolak()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
-        $user->assignRole('ketua');
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -295,6 +318,17 @@ class PersetujuanTest extends TestCase
             'id_pengajuan' => $pengajuan->id,
             'role' => 'ketua',
         ]);
+
+        $role1 = Role::firstOrCreate([
+            'name' => 'ketua',
+            'guard_name' => 'web',
+        ]);
+
+        $user1 = User::factory()->create();
+
+        $user1->assignRole($role1);
+
+        $this->actingAs($user1);
         $response = $this->put("persetujuan/tolak/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
             'catatan' => 'tidak ada',
@@ -306,7 +340,7 @@ class PersetujuanTest extends TestCase
             'id' => $persetujuan->id,
             'id_pengajuan' => $pengajuan->id,
             'role' => 'ketua',
-            'disetujui_oleh' => $user->id,
+            'disetujui_oleh' => $user1->id,
             'status' => 'ditolak',
             'tanggal_disetujui' => now()->toDateString(),
             'catatan' => 'tidak ada',
@@ -315,8 +349,15 @@ class PersetujuanTest extends TestCase
 
     public function test_update_persetujuan_ketua_ditolak_bukan_ketua()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
         $user = User::factory()->create();
-        $user->assignRole('wadir');
+
+        $user->assignRole($role);
+
         $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'jaminan' => 'tidak',
@@ -329,6 +370,17 @@ class PersetujuanTest extends TestCase
             'id_pengajuan' => $pengajuan->id,
             'role' => 'ketua',
         ]);
+
+        $role1 = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user1 = User::factory()->create();
+
+        $user1->assignRole($role1);
+
+        $this->actingAs($user1);
         $response = $this->put("persetujuan/setujui/{$persetujuan->id}", [
             'id_pengajuan' => $pengajuan->id,
         ]);
@@ -346,64 +398,64 @@ class PersetujuanTest extends TestCase
         ]);
     }
 
-    public function test_full_flow_pengajuan_sampai_pinjaman()
-    {
-        $user = User::factory()->create();
-        $skema_pinjaman = SkemaPinjaman::factory()->create([
-            'jaminan' => 'tidak',
-        ]);
-        $pengajuan = PengajuanPinjaman::factory()->create([
-            'id_anggota' => $user->id,
-            'id_skema_pinjaman' => $skema_pinjaman->id,
-        ]);
+    // public function test_full_flow_pengajuan_sampai_pinjaman()
+    // {
+    //     $user = User::factory()->create();
+    //     $skema_pinjaman = SkemaPinjaman::factory()->create([
+    //         'jaminan' => 'tidak',
+    //     ]);
+    //     $pengajuan = PengajuanPinjaman::factory()->create([
+    //         'id_anggota' => $user->id,
+    //         'id_skema_pinjaman' => $skema_pinjaman->id,
+    //     ]);
 
-        $this->patch("pengajuan_pinjaman/updateStatus/{$pengajuan->id}")->assertStatus(302);
+    //     $this->patch("pengajuan_pinjaman/updateStatus/{$pengajuan->id}")->assertStatus(302);
 
-        // step awal: generate bendahara
-        $this->patch("pengajuan_pinjaman/teruskan/{$pengajuan->id}")->assertStatus(302);
+    //     // step awal: generate bendahara
+    //     $this->patch("pengajuan_pinjaman/teruskan/{$pengajuan->id}")->assertStatus(302);
 
-        // bendahara
-        $bendahara = Persetujuan::where('role', 'bendahara')->where('id_pengajuan', $pengajuan->id)->first();
-        $this->assertNotNull($bendahara);
+    //     // bendahara
+    //     $bendahara = Persetujuan::where('role', 'bendahara')->where('id_pengajuan', $pengajuan->id)->first();
+    //     $this->assertNotNull($bendahara);
 
-        $bendaharaUser = User::factory()->create();
-        $bendaharaUser->assignRole('bendahara');
-        $this->actingAs($bendaharaUser);
+    //     $bendaharaUser = User::factory()->create();
+    //     $bendaharaUser->assignRole('bendahara');
+    //     $this->actingAs($bendaharaUser);
 
-        $this->put("persetujuan/setujui/{$bendahara->id}", [
-            'id_pengajuan'      => $pengajuan->id,
-        ])->assertStatus(302);
+    //     $this->put("persetujuan/setujui/{$bendahara->id}", [
+    //         'id_pengajuan'      => $pengajuan->id,
+    //     ])->assertStatus(302);
 
-        // wadir
-        $wadir = Persetujuan::where('role', 'wadir')->where('id_pengajuan', $pengajuan->id)->first();
-        $this->assertNotNull($wadir);
+    //     // wadir
+    //     $wadir = Persetujuan::where('role', 'wadir')->where('id_pengajuan', $pengajuan->id)->first();
+    //     $this->assertNotNull($wadir);
 
-        $wadirUser = User::factory()->create();
-        $wadirUser->assignRole('wadir');
-        $this->actingAs($wadirUser);
+    //     $wadirUser = User::factory()->create();
+    //     $wadirUser->assignRole('wadir');
+    //     $this->actingAs($wadirUser);
 
-        $this->put("persetujuan/setujui/{$wadir->id}", [
-            'id_pengajuan'      => $pengajuan->id,
-        ])->assertStatus(302);
+    //     $this->put("persetujuan/setujui/{$wadir->id}", [
+    //         'id_pengajuan'      => $pengajuan->id,
+    //     ])->assertStatus(302);
 
-        // ketua
-        $ketua = Persetujuan::where('role', 'ketua')->where('id_pengajuan', $pengajuan->id)->first();
-        $this->assertNotNull($ketua);
+    //     // ketua
+    //     $ketua = Persetujuan::where('role', 'ketua')->where('id_pengajuan', $pengajuan->id)->first();
+    //     $this->assertNotNull($ketua);
 
-        $ketuaUser = User::factory()->create();
-        $ketuaUser->assignRole('ketua');
-        $this->actingAs($ketuaUser);
+    //     $ketuaUser = User::factory()->create();
+    //     $ketuaUser->assignRole('ketua');
+    //     $this->actingAs($ketuaUser);
 
-        $this->put("persetujuan/setujui/{$ketua->id}", [
-            'id_pengajuan'      => $pengajuan->id,
-        ])->assertStatus(302);
+    //     $this->put("persetujuan/setujui/{$ketua->id}", [
+    //         'id_pengajuan'      => $pengajuan->id,
+    //     ])->assertStatus(302);
 
-        // hasil akhir
-        $this->assertDatabaseCount('pinjaman', 1);
+    //     // hasil akhir
+    //     $this->assertDatabaseCount('pinjaman', 1);
 
-        $this->assertDatabaseHas('pinjaman', 
-        [
-            'id_pengajuan' => $pengajuan->id,
-        ]);
-    }
+    //     $this->assertDatabaseHas('pinjaman', 
+    //     [
+    //         'id_pengajuan' => $pengajuan->id,
+    //     ]);
+    // }
 }

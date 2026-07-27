@@ -195,6 +195,9 @@
                                     type="file"
                                     name="jaminan[{{ $jaminan->id }}]"
                                     class="form-control">
+                                <small class="form-text text-muted">
+                                    Format file <strong>PDF</strong> dengan ukuran maksimal <strong>2 MB</strong>.
+                                </small>
 
                             @elseif($jaminan->pivot->status_verifikasi=='verifikasi')
                                 <div class="alert alert-success mb-0">

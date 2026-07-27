@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Core\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Modules\Pinjaman\Entities\Jaminan;
 use Modules\Pinjaman\Entities\SkemaPinjaman;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class SkemaPinjamanTest extends TestCase
@@ -20,6 +22,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_sukses()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $response = $this->post("skema_pinjaman/store", 
             [
                 'nama' => 'Bunga Rendah',
@@ -52,6 +64,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_gagal_nama_skema_duplikat()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'min_nominal' => 1000000,
@@ -85,6 +107,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_gagal_min_max_nominal_dan_tenor_dan_bunga_kurang_dari_0()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $response = $this->post("skema_pinjaman/store", 
             [
                 'nama' => 'Bunga Rendah',
@@ -112,6 +144,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_gagal_min_nominal_lebih_besar_dari_max_nominal()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $response = $this->post("skema_pinjaman/store", 
             [
                 'nama' => 'Bunga Rendah',
@@ -133,6 +175,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_gagal_min_tenor_lebih_besar_dari_max_tenor()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $response = $this->post("skema_pinjaman/store", 
             [
                 'nama' => 'Bunga Rendah',
@@ -154,6 +206,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_gagal_status_tidak_sesuai()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $response = $this->post("skema_pinjaman/store", 
             [
                 'nama' => 'Bunga Rendah',
@@ -175,6 +237,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_gagal_jaminan_tidak_sesuai()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $response = $this->post("skema_pinjaman/store", 
             [
                 'nama' => 'Bunga Rendah',
@@ -196,6 +268,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_dengan_jaminan_berhasil()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $response = $this->post("skema_pinjaman/store", 
             [
@@ -232,6 +314,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_dengan_jaminan_gagal_jaminan_ids_kosong()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $response = $this->post("skema_pinjaman/store", 
             [
                 'nama' => 'Bunga Rendah',
@@ -254,6 +346,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_create_skema_pinjaman_dengan_jaminan_gagal_jaminan_ids_tidak_sesuai()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $response = $this->post("skema_pinjaman/store", 
             [
                 'nama' => 'Bunga Rendah',
@@ -278,6 +380,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_sukses()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -307,6 +419,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_gagal_nama_skema_duplikat()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman1 = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -343,6 +465,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_gagal_min_max_nominal_dan_tenor_dan_bunga_kurang_dari_0()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -386,6 +518,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_gagal_min_nominal_lebih_besar_dari_max_nominal()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -423,6 +565,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_gagal_min_tenor_lebih_besar_dari_max_tenor()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -460,6 +612,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_gagal_status_tidak_sesuai()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -493,6 +655,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_gagal_jaminan_tidak_sesuai()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -526,6 +698,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_dengan_jaminan_berhasil()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $jaminan = Jaminan::factory()->create();
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
@@ -563,6 +745,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_dengan_jaminan_gagal_jaminan_ids_kosong()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -599,6 +791,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_update_skema_pinjaman_dengan_jaminan_gagal_jaminan_ids_tidak_sesuai()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -635,6 +837,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_nonaktif_skema_pinjaman()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',
@@ -656,6 +868,16 @@ class SkemaPinjamanTest extends TestCase
 
     public function test_aktif_skema_pinjaman()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create([
             'nama' => 'Bunga Rendah',
             'jaminan' => 'tidak',

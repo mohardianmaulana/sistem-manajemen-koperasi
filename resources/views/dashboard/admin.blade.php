@@ -9,6 +9,16 @@
 @section('content')
     <div class="row">
         <div class="col-12">
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    {{ session('error') }}
+
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            @endif
             <div class="card">
                 <div class="card-body">
                     <p class="mb-0">You are logged in! sebagai admin

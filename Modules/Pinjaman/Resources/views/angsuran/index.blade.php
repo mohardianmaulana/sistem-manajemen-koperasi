@@ -58,7 +58,7 @@
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td class="text-center">{{ $item->pinjaman->pengajuan->users->name }}</td>
                                         <td class="text-center">{{ $item->angsuran_ke }}</td>
-                                        <td class="text-center">Rp. {{ number_format($item->jumlah_angsuran, 0, ',', '.') }}</td>
+                                        <td class="text-center">Rp. {{ number_format($item->total_tagihan, 0, ',', '.') }}</td>
                                         <td class="text-center">
                                             {{ \Carbon\Carbon::parse($item->tanggal_jatuh_tempo)->locale('id')->translatedFormat('d F Y') }}
                                         </td>
@@ -98,6 +98,7 @@
                                                 @csrf
 
                                                 <input type="hidden" name="id_angsuran" value="{{ $item->id }}">
+                                                <input type="hidden" name="jumlah_bayar" value="{{ $item->total_tagihan }}">
 
                                                 <button type="submit" class="btn btn-success btn-sm">
                                                     Auto debet

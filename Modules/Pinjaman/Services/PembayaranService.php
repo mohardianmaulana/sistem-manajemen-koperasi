@@ -54,11 +54,22 @@ class PembayaranService {
                 'id_angsuran'        => $angsuran->id,
                 'jenis_pembayaran'   => 'manual',
                 'tanggal_bayar'      => Carbon::now(),
-                'jumlah_bayar'       => $angsuran->jumlah_angsuran,
+                'jumlah_bayar'       => $validated['jumlah_bayar'],
                 'bukti_pembayaran'   => $namaFile,
                 'status_pembayaran'  => 'verifikasi',
             ];
             $pembayaran = $this->pembayaranRepository->create($dataPembayaran);
+
+            $tunggakan = $this->angsuranRepository->getTunggakan(
+                $angsuran->id_pinjaman,
+                $angsuran->tanggal_jatuh_tempo
+            );
+
+            foreach ($tunggakan as $item) {
+                $this->angsuranRepository->update([
+                    'status_bayar' => 'verifikasi'
+                ], $item->id);
+            }
 
             $dataAngsuran = [
                 'status_bayar' => 'verifikasi'
@@ -106,13 +117,24 @@ class PembayaranService {
                 'id_angsuran'        => $angsuran->id,
                 'jenis_pembayaran'   => 'manual',
                 'tanggal_bayar'      => Carbon::now(),
-                'jumlah_bayar'       => $angsuran->jumlah_angsuran,
+                'jumlah_bayar'       => $validated['jumlah_bayar'],
                 'bukti_pembayaran'   => $namaFile,
                 'status_pembayaran'  => 'verifikasi',
-                'catatan'            => null,
             ];
 
             $pembayaran = $this->pembayaranRepository->update($dataPembayaran, $pembayaran->id);
+
+
+            $tunggakan = $this->angsuranRepository->getTunggakanGagal(
+                $angsuran->id_pinjaman,
+                $angsuran->tanggal_jatuh_tempo
+            );
+
+            foreach ($tunggakan as $item) {
+                $this->angsuranRepository->update([
+                    'status_bayar' => 'verifikasi'
+                ], $item->id);
+            }
 
             $dataAngsuran = [
                 'status_bayar' => 'verifikasi'
@@ -149,11 +171,22 @@ class PembayaranService {
                 'id_angsuran'        => $angsuran->id,
                 'jenis_pembayaran'   => 'auto-debet',
                 'tanggal_bayar'      => Carbon::now(),
-                'jumlah_bayar'       => $angsuran->jumlah_angsuran,
+                'jumlah_bayar'       => $validated['jumlah_bayar'],
                 'bukti_pembayaran'   => null,
                 'status_pembayaran'  => 'sukses',
             ];
             $pembayaran = $this->pembayaranRepository->create($dataPembayaran);
+
+            $tunggakan = $this->angsuranRepository->getTunggakan(
+                $angsuran->id_pinjaman,
+                $angsuran->tanggal_jatuh_tempo
+            );
+
+            foreach ($tunggakan as $item) {
+                $this->angsuranRepository->update([
+                    'status_bayar' => 'lunas'
+                ], $item->id);
+            }
     
             $fields = ['*'];
             $id_angsuran = $pembayaran->id_angsuran;
@@ -185,6 +218,25 @@ class PembayaranService {
             );
     
             $fields = ['*'];
+            // Angsuran yang dibayar
+            $angsuran = $this->angsuranRepository->getById(
+                $fields,
+                $pembayaran->id_angsuran
+            );
+
+            // Cari semua tunggakan sebelum angsuran ini
+            $tunggakan = $this->angsuranRepository->getTunggakanVerifikasi(
+                $angsuran->id_pinjaman,
+                $angsuran->tanggal_jatuh_tempo
+            );
+
+            // Lunasi seluruh tunggakan
+            foreach ($tunggakan as $item) {
+                $this->angsuranRepository->update([
+                    'status_bayar' => 'lunas'
+                ], $item->id);
+            }
+
             $id_angsuran = $pembayaran->id_angsuran;
             $angsuran = $this->angsuranRepository->getById(
                 $fields, $id_angsuran
@@ -210,28 +262,44 @@ class PembayaranService {
         try {
             $data = [
                 'status_pembayaran' => 'ditolak',
-                'catatan' => $catatan,
             ];
             $pembayaran = $this->pembayaranRepository->update(
                 $data, $id
             );
             $fields = ['*'];
+            // Angsuran yang dibayar
+            $angsuran = $this->angsuranRepository->getById(
+                $fields,
+                $pembayaran->id_angsuran
+            );
+
+            // Cari semua tunggakan sebelum angsuran ini
+            $tunggakan = $this->angsuranRepository->getTunggakanVerifikasi(
+                $angsuran->id_pinjaman,
+                $angsuran->tanggal_jatuh_tempo
+            );
+
+            // Lunasi seluruh tunggakan
+            foreach ($tunggakan as $item) {
+                $this->angsuranRepository->update([
+                    'catatan_verifikasi' => $catatan,
+                    'status_bayar' => 'gagal_verifikasi'
+                ], $item->id);
+            }
+
             $id_angsuran = $pembayaran->id_angsuran;
-        
             $angsuran = $this->angsuranRepository->getById(
                 $fields, $id_angsuran
             );
         
             $dataAngsuran = [
+                'catatan_verifikasi' => $catatan,
                 'status_bayar' => 'gagal_verifikasi',
             ];
-        
             $updateAngsuran = $this->angsuranRepository->update(
                 $dataAngsuran, $id_angsuran
             );
-
             DB::commit();
-
             return $pembayaran;
         } catch (Exception $e) {
             DB::rollBack();

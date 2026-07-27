@@ -10,6 +10,7 @@ use Modules\Pinjaman\Entities\Pembayaran;
 use Modules\Pinjaman\Entities\PengajuanPinjaman;
 use Modules\Pinjaman\Entities\Pinjaman;
 use Modules\Pinjaman\Entities\SkemaPinjaman;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class PembayaranTest extends TestCase
@@ -24,7 +25,13 @@ class PembayaranTest extends TestCase
 
     public function test_pembayaran_auto_debet()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
         $user = User::factory()->create();
+        $user->assignRole($role);
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create();
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
@@ -50,8 +57,17 @@ class PembayaranTest extends TestCase
             'status_bayar' => 'belum_bayar',
         ]);
 
+        $role1 = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+        $user1 = User::factory()->create();
+        $user1->assignRole($role1);
+        $this->actingAs($user1);
+
         $response = $this->post("pembayaran/store_auto_debet", [
             'id_angsuran' => $angsuran->id,
+            'jumlah_bayar' => $total_pinjaman / $pengajuan->lama_angsuran,
         ]);
 
         $response->assertStatus(302);
@@ -69,7 +85,13 @@ class PembayaranTest extends TestCase
 
     public function test_pembayaran_manual()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
         $user = User::factory()->create();
+        $user->assignRole($role);
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create();
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
@@ -98,7 +120,8 @@ class PembayaranTest extends TestCase
         $response = $this->post("pembayaran/store_manual", [
             'id_angsuran' => $angsuran->id,
             'bukti_pembayaran' => UploadedFile::fake()
-                        ->image('bukti.jpg')
+                        ->image('bukti.jpg'),
+            'jumlah_bayar' => $total_pinjaman / $pengajuan->lama_angsuran,
         ]);
 
         $response->assertStatus(302);
@@ -111,7 +134,13 @@ class PembayaranTest extends TestCase
 
     public function test_update_status_pembayaran_manual()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
         $user = User::factory()->create();
+        $user->assignRole($role);
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create();
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
@@ -145,6 +174,14 @@ class PembayaranTest extends TestCase
             'bukti_pembayaran' => UploadedFile::fake()->image('bukti.jpg'),
             'status_pembayaran' => 'verifikasi',
         ]);
+
+        $role1 = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+        $user1 = User::factory()->create();
+        $user1->assignRole($role1);
+        $this->actingAs($user1);
         
         $response = $this->patch("/pembayaran/verifikasi/{$pembayaran->id}", [
             'id_angsuran' => $angsuran->id,
@@ -165,7 +202,13 @@ class PembayaranTest extends TestCase
 
     public function test_update_status_pembayaran_manual_gagal_verifikasi()
     {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
         $user = User::factory()->create();
+        $user->assignRole($role);
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create();
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
@@ -199,6 +242,14 @@ class PembayaranTest extends TestCase
             'bukti_pembayaran' => UploadedFile::fake()->image('bukti.jpg'),
             'status_pembayaran' => 'verifikasi',
         ]);
+
+        $role1 = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+        $user1 = User::factory()->create();
+        $user1->assignRole($role1);
+        $this->actingAs($user1);
         
         $response = $this->patch("/pembayaran/gagalVerifikasi/{$pembayaran->id}", [
             'id_angsuran' => $angsuran->id,
@@ -220,7 +271,14 @@ class PembayaranTest extends TestCase
 
     public function test_kirim_ulang_bukti_pembayaran_gagal_verifikasi()
     {
+        $this->withoutExceptionHandling();
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
         $user = User::factory()->create();
+        $user->assignRole($role);
+        $this->actingAs($user);
         $skema_pinjaman = SkemaPinjaman::factory()->create();
         $pengajuan = PengajuanPinjaman::factory()->create([
             'id_anggota' => $user->id,
@@ -254,6 +312,14 @@ class PembayaranTest extends TestCase
             'bukti_pembayaran' => UploadedFile::fake()->image('bukti.jpg'),
             'status_pembayaran' => 'verifikasi',
         ]);
+
+        $role1 = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+        $user1 = User::factory()->create();
+        $user1->assignRole($role1);
+        $this->actingAs($user1);
         
         $response = $this->patch("/pembayaran/gagalVerifikasi/{$pembayaran->id}", [
             'id_angsuran' => $angsuran->id,
@@ -272,10 +338,19 @@ class PembayaranTest extends TestCase
             'status_bayar' => 'gagal_verifikasi'
         ]);
 
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+        $user = User::factory()->create();
+        $user->assignRole($role);
+        $this->actingAs($user);
+
         $response = $this->post("pembayaran/store_ulang_manual", [
             'id_angsuran' => $angsuran->id,
             'bukti_pembayaran' => UploadedFile::fake()
-                        ->image('bukti.jpg')
+                        ->image('bukti.jpg'),
+            'jumlah_bayar' => $total_pinjaman / $pengajuan->lama_angsuran,
         ]);
 
         $response->assertStatus(302);

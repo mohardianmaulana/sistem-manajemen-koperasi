@@ -17,6 +17,7 @@ class Angsuran extends Model
         'jumlah_angsuran',
         'tanggal_jatuh_tempo',
         'status_bayar',
+        'catatan_verifikasi'
     ];
     
     protected static function newFactory()

@@ -9,17 +9,6 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            @if($errors->any())
-                <div class="alert alert-danger">
-                <ul>
-                @foreach($errors->all() as $error)
-                <li>
-                {{ $error }}
-                </li>
-                @endforeach
-                </ul>
-                </div>
-            @endif
             <div class="mb-3">
                 <a href="{{ route('pengajuanPinjaman.indexAnggota') }}" class="btn btn-secondary" style="border-radius: 10px;">
                     <i class="fa-solid fa-backward me-2"></i> Kembali
@@ -242,7 +231,11 @@
                                                         class="form-control
                                                         @error('jaminan.'.$loop->index.'.file')
                                                         is-invalid
-                                                        @enderror">
+                                                        @enderror"
+                                                        accept=".pdf">
+                                                        <small class="form-text text-muted">
+                                                            Format file <strong>PDF</strong> dengan ukuran maksimal <strong>2 MB</strong>.
+                                                        </small>
                                                     @error('jaminan.'.$loop->index.'.file')
                                                         <span class="invalid-feedback d-block">
                                                             {{ $message }}

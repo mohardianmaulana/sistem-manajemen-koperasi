@@ -18,7 +18,6 @@ class Pembayaran extends Model
         'jumlah_bayar',
         'bukti_pembayaran',
         'status_pembayaran',
-        'catatan',
     ];
     
     protected static function newFactory()

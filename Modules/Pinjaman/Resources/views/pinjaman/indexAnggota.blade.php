@@ -259,10 +259,16 @@
             </div>
 
             <div class="modal-body text-center">
-                <img id="previewBukti"
-                    src=""
-                    class="img-fluid rounded"
+                <img id="previewImage"
+                    class="img-fluid rounded d-none"
                     style="max-height:600px;">
+
+                <iframe id="previewPdf"
+                        class="d-none"
+                        width="100%"
+                        height="600"
+                        frameborder="0">
+                </iframe>
             </div>
         </div>
     </div>
@@ -483,7 +489,11 @@
                                     </span>
                                 @elseif($item->status_pengajuan == 'persetujuan_awal')
                                     <span class="badge badge-primary">
-                                        Persetujuan
+                                        Persetujuan awal
+                                    </span>
+                                @elseif($item->status_pengajuan == 'persetujuan_akhir')
+                                    <span class="badge badge-primary">
+                                        Persetujuan akhir
                                     </span>
                                 @else
                                     <span class="badge badge-danger">
@@ -513,56 +523,6 @@
                     </thead>
 
                     <tbody>
-
-                        {{-- Bendahara --}}
-                        <tr>
-                            <td>Bendahara</td>
-
-                            <td>
-                                @if($item->persetujuan_bendahara)
-                                    {{ ucfirst($item->persetujuan_bendahara->status) }}
-                                @else
-                                    Belum di proses
-                                @endif
-                            </td>
-
-                            <td>
-                                @if($item->persetujuan_bendahara)
-                                    {{ \Carbon\Carbon::parse($item->persetujuan_bendahara->tanggal_disetujui)->locale('id')->translatedFormat('d F Y') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-
-                            <td>
-                                {{ $item->persetujuan_bendahara->catatan ?? '-' }}
-                            </td>
-                        </tr>
-
-                        {{-- Wakil Direktur --}}
-                        <tr>
-                            <td>Wakil Direktur</td>
-
-                            <td>
-                                @if($item->persetujuan_wadir)
-                                    {{ ucfirst($item->persetujuan_wadir->status) }}
-                                @else
-                                    Belum diproses
-                                @endif
-                            </td>
-
-                            <td>
-                                @if($item->persetujuan_wadir)
-                                    {{ \Carbon\Carbon::parse($item->persetujuan_wadir->tanggal_disetujui)->locale('id')->translatedFormat('d F Y') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-
-                            <td>
-                                {{ $item->persetujuan_wadir->catatan ?? '-' }}
-                            </td>
-                        </tr>
 
                         {{-- Ketua --}}
                         <tr>
@@ -608,13 +568,24 @@
 
 @push('js')
 <script>
-$(document).ready(function () {
+$('.btn-detail').click(function () {
 
-    $('.btn-detail').click(function () {
-        let image = $(this).data('image');
+    let file = $(this).data('image');
 
-        $('#previewBukti').attr('src', image);
-    });
+    $('#previewImage').addClass('d-none');
+    $('#previewPdf').addClass('d-none');
+
+    let ext = file.split('.').pop().toLowerCase();
+
+    if (ext === 'pdf') {
+        $('#previewPdf')
+            .attr('src', file)
+            .removeClass('d-none');
+    } else {
+        $('#previewImage')
+            .attr('src', file)
+            .removeClass('d-none');
+    }
 
 });
 </script>

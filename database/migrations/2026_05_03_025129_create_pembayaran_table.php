@@ -21,7 +21,6 @@ class CreatePembayaranTable extends Migration
             $table->integer('jumlah_bayar');
             $table->string('bukti_pembayaran')->nullable();
             $table->enum('status_pembayaran', ['verifikasi', 'ditolak', 'sukses']);
-            $table->string('catatan', 200)->nullable();
 
             $table->foreign('id_angsuran')->references('id')
                     ->on('angsuran')->onDelete('cascade');
