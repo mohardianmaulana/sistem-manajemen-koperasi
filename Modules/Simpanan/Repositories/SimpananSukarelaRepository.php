@@ -94,11 +94,12 @@ class SimpananSukarelaRepository
         ])->exists();
     }
 
-     public function exportAutoDebit($bulan = null, $tahun = null)
+    public function exportAutoDebit($bulan = null, $tahun = null)
     {
         $query = MasterSimpananSukarela::query()
             ->join('users', 'users.id', '=', 'master_simpanan_sukarela.id_anggota')
-            ->where('master_simpanan_sukarela.status', 'pending');
+            ->where('master_simpanan_sukarela.status', 'pending')
+            ->whereNull('master_simpanan_sukarela.bukti');
 
         if (!is_null($bulan)) {
             $query->whereMonth('master_simpanan_sukarela.periode', $bulan);
@@ -118,13 +119,11 @@ class SimpananSukarelaRepository
             ->get();
     }
 
-    /**
-     * Total autodebit.
-     */
     public function totalAutoDebit($bulan = null, $tahun = null)
     {
         $query = MasterSimpananSukarela::query()
-            ->where('status', 'pending');
+            ->where('status', 'pending')
+            ->whereNull('bukti');
 
         if (!is_null($bulan)) {
             $query->whereMonth('periode', $bulan);
@@ -135,17 +134,6 @@ class SimpananSukarelaRepository
         }
 
         return $query->sum('nilai');
-    }
-
-    public function getMasterSiapGenerate($periode)
-    {
-        return MasterSimpananSukarela::where('status', 'selesai')
-            ->where('nilai', '>', 0)
-            ->whereDate('periode', '<=', $periode)
-            ->orderBy('periode', 'asc')
-            ->get()
-            ->unique('id_anggota')
-            ->values();
     }
 
     public function sudahAdaPeriode($idAnggota, $periode)
