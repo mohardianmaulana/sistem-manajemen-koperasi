@@ -39,7 +39,6 @@
 </div>
 @endif
 
-@include('shu::shuanggota.partials.summary')
 
 @include('shu::shuanggota.partials.statistic')
 

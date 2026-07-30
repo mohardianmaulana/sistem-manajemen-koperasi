@@ -5,10 +5,10 @@ namespace Modules\SHU\Repositories;
 use App\Models\Core\User;
 use Modules\Pinjaman\Entities\Angsuran;
 use Modules\Pinjaman\Entities\Pinjaman;
-use Modules\SHU\Entities\PencairanShu;
 use Modules\SHU\Entities\ShuAnggota;
 use Modules\SHU\Entities\ShuKoperasi;
 use Modules\Simpanan\Entities\SimpananSukarela;
+use Illuminate\Support\Facades\DB;
 use Modules\Simpanan\Entities\SimpananWajib;
 
 class ShuAnggotaRepository
@@ -26,31 +26,12 @@ class ShuAnggotaRepository
             ->paginate(10);
     }
 
-    public function getSummary($idAnggota)
+   public function getSummary($idAnggota)
     {
-        $summary = ShuAnggota::with('pencairan')
+        return ShuAnggota::with('pencairan')
             ->where('id_anggota', $idAnggota)
             ->orderByDesc('periode_akhir')
             ->first();
-
-        if (!$summary) {
-            return null;
-        }
-
-        $totalDicairkan = PencairanShu::where('id_shu_anggota', $summary->id)
-            ->where('status', PencairanShu::STATUS_DICAIRKAN)
-            ->sum('nominal_pengajuan');
-
-        $totalDiproses = PencairanShu::where('id_shu_anggota', $summary->id)
-            ->whereIn('status', [
-                PencairanShu::STATUS_MENUNGGU,
-                PencairanShu::STATUS_DISETUJUI,
-            ])
-            ->sum('nominal_pengajuan');
-
-        $summary->sisa_shu = $summary->shu_anggota - $totalDicairkan - $totalDiproses;
-
-        return $summary;
     }
 
     public function getTotalShu($idAnggota)
@@ -132,15 +113,17 @@ class ShuAnggotaRepository
     $periodeAkhir
     )
     {
-       {
-            $wajib = SimpananWajib::whereBetween('periode',[$periodeAwal, $periodeAkhir])
-            ->sum('nilai');
+        $wajib = SimpananWajib::whereBetween(
+            'periode',
+            [$periodeAwal, $periodeAkhir]
+        )->sum('nilai');
 
-            $sukarela = SimpananSukarela::whereBetween('periode',[$periodeAwal, $periodeAkhir])
-            ->sum('nilai');
+        $sukarela = SimpananSukarela::whereBetween(
+            'periode',
+            [$periodeAwal, $periodeAkhir]
+        )->sum('nilai');
 
-            return $wajib + $sukarela;
-        }
+        return $wajib + $sukarela;
     }
 
    public function totalSimpananAnggota(
@@ -287,5 +270,45 @@ class ShuAnggotaRepository
             ->exists();
     }
 
+         /**
+         * Menghitung jumlah anggota yang memperoleh SHU.
+         */
+        public function totalPenerimaShu()
+        {
+            return ShuAnggota::count();
+        }
 
+        /**
+         * Menghitung total nominal SHU seluruh anggota.
+         */
+        public function totalNominalShu()
+        {
+            return ShuAnggota::sum('shu_anggota');
+        }
+
+        /**
+         * Menghitung jumlah anggota yang belum menerima pencairan SHU.
+         */
+        public function totalBelumDicairkan()
+        {
+            return ShuAnggota::doesntHave('pencairan')
+                ->count();
+        }
+
+        public function getByTahun($tahun)
+        {
+            return ShuAnggota::with('user')
+                ->whereYear('periode_awal', $tahun)
+                ->whereYear('periode_akhir', $tahun)
+              
+                ->get();
+        }
+        
+        public function getTahunList()
+        {
+            return ShuAnggota::select(DB::raw('YEAR(periode_awal) as tahun'))
+                ->distinct()
+                ->orderByDesc('tahun')
+                ->pluck('tahun');
+        }
 }

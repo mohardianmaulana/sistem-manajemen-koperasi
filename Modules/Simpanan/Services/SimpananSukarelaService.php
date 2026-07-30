@@ -56,13 +56,18 @@ class SimpananSukarelaService
     public function store(array $data)
     {
         $this->masterJenisSimpananService
-         ->cekJadwalAktif('Simpanan Sukarela');
+            ->cekJadwalAktif('Simpanan Sukarela');
 
         $data['status'] = 'pending';
-
         $data['tahun'] = date('Y');
-
         $data['id_anggota'] = Auth::id();
+
+        if (isset($data['bukti']) && $data['bukti']) {
+
+            $data['bukti'] = $data['bukti']
+                ->store('bukti-simpanan', 'public');
+
+        }
 
         return $this->repository->store($data);
     }
@@ -198,7 +203,9 @@ class SimpananSukarelaService
 
     public function generatePeriode($jadwal)
     {
-        $masters = $this->repository->getMasterSiapGenerate();
+        $masters = $this->repository->getMasterSiapGenerate(
+                    $jadwal->tanggal_mulai
+                );
 
         foreach ($masters as $master) {
 

@@ -15,37 +15,35 @@ class CreatePencairanShuTable extends Migration
     {
         Schema::create('pencairan_shu', function (Blueprint $table) {
 
-        $table->id();
+            $table->id();
 
-        $table->foreignId('id_shu_anggota')
-            ->constrained('shu_anggota')
-            ->cascadeOnDelete();
+            $table->string('kode_pencairan')->unique();
 
-        // Nominal SHU yang diajukan untuk dicairkan
-        $table->bigInteger('nominal_pengajuan');
+            $table->foreignId('id_shu_anggota')
+                ->constrained('shu_anggota')
+                ->cascadeOnDelete();
 
-        $table->string('bukti')->nullable();
-        $table->date('tanggal_pengajuan')->nullable();
-        $table->date('tanggal_persetujuan')->nullable();
-        $table->date('tanggal_pencairan')->nullable();
+            $table->bigInteger('nominal_pencairan');
 
-        $table->enum('status', [
-            'belum_diajukan',
-            'menunggu',
-            'disetujui',
-            'ditolak',
-            'dicairkan'
-        ])->default('belum_diajukan');
+            $table->date('tanggal_pencairan');
 
-        $table->text('keterangan')->nullable();
+            $table->string('bukti')->nullable();
 
-        $table->foreignId('disetujui_oleh')
-            ->nullable()
-            ->constrained('users')
-            ->nullOnDelete();
+            $table->enum('status', [
+                'siap_dicairkan',
+                'dicairkan',
+                'gagal'
+            ])->default('siap_dicairkan');
 
-        $table->timestamps();
-    });
+            $table->text('keterangan')->nullable();
+
+            $table->foreignId('dicairkan_oleh')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->timestamps();
+        });
     }
 
     /**

@@ -35,7 +35,6 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
     public function getDashboard()
     {
         return [
-            'summary'        => $this->repository->getSummary(Auth::id()),
             'totalShu'       => $this->repository->getTotalShu(Auth::id()),
             'totalSimpanan'  => $this->repository->getTotalShuSimpanan(Auth::id()),
             'totalPinjaman'  => $this->repository->getTotalShuPinjaman(Auth::id()),
@@ -45,10 +44,6 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
         ];
     }
 
-    public function getSummary()
-    {
-        return $this->repository->getSummary(Auth::id());
-    }
 
     public function getRiwayat()
     {
@@ -234,9 +229,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
         }
     }
 
-    /**
-     * Business Logic
-     */
+
     private function hitungShuSimpanan(
         $simpananAnggota,
         $totalSimpanan,

@@ -13,24 +13,21 @@ class PencairanShu extends Model
      protected $table = 'pencairan_shu';
 
     protected $fillable = [
-    'id_shu_anggota',
-    'nominal_pengajuan',
-    'tanggal_pengajuan',
-    'tanggal_persetujuan',
-    'tanggal_pencairan',
-    'status',
-    'keterangan',
-    'disetujui_oleh',
-    'bukti'
+        'kode_pencairan',
+        'id_shu_anggota',
+        'nominal_pencairan',
+        'tanggal_pencairan',
+        'status',
+        'keterangan',
+        'dicairkan_oleh',
+        'bukti',
     ];
 
      protected $casts = [
-        'tanggal_pengajuan' => 'date',
-        'tanggal_persetujuan' => 'date',
-        'tanggal_pencairan' => 'date',
+    'tanggal_pencairan' => 'date',
     ];
-    
-     public function shuAnggota()
+
+    public function shuAnggota()
     {
         return $this->belongsTo(
             ShuAnggota::class,
@@ -41,68 +38,58 @@ class PencairanShu extends Model
     /**
      * Pengurus yang menyetujui pencairan.
      */
-    public function approver()
+    public function pencair()
     {
         return $this->belongsTo(
             User::class,
-            'disetujui_oleh'
+            'dicairkan_oleh'
         );
     }
 
-    public const STATUS_BELUM_DIAJUKAN = 'belum_diajukan';
-    public const STATUS_MENUNGGU = 'menunggu';
-    public const STATUS_DISETUJUI = 'disetujui';
-    public const STATUS_DITOLAK = 'ditolak';
+    public const STATUS_SIAP_DICAIRKAN = 'siap_dicairkan';
     public const STATUS_DICAIRKAN = 'dicairkan';
+    public const STATUS_GAGAL = 'gagal';
 
-     public function scopeBelumDiajukan($query)
+    public function scopeSiapDicairkan($query)
     {
-        return $query->where('status', self::STATUS_BELUM_DIAJUKAN);
-    }
-
-    public function scopeMenunggu($query)
-    {
-        return $query->where('status', self::STATUS_MENUNGGU);
-    }
-
-    public function scopeDisetujui($query)
-    {
-        return $query->where('status', self::STATUS_DISETUJUI);
-    }
-
-    public function scopeDitolak($query)
-    {
-        return $query->where('status', self::STATUS_DITOLAK);
+        return $query->where(
+            'status',
+            self::STATUS_SIAP_DICAIRKAN
+        );
     }
 
     public function scopeDicairkan($query)
     {
-        return $query->where('status', self::STATUS_DICAIRKAN);
+        return $query->where(
+            'status',
+            self::STATUS_DICAIRKAN
+        );
     }
 
+    public function scopeGagal($query)
+    {
+        return $query->where(
+            'status',
+            self::STATUS_GAGAL
+        );
+    }
     public function getStatusBadgeAttribute()
     {
         return match ($this->status) {
-            self::STATUS_BELUM_DIAJUKAN =>
-                '<span class="badge badge-secondary">Belum Diajukan</span>',
 
-            self::STATUS_MENUNGGU =>
-                '<span class="badge badge-warning">Menunggu</span>',
-
-            self::STATUS_DISETUJUI =>
-                '<span class="badge badge-primary">Disetujui</span>',
-
-            self::STATUS_DITOLAK =>
-                '<span class="badge badge-danger">Ditolak</span>',
+            self::STATUS_SIAP_DICAIRKAN =>
+                '<span class="badge badge-warning">Siap Dicairkan</span>',
 
             self::STATUS_DICAIRKAN =>
                 '<span class="badge badge-success">Dicairkan</span>',
+
+            self::STATUS_GAGAL =>
+                '<span class="badge badge-danger">Gagal</span>',
 
             default =>
                 '<span class="badge badge-dark">Tidak Diketahui</span>',
         };
     }
-
     
     protected static function newFactory()
     {

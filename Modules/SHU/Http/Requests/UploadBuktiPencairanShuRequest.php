@@ -16,22 +16,26 @@ class UploadBuktiPencairanShuRequest extends FormRequest
         return [
             'bukti' => [
                 'required',
-                'file',
-                'mimes:jpg,jpeg,png,',
-                'max:2048', // 2 MB
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:2048',
             ],
         ];
     }
 
+    /**
+     * Pesan validasi.
+     */
     public function messages()
     {
         return [
             'bukti.required' => 'Bukti transfer wajib diunggah.',
-            'bukti.file'     => 'File yang diunggah tidak valid.',
-            'bukti.mimes'    => 'Bukti transfer harus berupa JPG, JPEG, PNG atau PDF.',
-            'bukti.max'      => 'Ukuran file maksimal 2 MB.',
+            'bukti.image'    => 'File yang diunggah harus berupa gambar.',
+            'bukti.mimes'    => 'Bukti transfer harus berformat JPG, JPEG, atau PNG.',
+            'bukti.max'      => 'Ukuran bukti transfer maksimal 2 MB.',
         ];
     }
+
 
     /**
      * Determine if the user is authorized to make this request.

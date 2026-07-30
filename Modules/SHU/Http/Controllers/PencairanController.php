@@ -6,15 +6,13 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Modules\SHU\Http\Requests\RejectPencairanShuRequest;
-use Modules\SHU\Http\Requests\StorePencairanShuRequest;
 use Modules\SHU\Http\Requests\UploadBuktiPencairanShuRequest;
-use Modules\SHU\Http\Requests\UpdatePencairanShuRequest;
+use Modules\SHU\Http\Requests\StorePencairanShuRequest;
 use Modules\SHU\Services\PencairanShuService;
 
 class PencairanController extends Controller
 {
-     protected $service;
+    protected PencairanShuService $service;
 
     public function __construct(PencairanShuService $service)
     {
@@ -22,230 +20,161 @@ class PencairanController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
-     * @return Renderable
+     * Menampilkan daftar pencairan SHU.
      */
     public function index(Request $request): Renderable
     {
         $status = $request->status;
 
-        $data = $this->service->getAll($status);
+        $tahun = $request->tahun ?? now()->year;
+
+        $data = $this->service->getAll(
+            $status,
+            $tahun
+        );
+
+        $listTahun = $this->service->getListTahun();
 
         if (Auth::user()->hasRole('anggota')) {
 
             $summary = $this->service->getDashboardAnggota();
 
-            return view('shu::pencairan.index', compact(
-                'data',
-                'summary'
-            ));
+            return view(
+                'shu::pencairan.index',
+                compact(
+                    'data',
+                    'summary',
+                    'listTahun',
+                    'tahun'
+                )
+            );
         }
 
         $dashboard = $this->service->getDashboardAdmin();
 
-        return view('shu::pencairan.index', compact(
-            'data',
-            'dashboard'
-        ));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     * @return Renderable
-     */
-   public function create(Request $request)
-    {
-        $summary = $this->service->getSummaryPengajuan(
-            $request->id_shu_anggota
-        );
-
         return view(
-            'shu::pencairan.pengajuan',
-            compact('summary')
+            'shu::pencairan.index',
+            compact(
+                'data',
+                'dashboard',
+                'listTahun',
+                'tahun'
+            )
         );
     }
 
-
     /**
-     * Store a newly created resource in storage.
-     * @param Request $request
-     * @return Renderable
+     * Menampilkan detail pencairan SHU.
      */
     public function show($id): Renderable
     {
         $data = $this->service->findById($id);
 
-        return view('shu::pencairan.show', compact('data'));
-    }
-
-    /**
-     * Show the specified resource.
-     * @param int $id
-     * @return Renderable
-     */
-    public function store(StorePencairanShuRequest $request)
-    {
-        try {
-
-            $this->service->store(
-                $request->id_shu_anggota,
-                $request->nominal_pengajuan
-            );
-
-            return redirect()->route('pencairan.index')->with(
-            'success',
-            'Pengajuan pencairan SHU berhasil dikirim.'
+        return view(
+            'shu::pencairan.show',
+            compact('data')
         );
-
-        } catch (\Exception $e) {
-
-            return redirect()->back()->with(
-                'error',
-                $e->getMessage()
-            );
-        }
     }
 
     /**
-     * Show the form for editing the specified resource.
-     * @param int $id
-     * @return Renderable
+     * Melakukan pencairan SHU.
      */
-    public function approve($id)
-    {
+    public function cairkan(
+        UploadBuktiPencairanShuRequest $request,
+        $id
+    ) {
         try {
 
-            $this->service->approve($id);
-
-             return redirect()->route('pencairan.index')->with(
-                'success',
-                'Pengajuan berhasil disetujui.'
-            );
-
-        } catch (\Exception $e) {
-
-            return redirect()->back()->with(
-                'error',
-                $e->getMessage()
-            );
-        }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     * @param Request $request
-     * @param int $id
-     * @return Renderable
-     */
-   public function reject(RejectPencairanShuRequest $request, $id)
-    {
-        try {
-
-            $this->service->reject(
-                $id,
-                $request->keterangan
-            );
-
-             return redirect()->route('pencairan.index')->with(
-                'success',
-                'Pengajuan berhasil ditolak.'
-            );
-
-        } catch (\Exception $e) {
-
-            return redirect()->back()->with(
-                'error',
-                $e->getMessage()
-            );
-        }
-    }
-
-
-    /**
-     * Remove the specified resource from storage.
-     * @param int $id
-     * @return Renderable
-     */
-    public function cairkan(UploadBuktiPencairanShuRequest $request, $id )
-    {
-        try {
             $this->service->cairkan(
                 $request,
                 $id
-            );
-             return redirect()->route('pencairan.index')->with('success','SHU berhasil dicairkan.');
-        } catch (\Exception $e) {
-
-            return redirect()->back()->with(
-                'error',
-                $e->getMessage()
-            );
-
-        }
-}
-
-     public function destroy($id)
-    {
-        try {
-
-            $this->service->delete($id);
-
-            return redirect()->route('pencairan.index')->with(
-                'success',
-                'Data berhasil dihapus.'
-            );
-
-        } catch (\Exception $e) {
-
-            return redirect()->back()->with(
-                'error',
-                $e->getMessage()
-            );
-        }
-    }
-
-    public function edit($id)
-    {
-        $data = $this->service->findById($id);
-
-        $summary = $this->service->getSummaryPengajuan(
-            $data->id_shu_anggota
-        );
-
-        return view(
-            'shu::pencairan.edit',
-            compact(
-                'data',
-                'summary'
-            )
-        );
-    }
-
-    public function update(UpdatePencairanShuRequest $request,$id)
-    {
-        try {
-
-            $this->service->updateNominal(
-                $id,
-                $request->nominal_pengajuan
             );
 
             return redirect()
                 ->route('pencairan.index')
                 ->with(
                     'success',
-                    'Pengajuan berhasil diperbarui.'
+                    'Pencairan SHU berhasil diproses.'
                 );
 
         } catch (\Exception $e) {
 
             return back()
-                ->withInput()
                 ->with(
                     'error',
                     $e->getMessage()
                 );
-
         }
+    }
+
+    /**
+     * Menandai pencairan gagal.
+     */
+    public function gagal(Request $request, $id)
+    {
+        $request->validate([
+            'keterangan' => 'required|string|max:255',
+        ]);
+
+        try {
+
+            $this->service->gagal(
+                $id,
+                $request->keterangan
+            );
+
+            return redirect()
+                ->route('pencairan.index')
+                ->with(
+                    'success',
+                    'Status pencairan berhasil diubah menjadi gagal.'
+                );
+
+        } catch (\Exception $e) {
+
+            return back()
+                ->with(
+                    'error',
+                    $e->getMessage()
+                );
+        }
+    }
+
+    /**
+     * Menghapus data pencairan SHU.
+     */
+    public function destroy($id)
+    {
+        try {
+
+            $this->service->delete($id);
+
+            return redirect()
+                ->route('pencairan.index')
+                ->with(
+                    'success',
+                    'Data pencairan SHU berhasil dihapus.'
+                );
+
+        } catch (\Exception $e) {
+
+            return back()
+                ->with(
+                    'error',
+                    $e->getMessage()
+                );
+        }
+    }
+
+   public function store(StorePencairanShuRequest $request)
+    {
+        $this->service->store($request->tahun);
+
+        return redirect()
+            ->route('pencairan.index')
+            ->with(
+                'success',
+                'Data pencairan SHU berhasil dibuat.'
+            );
     }
 }

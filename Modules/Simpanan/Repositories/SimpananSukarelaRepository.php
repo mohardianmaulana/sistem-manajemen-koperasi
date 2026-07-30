@@ -137,11 +137,12 @@ class SimpananSukarelaRepository
         return $query->sum('nilai');
     }
 
-    public function getMasterSiapGenerate()
+    public function getMasterSiapGenerate($periode)
     {
         return MasterSimpananSukarela::where('status', 'selesai')
             ->where('nilai', '>', 0)
-            ->orderByDesc('periode')
+            ->whereDate('periode', '<=', $periode)
+            ->orderBy('periode', 'asc')
             ->get()
             ->unique('id_anggota')
             ->values();

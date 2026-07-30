@@ -3,23 +3,27 @@
 namespace Modules\SHU\Repositories;
 
 use Modules\SHU\Entities\PencairanShu;
-use Modules\SHU\Entities\ShuAnggota;
 
 class PencairanShuRepository
 {
+    /**
+     * Relasi yang selalu dimuat.
+     */
+    protected array $relations = [
+        'shuAnggota.user',
+        'pencair',
+    ];
+
     /**
      * Menampilkan seluruh data pencairan.
      */
     public function getAll($status = null)
     {
-        return PencairanShu::with([
-                'shuAnggota.user',
-                'approver'
-            ])
+        return PencairanShu::with($this->relations)
             ->when($status, function ($query) use ($status) {
                 $query->where('status', $status);
             })
-            ->orderByDesc('tanggal_pengajuan')
+            ->latest('tanggal_pencairan')
             ->paginate(10);
     }
 
@@ -28,10 +32,7 @@ class PencairanShuRepository
      */
     public function findById($id)
     {
-        return PencairanShu::with([
-                'shuAnggota.user',
-                'approver'
-            ])
+        return PencairanShu::with($this->relations)
             ->findOrFail($id);
     }
 
@@ -52,10 +53,7 @@ class PencairanShuRepository
 
         $pencairan->update($data);
 
-        return $pencairan->fresh([
-            'shuAnggota.user',
-            'approver'
-        ]);
+        return $pencairan->fresh($this->relations);
     }
 
     /**
@@ -73,20 +71,7 @@ class PencairanShuRepository
     {
         return PencairanShu::where('id_shu_anggota', $idShuAnggota)
             ->where('status', PencairanShu::STATUS_DICAIRKAN)
-            ->sum('nominal_pengajuan');
-    }
-
-    /**
-     * Total nominal SHU yang masih diproses.
-     */
-    public function totalNominalDiproses($idShuAnggota)
-    {
-        return PencairanShu::where('id_shu_anggota', $idShuAnggota)
-            ->whereIn('status', [
-                PencairanShu::STATUS_MENUNGGU,
-                PencairanShu::STATUS_DISETUJUI
-            ])
-            ->sum('nominal_pengajuan');
+            ->sum('nominal_pencairan');
     }
 
     /**
@@ -94,32 +79,23 @@ class PencairanShuRepository
      */
     public function getRiwayatByShuAnggota($idShuAnggota)
     {
-        return PencairanShu::where('id_shu_anggota', $idShuAnggota)
-            ->orderByDesc('tanggal_pengajuan')
+        return PencairanShu::with('pencair')
+            ->where('id_shu_anggota', $idShuAnggota)
+            ->latest('tanggal_pencairan')
             ->get();
     }
 
-    public function totalPengajuan()
+    /**
+     * Total transaksi pencairan.
+     */
+    public function totalPencairan()
     {
         return PencairanShu::count();
     }
 
-  public function totalMenunggu()
-    {
-        return PencairanShu::where(
-            'status',
-            PencairanShu::STATUS_MENUNGGU
-        )->count();
-    }
-
-    public function totalDisetujui()
-    {
-        return PencairanShu::where(
-            'status',
-            PencairanShu::STATUS_DISETUJUI
-        )->count();
-    }
-    
+    /**
+     * Total pencairan yang berhasil.
+     */
     public function totalDicairkan()
     {
         return PencairanShu::where(
@@ -128,21 +104,94 @@ class PencairanShuRepository
         )->count();
     }
 
-    public function totalDitolak()
+    /**
+     * Total pencairan yang gagal.
+     */
+    public function totalGagal()
     {
         return PencairanShu::where(
             'status',
-            PencairanShu::STATUS_DITOLAK
+            PencairanShu::STATUS_GAGAL
         )->count();
     }
 
+    /**
+     * Total pencairan yang siap diproses.
+     */
+    public function totalSiapDicairkan()
+    {
+        return PencairanShu::where(
+            'status',
+            PencairanShu::STATUS_SIAP_DICAIRKAN
+        )->count();
+    }
+
+    /**
+     * Riwayat pencairan milik anggota.
+     */
     public function getByAnggota($idAnggota)
     {
-        return PencairanShu::with('shuAnggota')
+        return PencairanShu::with([
+                'shuAnggota',
+                'pencair',
+            ])
             ->whereHas('shuAnggota', function ($query) use ($idAnggota) {
                 $query->where('id_anggota', $idAnggota);
             })
-            ->latest()
+            ->latest('tanggal_pencairan')
             ->paginate(10);
+    }
+
+    /**
+     * Mengambil transaksi pencairan terakhir.
+     */
+    public function getLastPencairan()
+    {
+        return PencairanShu::latest()->first();
+    }
+
+    /**
+     * Mengecek apakah SHU sudah pernah dicairkan.
+     */
+    public function sudahDicairkan($idShuAnggota)
+    {
+        return PencairanShu::where('id_shu_anggota', $idShuAnggota)
+            ->where('status', PencairanShu::STATUS_DICAIRKAN)
+            ->exists();
+    }
+
+    /**
+     * Total nominal SHU yang telah dicairkan.
+     */
+    public function totalNominalDicairkanSemua()
+    {
+        return PencairanShu::where(
+            'status',
+            PencairanShu::STATUS_DICAIRKAN
+        )->sum('nominal_pencairan');
+    }
+
+    /**
+     * Mengambil transaksi pencairan terakhir berdasarkan SHU anggota.
+     */
+    public function getPencairanTerakhir($idShuAnggota)
+    {
+        return PencairanShu::where('id_shu_anggota', $idShuAnggota)
+            ->latest('tanggal_pencairan')
+            ->first();
+    }
+
+    public function existsByTahun($tahun)
+    {
+        return PencairanShu::whereHas('shuAnggota', function ($query) use ($tahun) {
+
+            $query->where('periode_akhir', $tahun);
+
+        })->exists();
+    }
+
+    public function getLastNomor()
+    {
+        return PencairanShu::max('id') ?? 0;
     }
 }

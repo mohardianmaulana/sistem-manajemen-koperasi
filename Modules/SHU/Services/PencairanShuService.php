@@ -2,18 +2,19 @@
 
 namespace Modules\SHU\Services;
 
-use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\SHU\Entities\PencairanShu;
 use Modules\SHU\Repositories\PencairanShuRepository;
 use Modules\SHU\Repositories\ShuAnggotaRepository;
-use Exception;
 
 class PencairanShuService
 {
-    protected $repository;
-    protected $shuRepository;
+    protected PencairanShuRepository $repository;
+
+    protected ShuAnggotaRepository $shuRepository;
 
     public function __construct(
         PencairanShuRepository $repository,
@@ -23,6 +24,9 @@ class PencairanShuService
         $this->shuRepository = $shuRepository;
     }
 
+    /**
+     * Menampilkan data pencairan SHU.
+     */
     public function getAll($status = null)
     {
         if (Auth::user()->hasRole('anggota')) {
@@ -32,116 +36,148 @@ class PencairanShuService
         return $this->repository->getAll($status);
     }
 
+    /**
+     * Detail pencairan SHU.
+     */
     public function findById($id)
     {
         return $this->repository->findById($id);
     }
 
-    public function store($idShuAnggota, $nominalPengajuan)
+    /**
+     * Generate data pencairan setelah SHU selesai dihitung.
+     */
+    public function generatePencairan($idShuAnggota)
     {
         $shu = $this->shuRepository->findById($idShuAnggota);
 
         if (!$shu) {
-            throw new Exception('Data SHU tidak ditemukan.');
-        }
-
-        $totalShu = $shu->shu_anggota;
-
-        $totalDicairkan = $this->repository
-            ->totalNominalDicairkan($idShuAnggota);
-
-        $totalDiproses = $this->repository
-            ->totalNominalDiproses($idShuAnggota);
-
-        $sisaShu = $totalShu - $totalDicairkan - $totalDiproses;
-
-        if ($nominalPengajuan <= 0) {
-            throw new Exception('Nominal pencairan harus lebih dari nol.');
-        }
-
-        if ($nominalPengajuan > $sisaShu) {
-            throw new Exception(
-                'Nominal pencairan melebihi sisa SHU yang tersedia.'
-            );
+            throw new Exception('Data SHU anggota tidak ditemukan.');
         }
 
         return $this->repository->store([
-            'id_shu_anggota'    => $idShuAnggota,
-            'nominal_pengajuan' => $nominalPengajuan,
-            'tanggal_pengajuan' => Carbon::today(),
-            'status'            => PencairanShu::STATUS_MENUNGGU,
+
+            'kode_pencairan'    => $this->generateKode(),
+
+            'id_shu_anggota'    => $shu->id,
+
+            'nominal_pencairan' => $shu->shu_anggota,
+
+            'tanggal_pencairan' => now(),
+
+            'status'            => PencairanShu::STATUS_SIAP_DICAIRKAN,
+
         ]);
     }
 
-    public function approve($id)
+    /**
+     * Melakukan pencairan SHU.
+     */
+    public function cairkan(Request $request, $id)
     {
+        $pencairan = $this->repository->findById($id);
+
+        if (
+            $pencairan->status !==
+            PencairanShu::STATUS_SIAP_DICAIRKAN
+        ) {
+            throw new Exception(
+                'Pencairan SHU sudah diproses.'
+            );
+        }
+
+        $bukti = $pencairan->bukti;
+
+        if ($request->hasFile('bukti')) {
+
+            $bukti = $request
+                ->file('bukti')
+                ->store('bukti-pencairan-shu', 'public');
+        }
+
         return $this->repository->update($id, [
-            'status'              => PencairanShu::STATUS_DISETUJUI,
-            'tanggal_persetujuan' => Carbon::today(),
-            'disetujui_oleh'      => Auth::id(),
+
+            'status' => PencairanShu::STATUS_DICAIRKAN,
+
+            'tanggal_pencairan' => now(),
+
+            'dicairkan_oleh' => Auth::id(),
+
+            'bukti' => $bukti,
+
         ]);
     }
 
-    public function reject($id, $keterangan = null)
+    /**
+     * Menandai pencairan gagal.
+     */
+    public function gagal($id, $keterangan)
     {
+        $pencairan = $this->repository->findById($id);
+
+        if (
+            $pencairan->status !==
+            PencairanShu::STATUS_SIAP_DICAIRKAN
+        ) {
+            throw new Exception(
+                'Status pencairan tidak dapat diubah.'
+            );
+        }
+
         return $this->repository->update($id, [
-            'status'     => PencairanShu::STATUS_DITOLAK,
+
+            'status' => PencairanShu::STATUS_GAGAL,
+
             'keterangan' => $keterangan,
+
+            'dicairkan_oleh' => Auth::id(),
+
         ]);
     }
 
-   public function cairkan(Request $request, $id)
-{
-    $pencairan = $this->repository->findById($id);
-
-    if (!$pencairan) {
-        throw new Exception('Data pencairan SHU tidak ditemukan.');
-    }
-
-    if ($pencairan->status != PencairanShu::STATUS_DISETUJUI) {
-        throw new Exception(
-            'Pengajuan belum disetujui atau sudah dicairkan.'
-        );
-    }
-
-    $pathBukti = null;
-
-    if ($request->hasFile('bukti')) {
-
-        $pathBukti = $request
-            ->file('bukti')
-            ->store('bukti-pencairan-shu', 'public');
-
-    }
-
-    return $this->repository->update($id, [
-
-        'bukti'              => $pathBukti,
-
-        'status'             => PencairanShu::STATUS_DICAIRKAN,
-
-        'tanggal_pencairan'  => Carbon::today(),
-
-    ]);
-}
-
+    /**
+     * Menghapus data pencairan SHU.
+     */
     public function delete($id)
     {
         return $this->repository->delete($id);
     }
 
+    /**
+     * Dashboard bendahara/pengurus.
+     */
     public function getDashboardAdmin()
     {
         return [
-            'total_pengajuan' => $this->repository->totalPengajuan(),
-            'menunggu'        => $this->repository->totalMenunggu(),
-            'disetujui'       => $this->repository->totalDisetujui(),
-            'dicairkan'       => $this->repository->totalDicairkan(),
-            'ditolak'         => $this->repository->totalDitolak(),
+
+            'total_penerima_shu' => $this->shuRepository
+                ->totalPenerimaShu(),
+
+            'total_nominal_shu' => $this->shuRepository
+                ->totalNominalShu(),
+
+            'total_pencairan' => $this->repository
+                ->totalPencairan(),
+
+            'total_nominal_dicairkan' => $this->repository
+                ->totalNominalDicairkanSemua(),
+
+            'siap_dicairkan' => $this->repository
+                ->totalSiapDicairkan(),
+
+            'dicairkan' => $this->repository
+                ->totalDicairkan(),
+
+            'gagal' => $this->repository
+                ->totalGagal(),
+
         ];
     }
 
-    public function getSummaryPengajuan($idShuAnggota)
+    /**
+     * Ringkasan pencairan SHU anggota.
+     */
+    public function getSummaryPencairan($idShuAnggota)
     {
         $shu = $this->shuRepository->findById($idShuAnggota);
 
@@ -149,25 +185,31 @@ class PencairanShuService
             throw new Exception('Data SHU tidak ditemukan.');
         }
 
-        $dicairkan = $this->repository
+        $totalDicairkan = $this->repository
             ->totalNominalDicairkan($idShuAnggota);
 
-        $diproses = $this->repository
-            ->totalNominalDiproses($idShuAnggota);
-
-        $riwayat = $this->repository
-            ->getRiwayatByShuAnggota($idShuAnggota);
-
         return [
-            'shu'               => $shu,
-            'total_shu'         => $shu->shu_anggota,
-            'total_dicairkan'   => $dicairkan,
-            'total_diproses'    => $diproses,
-            'sisa_shu'          => $shu->shu_anggota - $dicairkan - $diproses,
-            'riwayat'           => $riwayat,
+
+            'shu' => $shu,
+
+            'total_shu' => $shu->shu_anggota,
+
+            'sudah_dicairkan' => $this->repository
+                ->sudahDicairkan($idShuAnggota),
+
+            'total_dicairkan' => $totalDicairkan,
+
+            'sisa_dicairkan' => $shu->shu_anggota - $totalDicairkan,
+
+            'riwayat' => $this->repository
+                ->getRiwayatByShuAnggota($idShuAnggota),
+
         ];
     }
 
+    /**
+     * Dashboard anggota.
+     */
     public function getDashboardAnggota()
     {
         $shu = $this->shuRepository->getSummary(Auth::id());
@@ -176,43 +218,98 @@ class PencairanShuService
             return null;
         }
 
-        return $this->getSummaryPengajuan($shu->id);
+        $status = $this->repository
+            ->sudahDicairkan($shu->id);
+
+        return [
+
+            'shu_simpanan' => $shu->shu_simpanan,
+
+            'shu_pinjaman' => $shu->shu_pinjaman,
+
+            'pajak' => $shu->pajak,
+
+            'shu_bersih' => $shu->shu_anggota,
+
+            'total_dicairkan' => $this->repository
+                ->totalNominalDicairkan($shu->id),
+
+            'status_pencairan' => $status
+                ? 'Sudah Dicairkan'
+                : 'Belum Dicairkan',
+
+            'riwayat' => $this->repository
+                ->getRiwayatByShuAnggota($shu->id),
+
+        ];
     }
 
-    public function updateNominal($id, $nominal)
+    /**
+     * Membuat kode pencairan SHU.
+     */
+    private function generateKode()
     {
-        $pencairan = $this->repository->findById($id);
+        $last = $this->repository->getLastPencairan();
 
-        if ($pencairan->status !== PencairanShu::STATUS_MENUNGGU) {
-            throw new Exception(
-                'Pengajuan yang sudah diproses tidak dapat diubah.'
-            );
-        }
+        $nomor = $last ? $last->id + 1 : 1;
 
-        return $this->repository->update($id, [
-            'nominal_pengajuan' => $nominal,
-        ]);
+        return sprintf(
+            'SHU-%s-%04d',
+            now()->year,
+            $nomor
+        );
     }
-    
-    public function uploadBukti($id, $pathBukti)
+
+    public function store(int $tahun)
     {
-        $pencairan = $this->repository->findById($id);
+        DB::transaction(function () use ($tahun) {
 
-        if ($pencairan->status != PencairanShu::STATUS_DISETUJUI) {
+            $shuAnggota = $this->shuRepository->getByTahun($tahun);
 
-            throw new Exception(
-                'Pengajuan belum disetujui.'
-            );
-        }
+            if ($shuAnggota->isEmpty()) {
+                throw new Exception('Data SHU anggota belum tersedia.');
+            }
 
-        return $this->repository->update($id, [
+            if ($this->repository->existsByTahun($tahun)) {
+                throw new Exception('Data pencairan SHU tahun tersebut sudah pernah dibuat.');
+            }
 
-            'bukti' => $pathBukti,
+            // Ambil nomor terakhir sekali saja
+            $nomor = $this->repository->getLastNomor();
 
-            'status' => PencairanShu::STATUS_DICAIRKAN,
+            foreach ($shuAnggota as $item) {
 
-            'tanggal_pencairan' => Carbon::today(),
+                $nomor++;
 
-        ]);
+                $this->repository->store([
+
+                    'kode_pencairan' => sprintf(
+                        'SHU-%s-%04d',
+                        $tahun,
+                        $nomor
+                    ),
+
+                    'id_shu_anggota' => $item->id,
+
+                    'nominal_pencairan' => $item->shu_anggota,
+
+                    'tanggal_pencairan' => now(),
+
+                    'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
+
+                    'keterangan' => null,
+
+                    'dicairkan_oleh' => null,
+
+                ]);
+
+            }
+
+        });
+    }
+
+    public function getListTahun()
+    {
+        return $this->shuRepository->getTahunList();
     }
 }

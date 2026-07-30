@@ -14,28 +14,7 @@ class StorePencairanShuRequest extends FormRequest
     public function rules()
     {
         return [
-            'id_shu_anggota' => [
-                'required',
-                'exists:shu_anggota,id',
-            ],
-
-            'nominal_pengajuan' => [
-                'required',
-                'numeric',
-                'min:1',
-            ],
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'id_shu_anggota.required' => 'Data SHU wajib dipilih.',
-            'id_shu_anggota.exists' => 'Data SHU tidak ditemukan.',
-
-            'nominal_pengajuan.required' => 'Nominal pencairan wajib diisi.',
-            'nominal_pengajuan.numeric' => 'Nominal harus berupa angka.',
-            'nominal_pengajuan.min' => 'Nominal minimal Rp1.',
+            //
         ];
     }
 
