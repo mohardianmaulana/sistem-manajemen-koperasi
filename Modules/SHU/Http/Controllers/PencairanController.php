@@ -166,15 +166,25 @@ class PencairanController extends Controller
         }
     }
 
-   public function store(StorePencairanShuRequest $request)
+  public function store(StorePencairanShuRequest $request)
     {
-        $this->service->store($request->tahun);
+        try {
 
-        return redirect()
-            ->route('pencairan.index')
-            ->with(
-                'success',
-                'Data pencairan SHU berhasil dibuat.'
-            );
+            $this->service->store($request->tahun);
+
+            return redirect()
+                ->route('pencairan.index')
+                ->with(
+                    'success',
+                    'Data pencairan SHU berhasil dibuat.'
+                );
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->back()
+                ->with('error', $e->getMessage());
+
+        }
     }
 }

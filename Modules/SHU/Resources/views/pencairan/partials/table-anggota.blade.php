@@ -34,6 +34,8 @@
 
                     <th>Bukti</th>
 
+                    <th width="10%">Aksi</th>
+
                 </tr>
 
             </thead>
@@ -130,6 +132,20 @@
                             @endif
 
                         </td>
+
+                        <td class="text-center">
+
+                        <a
+                            href="{{ route('pencairan.show', $item->id) }}"
+                            class="btn btn-primary btn-sm">
+
+                            <i class="fas fa-eye"></i>
+
+                            Detail
+
+                        </a>
+
+                    </td>
 
                     </tr>
 

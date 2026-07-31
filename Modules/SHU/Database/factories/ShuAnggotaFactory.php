@@ -1,6 +1,7 @@
 <?php
 namespace Modules\SHU\Database\factories;
 
+use App\Models\Core\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ShuAnggotaFactory extends Factory
@@ -26,7 +27,7 @@ class ShuAnggotaFactory extends Factory
             'shu_anggota' => 1450000,
             'periode_awal' => '2026-01-01',
             'periode_akhir' => '2026-12-31',
-            'id_anggota' => null,
+            'id_anggota' => User::factory(),
         ];
     }
 

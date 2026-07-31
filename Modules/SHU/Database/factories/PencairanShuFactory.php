@@ -4,6 +4,7 @@ namespace Modules\SHU\Database\factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use Modules\SHU\Entities\PencairanShu;
+use Modules\SHU\Entities\ShuAnggota;
 
 class PencairanShuFactory extends Factory
 {
@@ -21,25 +22,27 @@ class PencairanShuFactory extends Factory
      */
     public function definition()
         {
-            return [
-                'id_shu_anggota' => null,
+             return [
 
-                'nominal_pengajuan' => 500000,
+            'kode_pencairan' => 'SHU-2026-0001',
 
-                'tanggal_pengajuan' => Carbon::today(),
+            'id_shu_anggota' => ShuAnggota::factory(),
 
-                'tanggal_persetujuan' => null,
+            'nominal_pencairan' => 500000,
 
-                'tanggal_pencairan' => null,
+            'tanggal_pencairan' => Carbon::today(),
 
-                'status' => PencairanShu::STATUS_MENUNGGU,
+            'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
 
-                'keterangan' => null,
+            'keterangan' => null,
 
-                'disetujui_oleh' => null,
+            'dicairkan_oleh' => null,
 
-                'bukti' => null,
-            ];
+            'bukti' => null,
+
+        ];
         }
+
+        
 }
 
