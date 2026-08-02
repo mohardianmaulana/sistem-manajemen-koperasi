@@ -181,13 +181,12 @@ class PencairanShuRepository
             ->first();
     }
 
-    public function existsByTahun($tahun)
+    public function existsByShuAnggota($idShuAnggota)
     {
-        return PencairanShu::whereHas('shuAnggota', function ($query) use ($tahun) {
-
-            $query->where('periode_akhir', $tahun);
-
-        })->exists();
+        return PencairanShu::where(
+            'id_shu_anggota',
+            $idShuAnggota
+        )->exists();
     }
 
     public function getLastNomor()

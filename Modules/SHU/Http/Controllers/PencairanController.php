@@ -10,6 +10,7 @@ use Modules\SHU\Http\Requests\UploadBuktiPencairanShuRequest;
 use Modules\SHU\Http\Requests\StorePencairanShuRequest;
 use Modules\SHU\Services\PencairanShuService;
 
+
 class PencairanController extends Controller
 {
     protected PencairanShuService $service;
@@ -166,24 +167,29 @@ class PencairanController extends Controller
         }
     }
 
-  public function store(StorePencairanShuRequest $request)
+    public function store(StorePencairanShuRequest $request)
     {
         try {
 
-            $this->service->store($request->tahun);
+            $jumlah = $this->service->store(
+                $request->tahun
+            );
 
             return redirect()
                 ->route('pencairan.index')
                 ->with(
                     'success',
-                    'Data pencairan SHU berhasil dibuat.'
+                    "Berhasil membuat {$jumlah} data pencairan SHU."
                 );
 
         } catch (\Exception $e) {
 
             return redirect()
                 ->back()
-                ->with('error', $e->getMessage());
+                ->with(
+                    'error',
+                    $e->getMessage()
+                );
 
         }
     }

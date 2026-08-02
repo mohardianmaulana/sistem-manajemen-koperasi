@@ -114,7 +114,7 @@
 
                         <td class="text-center">
 
-                            {{ optional($item->dicairkanOleh)->name ?? '-' }}
+                            {{ optional($item->pencair)->name ?? '-' }}
 
                         </td>
 

@@ -262,22 +262,26 @@ class PencairanShuService
 
     public function store(int $tahun)
     {
-        DB::transaction(function () use ($tahun) {
+        return DB::transaction(function () use ($tahun) {
 
             $shuAnggota = $this->shuRepository->getByTahun($tahun);
 
             if ($shuAnggota->isEmpty()) {
-                throw new Exception('Data SHU anggota belum tersedia.');
+                throw new Exception(
+                    'Data SHU anggota belum tersedia.'
+                );
             }
 
-            if ($this->repository->existsByTahun($tahun)) {
-                throw new Exception('Data pencairan SHU tahun tersebut sudah pernah dibuat.');
-            }
-
-            // Ambil nomor terakhir sekali saja
             $nomor = $this->repository->getLastNomor();
 
+            $berhasil = 0;
+
             foreach ($shuAnggota as $item) {
+
+                // Jika pencairan SHU anggota sudah ada, lewati
+                if ($this->repository->existsByShuAnggota($item->id)) {
+                    continue;
+                }
 
                 $nomor++;
 
@@ -289,22 +293,30 @@ class PencairanShuService
                         $nomor
                     ),
 
-                    'id_shu_anggota' => $item->id,
+                    'id_shu_anggota'    => $item->id,
 
                     'nominal_pencairan' => $item->shu_anggota,
 
                     'tanggal_pencairan' => now(),
 
-                    'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
+                    'status'            => PencairanShu::STATUS_SIAP_DICAIRKAN,
 
-                    'keterangan' => null,
+                    'keterangan'        => null,
 
-                    'dicairkan_oleh' => null,
+                    'dicairkan_oleh'    => null,
 
                 ]);
 
+                $berhasil++;
             }
 
+            if ($berhasil === 0) {
+                throw new Exception(
+                    'Seluruh data pencairan SHU tahun tersebut sudah tersedia.'
+                );
+            }
+
+            return $berhasil;
         });
     }
 
