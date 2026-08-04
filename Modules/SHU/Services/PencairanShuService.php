@@ -215,7 +215,23 @@ class PencairanShuService
         $shu = $this->shuRepository->getSummary(Auth::id());
 
         if (!$shu) {
-            return null;
+            return [
+
+                'shu_simpanan'      => 0,
+
+                'shu_pinjaman'      => 0,
+
+                'pajak'             => 0,
+
+                'shu_bersih'        => 0,
+
+                'total_dicairkan'   => 0,
+
+                'status_pencairan'  => 'Belum Ada SHU',
+
+                'riwayat'           => collect(),
+
+            ];
         }
 
         $status = $this->repository
