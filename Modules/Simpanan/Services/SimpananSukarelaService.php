@@ -203,9 +203,7 @@ class SimpananSukarelaService
 
     public function generatePeriode($jadwal)
     {
-        $masters = $this->repository->getMasterSiapGenerate(
-                    $jadwal->tanggal_mulai
-                );
+        $masters = $this->repository->getMasterSiapGenerate();
 
         foreach ($masters as $master) {
 

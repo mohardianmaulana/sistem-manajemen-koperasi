@@ -15,6 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Modules\SHU\Entities\ShuAnggota;
 use Modules\Simpanan\Entities\MasterSimpananSukarela;
 use Modules\Simpanan\Entities\MasterSimpananWajib;
+use Modules\Simpanan\Entities\PencairanSimpanan;
 use Modules\Simpanan\Entities\SimpananPokok;
 use Modules\Simpanan\Entities\SimpananSukarela;
 use Modules\Simpanan\Entities\SimpananWajib;
@@ -161,5 +162,13 @@ class User extends Authenticatable
     public function pencairanShuDisetujui()
     {
         return $this->hasMany(PencairanShu::class,'disetujui_oleh');
+    }
+
+    public function pencairanSimpanan()
+    {
+        return $this->hasMany(
+            PencairanSimpanan::class,
+            'id_anggota'
+        );
     }
 }

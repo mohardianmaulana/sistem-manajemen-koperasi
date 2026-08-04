@@ -140,7 +140,6 @@
 
 $(document).ready(function () {
 
-
     $('#modalCairkan').on('show.bs.modal', function (event) {
 
         let button = $(event.relatedTarget);
@@ -150,11 +149,30 @@ $(document).ready(function () {
         let nama = button.data('nama');
         let nominal = button.data('nominal');
         let status = button.data('status');
+        let noRek = button.data('no_rek');
+
+        // Ubah status menjadi lebih mudah dibaca
+        let statusText = '';
+
+        switch (status) {
+            case 'siap_dicairkan':
+                statusText = 'Siap Dicairkan';
+                break;
+            case 'dicairkan':
+                statusText = 'Dicairkan';
+                break;
+            case 'gagal':
+                statusText = 'Gagal';
+                break;
+            default:
+                statusText = '-';
+        }
 
         $('#kode_pencairan').val(kode);
         $('#nama_anggota').val(nama);
         $('#nominal_pencairan').val('Rp ' + nominal);
-        $('#status_pencairan').val(status);
+        $('#status_pencairan').val(statusText);
+        $('#no_rekening').val(noRek);
 
         $('#formCairkan').attr(
             'action',

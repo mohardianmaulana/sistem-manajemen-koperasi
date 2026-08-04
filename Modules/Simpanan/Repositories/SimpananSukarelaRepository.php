@@ -2,6 +2,7 @@
 
 namespace Modules\Simpanan\Repositories;
 
+use Illuminate\Support\Carbon;
 use Modules\Simpanan\Entities\MasterSimpananSukarela;
 use Modules\Simpanan\Entities\SimpananSukarela;
 
@@ -146,5 +147,20 @@ class SimpananSukarelaRepository
     public function createPeriode(array $data)
     {
         return MasterSimpananSukarela::create($data);
+    }
+
+    public function getMasterSiapGenerate()
+    {
+        return MasterSimpananSukarela::whereIn('id', function ($query) {
+            $query->selectRaw('MIN(id)')
+                ->from('master_simpanan_sukarela')
+                ->groupBy('id_anggota');
+        })->orderBy('id_anggota')->get();
+    }
+
+    public function totalSimpanan($idAnggota)
+    {
+        return SimpananSukarela::where('id_anggota', $idAnggota)
+            ->sum('nilai');
     }
 }

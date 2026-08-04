@@ -152,7 +152,9 @@
                                     data-kode="{{ $item->kode_pencairan }}"
                                     data-nama="{{ $item->shuAnggota->user->name }}"
                                     data-nominal="{{ number_format($item->nominal_pencairan,0,',','.') }}"
+                                     data-no_rek="{{ $item->shuAnggota->user->no_rek }}"
                                     data-status="{{ $item->status }}">
+                                    
 
                                     <i class="fas fa-check"></i>
 

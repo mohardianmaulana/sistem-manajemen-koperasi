@@ -112,6 +112,17 @@
 
                         </div>
 
+                        <div class="col-md-6">
+                        <div class="form-group">
+                            <label>No. Rekening</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="no_rekening"
+                                readonly>
+                        </div>
+                    </div>
+
                     </div>
 
 

@@ -80,4 +80,11 @@ class SimpananPokokRepository
                 ->count(),
         ];
     }
+
+    public function totalSimpanan($idAnggota)
+    {
+        return SimpananPokok::where('id_anggota', $idAnggota)
+            ->where('status', 'selesai')
+            ->sum('nilai');
+    }
 }

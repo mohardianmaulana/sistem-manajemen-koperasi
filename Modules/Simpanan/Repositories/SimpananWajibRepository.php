@@ -176,21 +176,21 @@ class SimpananWajibRepository
         ];
     }
 
-    /**
-     * Mengambil periode terakhir.
-     */
     public function getLastPeriode()
     {
         return MasterSimpananWajib::latest('periode')->first();
     }
 
-    /**
-     * Mengecek apakah periode sudah dibuat.
-     */
     public function periodeExists($bulan, $tahun)
     {
         return MasterSimpananWajib::whereMonth('periode', $bulan)
             ->whereYear('periode', $tahun)
             ->exists();
+    }
+
+    public function totalSimpanan($idAnggota)
+    {
+        return SimpananWajib::where('id_anggota', $idAnggota)
+            ->sum('nilai');
     }
 }
