@@ -246,22 +246,7 @@
 
                         </a>
                         
-                        @role('anggota')
-
-                        @if($item->status == 'pending')
-
-                            <a
-                                href="{{ route('pencairan-simpanan.edit', $item->id) }}"
-                                class="btn btn-warning btn-sm"
-                                title="Edit">
-
-                                <i class="fas fa-edit"></i>
-
-                            </a>
-
-                        @endif
-
-                    @endrole
+                       
 
 
                         @role('admin')
@@ -311,12 +296,12 @@
                                     class="btn btn-primary btn-sm btn-cairkan"
                                     data-toggle="modal"
                                     data-target="#modalCairkan"
-
                                     data-id="{{ $item->id }}"
                                     data-kode="{{ $item->kode_pencairan }}"
                                     data-nama="{{ $item->anggota->name }}"
                                     data-rekening="{{ $item->anggota->no_rek }}"
-                                    data-nominal="{{ number_format($item->nominal_pencairan,0,',','.') }}">
+                                    data-nominal="{{ number_format($item->nominal_pencairan,0,',','.') }}"
+                                    title="Cairkan">
 
                                     <i class="fas fa-money-check-alt"></i>
 

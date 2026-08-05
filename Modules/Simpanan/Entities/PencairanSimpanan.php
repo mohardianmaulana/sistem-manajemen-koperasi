@@ -11,6 +11,7 @@ class PencairanSimpanan extends Model
 {
     use HasFactory;
 
+
     protected $table = 'pencairan_simpanan';
 
     protected $fillable = [
@@ -19,7 +20,6 @@ class PencairanSimpanan extends Model
         'alasan',
         'status',
         'catatan',
-        'bukti_transfer',
         'tanggal_verifikasi',
         'tanggal_pencairan',
         'id_anggota',
@@ -27,10 +27,10 @@ class PencairanSimpanan extends Model
         'id_bendahara',
     ];
 
-     protected $casts = [
-        'nominal_pencairan' => 'integer',
-        'tanggal_verifikasi' => 'datetime',
-        'tanggal_pencairan' => 'datetime',
+    protected $casts = [
+        'nominal_pencairan'   => 'integer',
+        'tanggal_verifikasi'  => 'datetime',
+        'tanggal_pencairan'   => 'datetime',
     ];
 
     public const STATUS_PENDING = 'pending';
@@ -54,9 +54,9 @@ class PencairanSimpanan extends Model
         return $this->belongsTo(User::class, 'id_bendahara');
     }
 
-
     protected static function newFactory()
     {
         return \Modules\Simpanan\Database\factories\PencairanSimpananFactory::new();
     }
 }
+

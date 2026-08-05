@@ -65,23 +65,16 @@ Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
 
 Route::prefix('pencairan-simpanan')->middleware(['auth'])->group(function () {
     Route::middleware(['role:anggota'])->group(function () {
-        Route::get('/create', 'PencairanSimpananController@create')->name('pencairan-simpanan.create');
-        Route::post('/store', 'PencairanSimpananController@store')->name('pencairan-simpanan.store');
-        Route::get('/{id}/edit', 'PencairanSimpananController@edit')->name('pencairan-simpanan.edit');
-        Route::put('/{id}', 'PencairanSimpananController@update')->name('pencairan-simpanan.update');
-    });
-    Route::get('/', 'PencairanSimpananController@index')->name('pencairan-simpanan.index');
-    Route::get('/{id}', 'PencairanSimpananController@show')->name('pencairan-simpanan.show');
-    Route::get('/{id}/bukti-transfer', 'PencairanSimpananController@lihatBukti')->name('pencairan-simpanan.bukti');
-    
+        Route::post('/store','PencairanSimpananController@store')->name('pencairan-simpanan.store');});
+    Route::get('/','PencairanSimpananController@index')->name('pencairan-simpanan.index');
+    Route::get('/{id}','PencairanSimpananController@show')->name('pencairan-simpanan.show');
     
     Route::middleware(['role:admin'])->group(function () {
-        Route::put('/{id}/verifikasi', 'PencairanSimpananController@verifikasi')->name('pencairan-simpanan.verifikasi');
-        Route::put('/{id}/tolak', 'PencairanSimpananController@tolak')->name('pencairan-simpanan.tolak');
-    });
-    Route::middleware(['role:bendahara'])->group(function () {
-        Route::put('/{id}/cairkan', 'PencairanSimpananController@cairkan')->name('pencairan-simpanan.cairkan');
-        Route::put('/{id}/gagal', 'PencairanSimpananController@gagal')->name('pencairan-simpanan.gagal');
-    });
+        Route::put('/{id}/verifikasi','PencairanSimpananController@verifikasi')->name('pencairan-simpanan.verifikasi');
+        Route::put('/{id}/tolak','PencairanSimpananController@tolak')->name('pencairan-simpanan.tolak');});
 
-});
+    Route::middleware(['role:bendahara'])->group(function () {
+        Route::put('/{id}/cairkan','PencairanSimpananController@cairkan')->name('pencairan-simpanan.cairkan');
+        Route::put('/{id}/gagal','PencairanSimpananController@gagal')->name('pencairan-simpanan.gagal');
+        });
+    });

@@ -179,4 +179,14 @@ class PencairanSimpananRepository
         ->where('id_anggota', $idAnggota)
         ->firstOrFail();
     }
+
+    public function hasPendingRequest($idAnggota)
+    {
+        return PencairanSimpanan::where('id_anggota', $idAnggota)
+            ->whereIn('status', [
+                PencairanSimpanan::STATUS_PENDING,
+                PencairanSimpanan::STATUS_DIVERIFIKASI,
+            ])
+            ->exists();
+    }
 }

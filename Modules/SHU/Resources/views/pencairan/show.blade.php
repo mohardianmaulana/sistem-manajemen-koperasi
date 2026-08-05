@@ -120,7 +120,7 @@
 
                 <h3>
 
-                    Rp {{ number_format($data->nominal_pengajuan,0,',','.') }}
+                    Rp {{ number_format($data->nominal_pencairan,0,',','.') }}
 
                 </h3>
 
@@ -416,7 +416,7 @@
 
                             <span class="badge badge-primary p-2">
 
-                                Rp {{ number_format($data->nominal_pengajuan,0,',','.') }}
+                                Rp {{ number_format($data->nominal_pencairan,0,',','.') }}
 
                             </span>
 
@@ -528,7 +528,7 @@
 
                             <strong class="text-success">
 
-                                Rp {{ number_format($data->nominal_pengajuan,0,',','.') }}
+                                Rp {{ number_format($data->nominal_pencairan,0,',','.') }}
 
                             </strong>
 
@@ -570,6 +570,22 @@
 
                     </tr>
 
+                    <tr>
+
+                        <th>
+
+                            Status Pencairan
+
+                        </th>
+
+                        <td>
+
+                            {{ $data->status ?? '-' }}
+
+                        </td>
+
+                    </tr>
+
                 </table>
 
             </div>
@@ -580,107 +596,6 @@
 
 </div>
 
-
-{{-- ==========================================
-        BUKTI TRANSFER
-========================================== --}}
-
-<div class="card card-outline card-info shadow-sm">
-
-    <div class="card-header">
-
-        <h3 class="card-title">
-
-            <i class="fas fa-file-upload"></i>
-
-            Bukti Transfer
-
-        </h3>
-
-    </div>
-
-    <div class="card-body">
-
-        @if($data->bukti)
-
-            @php
-
-                $ext = strtolower(pathinfo($data->bukti, PATHINFO_EXTENSION));
-
-            @endphp
-
-            @if(in_array($ext,['jpg','jpeg','png']))
-
-                <div class="text-center">
-
-                    <img
-                        src="{{ asset('storage/'.$data->bukti) }}"
-                        class="img-fluid rounded shadow border"
-                        style="max-height:500px">
-
-                </div>
-
-                <div class="text-center mt-3">
-
-                    <a
-                        href="{{ asset('storage/'.$data->bukti) }}"
-                        target="_blank"
-                        class="btn btn-info">
-
-                        <i class="fas fa-search-plus"></i>
-
-                        Lihat Ukuran Penuh
-
-                    </a>
-
-                </div>
-
-            @elseif($ext == 'pdf')
-
-                <div class="text-center p-4">
-
-                    <i class="fas fa-file-pdf fa-5x text-danger mb-3"></i>
-
-                    <h5>
-
-                        Bukti transfer tersedia dalam format PDF.
-
-                    </h5>
-
-                    <a
-                        href="{{ asset('storage/'.$data->bukti) }}"
-                        target="_blank"
-                        class="btn btn-danger mt-3">
-
-                        <i class="fas fa-file-pdf"></i>
-
-                        Buka PDF
-
-                    </a>
-
-                </div>
-
-            @endif
-
-        @else
-
-            <div class="text-center p-5">
-
-                <i class="fas fa-image fa-4x text-muted mb-3"></i>
-
-                <h5 class="text-muted">
-
-                    Bukti transfer belum tersedia.
-
-                </h5>
-
-            </div>
-
-        @endif
-
-    </div>
-
-</div>
 
 
 {{-- ==========================================

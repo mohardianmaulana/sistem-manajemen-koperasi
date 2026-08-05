@@ -2,14 +2,9 @@
 
 namespace Modules\Simpanan\Http\Controllers;
 
-use Illuminate\Contracts\Support\Renderable;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Modules\Simpanan\Http\Requests\CairkanPencairanRequest;
 use Modules\Simpanan\Http\Requests\GagalPencairanRequest;
-use Modules\Simpanan\Http\Requests\PencairanSimpananRequest;
 use Modules\Simpanan\Http\Requests\TolakPencairanRequest;
-use Modules\Simpanan\Http\Requests\UpdatePencairanSimpananRequest;
 use Modules\Simpanan\Services\PencairanSimpananService;
 
 class PencairanSimpananController extends Controller
@@ -62,30 +57,26 @@ class PencairanSimpananController extends Controller
 
         }
 
-        /* Menampilkan form pengajuan pencairan.*/
-        public function create()
-        {
-            $saldo = $this->service->hitungSaldo(auth()->id());
-
-            return view('simpanan::pencairan.create', compact('saldo'));
-        }
-
         /* Menyimpan pengajuan pencairan.*/
-        public function store(PencairanSimpananRequest $request)
+        public function store()
         {
             try {
 
-                $this->service->store($request->validated());
+                $this->service->store();
 
                 return redirect()
-                    ->route('pencairan-simpanan.index.index')
-                    ->with('success', 'Pengajuan pencairan berhasil dibuat.');
+                    ->route('pencairan-simpanan.index')
+                    ->with(
+                        'success',
+                        'Pengajuan pencairan berhasil dibuat.'
+                    );
 
             } catch (\Exception $e) {
 
-                return back()
-                    ->withInput()
-                    ->with('error', $e->getMessage());
+                return back()->with(
+                    'error',
+                    $e->getMessage()
+                );
             }
         }
 
@@ -129,39 +120,26 @@ class PencairanSimpananController extends Controller
         }
 
         /* Melakukan pencairan oleh Bendahara.*/
-        public function cairkan(CairkanPencairanRequest $request, $id)
+        public function cairkan($id)
         {
             try {
 
-                $this->service->cairkan(
-                    $id,
-                    $request->validated()
-                );
+                $this->service->cairkan($id);
 
-                return back()->with('success','Pencairan berhasil dilakukan.');
+                return back()->with(
+                    'success',
+                    'Pencairan berhasil dilakukan.'
+                );
 
             } catch (\Exception $e) {
 
-                return back()->with('error',$e->getMessage());
+                return back()->with(
+                    'error',
+                    $e->getMessage()
+                );
             }
         }
 
-    public function update(UpdatePencairanSimpananRequest $request,$id)
-    {
-        try {
-
-            $this->service->update(
-                $id,
-                $request->validated()
-            );
-
-            return redirect()->route('pencairan-simpanan.index')
-            ->with('success','Pengajuan pencairan berhasil diperbarui.');
-
-        } catch (\Exception $e) {
-            return back()->withInput()->with('error',$e->getMessage());
-        }
-    }
 
         /* Menandai pencairan gagal.*/
     public function gagal(GagalPencairanRequest $request, $id)
@@ -179,13 +157,4 @@ class PencairanSimpananController extends Controller
             );}
         }
 
-        public function edit($id)
-        {
-            $data = $this->service->edit($id);
-
-            return view(
-                'simpanan::pencairan.edit',
-                compact('data')
-            );
-        }
 }

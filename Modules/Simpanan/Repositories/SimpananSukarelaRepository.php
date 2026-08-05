@@ -163,4 +163,6 @@ class SimpananSukarelaRepository
         return SimpananSukarela::where('id_anggota', $idAnggota)
             ->sum('nilai');
     }
+
+    
 }

@@ -80,16 +80,11 @@ class PencairanController extends Controller
     /**
      * Melakukan pencairan SHU.
      */
-    public function cairkan(
-        UploadBuktiPencairanShuRequest $request,
-        $id
-    ) {
+   public function cairkan($id)
+    {
         try {
 
-            $this->service->cairkan(
-                $request,
-                $id
-            );
+            $this->service->cairkan($id);
 
             return redirect()
                 ->route('pencairan.index')
@@ -141,31 +136,8 @@ class PencairanController extends Controller
         }
     }
 
-    /**
-     * Menghapus data pencairan SHU.
-     */
-    public function destroy($id)
-    {
-        try {
 
-            $this->service->delete($id);
-
-            return redirect()
-                ->route('pencairan.index')
-                ->with(
-                    'success',
-                    'Data pencairan SHU berhasil dihapus.'
-                );
-
-        } catch (\Exception $e) {
-
-            return back()
-                ->with(
-                    'error',
-                    $e->getMessage()
-                );
-        }
-    }
+    
 
     public function store(StorePencairanShuRequest $request)
     {

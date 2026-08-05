@@ -38,5 +38,4 @@ Route::prefix('pencairan')->middleware(['auth', 'role:admin'])->group(function (
     Route::post('/', 'PencairanController@store')->name('pencairan.store');
     Route::put('/{id}/cairkan', 'PencairanController@cairkan')->name('pencairan.cairkan');
     Route::put('/{id}/gagal', 'PencairanController@gagal')->name('pencairan.gagal');
-    Route::delete('/{id}', 'PencairanController@destroy')->name('pencairan.destroy');
     });

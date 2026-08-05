@@ -6,10 +6,9 @@ use App\Models\Core\User;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
+use Modules\Rat\Entities\Rat;
 use Modules\Simpanan\Entities\PencairanSimpanan;
-use Modules\Simpanan\Entities\SimpananPokok;
+use Modules\Simpanan\Entities\SimpananSukarela;
 use Spatie\Permission\Models\Role;
 
 class PencairanSimpananTest extends TestCase
@@ -39,63 +38,28 @@ class PencairanSimpananTest extends TestCase
             'guard_name' => 'web',
         ]);
     }
-   public function test_anggota_dapat_membuka_halaman_edit_pencairan()
+
+    public function test_anggota_dapat_mengajukan_pencairan_simpanan()
     {
         $anggota = User::factory()->create();
 
         $anggota->assignRole('anggota');
 
-        $pencairan = PencairanSimpanan::factory()->create([
+        Rat::factory()->create([
+            'tahun' => now()->year,
+            'tanggal_rat' => now()->toDateString(),
+            'status' => Rat::STATUS_SELESAI,
+        ]);
+
+        SimpananSukarela::factory()->create([
             'id_anggota' => $anggota->id,
-            'status' => PencairanSimpanan::STATUS_PENDING,
+            'nilai' => 1000000,
         ]);
 
         $response = $this
             ->actingAs($anggota)
-            ->get(route(
-                'pencairan-simpanan.edit',
-                $pencairan->id
-            ));
-
-        $response->assertStatus(200);
-
-        $response->assertViewIs(
-            'simpanan::pencairan.edit'
-        );
-
-        $response->assertViewHas('data');
-    }
-
-   public function test_anggota_dapat_mengubah_pengajuan_pencairan()
-    {
-        $anggota = User::factory()->create();
-
-        $anggota->assignRole('anggota');
-
-        SimpananPokok::factory()->create([
-            'id_anggota' => $anggota->id,
-            'nilai'      => 1000000,
-            'status'     => 'selesai',
-        ]);
-
-        $pencairan = PencairanSimpanan::factory()->create([
-            'id_anggota'          => $anggota->id,
-            'status'              => PencairanSimpanan::STATUS_PENDING,
-            'nominal_pencairan'   => 100000,
-            'alasan'              => 'Lama',
-        ]);
-
-        $response = $this
-            ->actingAs($anggota)
-            ->put(
-                route(
-                    'pencairan-simpanan.update',
-                    $pencairan->id
-                ),
-                [
-                    'nominal_pencairan' => 150000,
-                    'alasan'            => 'Keperluan keluarga',
-                ]
+            ->post(
+                route('pencairan-simpanan.store')
             );
 
         $response->assertRedirect(
@@ -104,181 +68,239 @@ class PencairanSimpananTest extends TestCase
 
         $response->assertSessionHas(
             'success',
-            'Pengajuan pencairan berhasil diperbarui.'
+            'Pengajuan pencairan berhasil dibuat.'
         );
 
         $this->assertDatabaseHas(
             'pencairan_simpanan',
             [
-                'id'                  => $pencairan->id,
-                'nominal_pencairan'   => 150000,
-                'alasan'              => 'Keperluan keluarga',
+                'id_anggota' => $anggota->id,
+                'nominal_pencairan' => 1000000,
+                'status' => PencairanSimpanan::STATUS_PENDING,
             ]
         );
     }
 
-    public function test_anggota_tidak_dapat_mengubah_pengajuan_milik_anggota_lain()
+    public function test_pengajuan_gagal_jika_rat_belum_tersedia()
     {
-        $anggota1 = User::factory()->create();
-        $anggota1->assignRole('anggota');
+        Role::firstOrCreate([
+            'name' => 'anggota'
+        ]);
 
-        $anggota2 = User::factory()->create();
-        $anggota2->assignRole('anggota');
+        $anggota = User::factory()->create();
 
-        $pencairan = PencairanSimpanan::factory()->create([
-            'id_anggota' => $anggota2->id,
+        $anggota->assignRole('anggota');
+
+        SimpananSukarela::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nilai' => 1000000,
         ]);
 
         $response = $this
-            ->actingAs($anggota1)
-            ->get(route(
-                'pencairan-simpanan.edit',
-                $pencairan->id
-            ));
-
-        $response->assertStatus(404);
-    }
-
-    public function test_anggota_tidak_dapat_mengubah_pengajuan_yang_sudah_diverifikasi()
-    {
-        $anggota = User::factory()->create();
-        $anggota->assignRole('anggota');
-
-        $pencairan = PencairanSimpanan::factory()
-            ->diverifikasi()
-            ->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-        $response = $this
             ->actingAs($anggota)
-            ->put(
-                route('pencairan-simpanan.update', $pencairan->id),
-                [
-                    'nominal_pencairan' => 100000,
-                    'alasan' => 'Update',
-                ]
+            ->post(
+                route('pencairan-simpanan.store')
             );
 
-        $response->assertSessionHas('error');
+        $response->assertRedirect();
 
-        $this->assertEquals(
-            PencairanSimpanan::STATUS_DIVERIFIKASI,
-            $pencairan->fresh()->status
+        $response->assertSessionHas(
+            'error',
+            'Pengajuan pencairan hanya dapat dilakukan setelah RAT selesai.'
+        );
+
+        $this->assertDatabaseCount(
+            'pencairan_simpanan',
+            0
         );
     }
 
-    public function test_anggota_tidak_dapat_mengubah_pengajuan_yang_sudah_ditolak()
+    public function test_pengajuan_gagal_jika_rat_belum_selesai()
     {
-        $anggota = User::factory()->create();
-        $anggota->assignRole('anggota');
-
-        $pencairan = PencairanSimpanan::factory()
-            ->ditolak()
-            ->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-        $response = $this
-            ->actingAs($anggota)
-            ->put(
-                route('pencairan-simpanan.update', $pencairan->id),
-                [
-                    'nominal_pencairan' => 100000,
-                    'alasan' => 'Update',
-                ]
-            );
-
-        $response->assertSessionHas('error');
-    }
-
-    public function test_anggota_tidak_dapat_mengubah_pengajuan_yang_sudah_dicairkan()
-    {
-        $anggota = User::factory()->create();
-        $anggota->assignRole('anggota');
-
-        $pencairan = PencairanSimpanan::factory()
-            ->dicairkan()
-            ->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-        $response = $this
-            ->actingAs($anggota)
-            ->put(
-                route('pencairan-simpanan.update', $pencairan->id),
-                [
-                    'nominal_pencairan' => 100000,
-                    'alasan' => 'Update',
-                ]
-            );
-
-        $response->assertSessionHas('error');
-    }
-
-    public function test_anggota_tidak_dapat_mengubah_pengajuan_yang_sudah_gagal()
-    {
-        $anggota = User::factory()->create();
-        $anggota->assignRole('anggota');
-
-        $pencairan = PencairanSimpanan::factory()
-            ->gagal()
-            ->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-        $response = $this
-            ->actingAs($anggota)
-            ->put(
-                route('pencairan-simpanan.update', $pencairan->id),
-                [
-                    'nominal_pencairan' => 100000,
-                    'alasan' => 'Update',
-                ]
-            );
-
-        $response->assertSessionHas('error');
-    }
-
-    public function test_anggota_tidak_dapat_mengubah_nominal_melebihi_saldo()
-    {
-        $anggota = User::factory()->create();
-        $anggota->assignRole('anggota');
-
-        SimpananPokok::factory()->create([
-            'id_anggota' => $anggota->id,
-            'nilai' => 100000,
-            'status' => 'selesai',
+        Role::firstOrCreate([
+            'name' => 'anggota'
         ]);
 
-        $pencairan = PencairanSimpanan::factory()->create([
+        $anggota = User::factory()->create();
+
+        $anggota->assignRole('anggota');
+
+        Rat::factory()->create([
+            'tahun' => now()->year,
+            'tanggal_rat' => now()->toDateString(),
+            'status' => Rat::STATUS_BELUM,
+        ]);
+
+        SimpananSukarela::factory()->create([
             'id_anggota' => $anggota->id,
+            'nilai' => 1000000,
+        ]);
+
+        $response = $this
+            ->actingAs($anggota)
+            ->post(
+                route('pencairan-simpanan.store')
+            );
+
+        $response->assertRedirect();
+
+        $response->assertSessionHas(
+            'error',
+            'Pengajuan pencairan hanya dapat dilakukan setelah RAT selesai.'
+        );
+
+        $this->assertDatabaseCount(
+            'pencairan_simpanan',
+            0
+        );
+    }
+
+    public function test_pengajuan_gagal_jika_masih_ada_pengajuan_pending()
+    {
+        Role::firstOrCreate([
+            'name' => 'anggota'
+        ]);
+
+        $anggota = User::factory()->create();
+
+        $anggota->assignRole('anggota');
+
+        Rat::factory()->create([
+            'tahun' => now()->year,
+            'tanggal_rat' => now()->toDateString(),
+            'status' => Rat::STATUS_SELESAI,
+        ]);
+
+        SimpananSukarela::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nilai' => 1000000,
+        ]);
+
+        PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nominal_pencairan' => 500000,
             'status' => PencairanSimpanan::STATUS_PENDING,
-            'nominal_pencairan' => 50000,
         ]);
 
         $response = $this
             ->actingAs($anggota)
-            ->put(
-                route('pencairan-simpanan.update', $pencairan->id),
-                [
-                    'nominal_pencairan' => 500000,
-                    'alasan' => 'Update',
-                ]
+            ->post(
+                route('pencairan-simpanan.store')
             );
 
-        $response->assertSessionHas('error');
+        $response->assertRedirect();
+
+        $response->assertSessionHas(
+            'error',
+            'Masih terdapat pengajuan pencairan yang sedang diproses.'
+        );
+
+        $this->assertDatabaseCount(
+            'pencairan_simpanan',
+            1
+        );
+    }
+
+    public function test_pengajuan_gagal_jika_masih_ada_pengajuan_diverifikasi()
+    {
+        Role::firstOrCreate([
+            'name' => 'anggota'
+        ]);
+
+        $anggota = User::factory()->create();
+
+        $anggota->assignRole('anggota');
+
+        Rat::factory()->create([
+            'tahun' => now()->year,
+            'tanggal_rat' => now()->toDateString(),
+            'status' => Rat::STATUS_SELESAI,
+        ]);
+
+        SimpananSukarela::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nilai' => 1000000,
+        ]);
+
+        PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nominal_pencairan' => 500000,
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
+
+        $response = $this
+            ->actingAs($anggota)
+            ->post(
+                route('pencairan-simpanan.store')
+            );
+
+        $response->assertRedirect();
+
+        $response->assertSessionHas(
+            'error',
+            'Masih terdapat pengajuan pencairan yang sedang diproses.'
+        );
+
+        $this->assertDatabaseCount(
+            'pencairan_simpanan',
+            1
+        );
+    }
+
+    public function test_pengajuan_gagal_jika_saldo_simpanan_tidak_tersedia()
+    {
+        Role::firstOrCreate([
+            'name' => 'anggota'
+        ]);
+
+        $anggota = User::factory()->create();
+
+        $anggota->assignRole('anggota');
+
+        Rat::factory()->create([
+            'tahun' => now()->year,
+            'tanggal_rat' => now()->toDateString(),
+            'status' => Rat::STATUS_SELESAI,
+        ]);
+
+        $response = $this
+            ->actingAs($anggota)
+            ->post(
+                route('pencairan-simpanan.store')
+            );
+
+        $response->assertRedirect();
+
+        $response->assertSessionHas(
+            'error',
+            'Saldo simpanan sukarela tidak tersedia.'
+        );
+
+        $this->assertDatabaseCount(
+            'pencairan_simpanan',
+            0
+        );
     }
 
     public function test_admin_dapat_memverifikasi_pengajuan_pencairan()
     {
+        Role::firstOrCreate([
+            'name' => 'admin'
+        ]);
+
         $admin = User::factory()->create();
 
         $admin->assignRole('admin');
 
-        $pencairan = PencairanSimpanan::factory()->create([
+        $anggota = User::factory()->create();
+
+        PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nominal_pencairan' => 1000000,
             'status' => PencairanSimpanan::STATUS_PENDING,
         ]);
+
+        $pencairan = PencairanSimpanan::latest()->first();
 
         $response = $this
             ->actingAs($admin)
@@ -288,8 +310,6 @@ class PencairanSimpananTest extends TestCase
                     $pencairan->id
                 )
             );
-
-        $response->assertRedirect();
 
         $response->assertSessionHas(
             'success',
@@ -304,15 +324,70 @@ class PencairanSimpananTest extends TestCase
                 'id_verifikator' => $admin->id,
             ]
         );
+
+        $this->assertNotNull(
+            $pencairan->fresh()->tanggal_verifikasi
+        );
     }
 
-    public function test_admin_dapat_menolak_pengajuan_pencairan()
+
+    public function test_admin_tidak_dapat_memverifikasi_pengajuan_yang_bukan_pending()
     {
+        Role::firstOrCreate([
+            'name' => 'admin'
+        ]);
+
         $admin = User::factory()->create();
 
         $admin->assignRole('admin');
 
+        $anggota = User::factory()->create();
+
         $pencairan = PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nominal_pencairan' => 1000000,
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
+
+        $response = $this
+            ->actingAs($admin)
+            ->put(
+                route(
+                    'pencairan-simpanan.verifikasi',
+                    $pencairan->id
+                )
+            );
+
+        $response->assertSessionHas(
+            'error',
+            'Pengajuan pencairan hanya dapat diverifikasi jika masih berstatus pending.'
+        );
+
+        $this->assertDatabaseHas(
+            'pencairan_simpanan',
+            [
+                'id' => $pencairan->id,
+                'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+                'id_verifikator' => null,
+            ]
+        );
+    }
+
+    public function test_admin_dapat_menolak_pengajuan_pencairan()
+    {
+        Role::firstOrCreate([
+            'name' => 'admin'
+        ]);
+
+        $admin = User::factory()->create();
+
+        $admin->assignRole('admin');
+
+        $anggota = User::factory()->create();
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nominal_pencairan' => 1000000,
             'status' => PencairanSimpanan::STATUS_PENDING,
         ]);
 
@@ -324,11 +399,9 @@ class PencairanSimpananTest extends TestCase
                     $pencairan->id
                 ),
                 [
-                    'catatan' => 'Saldo belum memenuhi syarat.',
+                    'catatan' => 'Dokumen belum lengkap.'
                 ]
             );
-
-        $response->assertRedirect();
 
         $response->assertSessionHas(
             'success',
@@ -340,88 +413,76 @@ class PencairanSimpananTest extends TestCase
             [
                 'id' => $pencairan->id,
                 'status' => PencairanSimpanan::STATUS_DITOLAK,
-                'catatan' => 'Saldo belum memenuhi syarat.',
                 'id_verifikator' => $admin->id,
+                'catatan' => 'Dokumen belum lengkap.',
             ]
+        );
+
+        $this->assertNotNull(
+            $pencairan->fresh()->tanggal_verifikasi
         );
     }
 
-    public function test_admin_tidak_dapat_menolak_pengajuan_tanpa_catatan()
+    public function test_admin_tidak_dapat_menolak_pengajuan_yang_bukan_pending()
     {
+        Role::firstOrCreate([
+            'name' => 'admin'
+        ]);
+
         $admin = User::factory()->create();
 
         $admin->assignRole('admin');
 
-        $pencairan = PencairanSimpanan::factory()->create();
+        $anggota = User::factory()->create();
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
 
         $response = $this
             ->actingAs($admin)
-            ->from(route('pencairan-simpanan.index'))
             ->put(
                 route(
                     'pencairan-simpanan.tolak',
                     $pencairan->id
                 ),
                 [
-                    'catatan' => '',
+                    'catatan' => 'Dokumen belum lengkap.'
                 ]
             );
 
-        $response
-            ->assertRedirect(route('pencairan-simpanan.index'));
+        $response->assertSessionHas(
+            'error',
+            'Pengajuan pencairan hanya dapat ditolak jika masih berstatus pending.'
+        );
 
-        $response->assertSessionHasErrors('catatan');
-    }
-
-    public function test_anggota_tidak_dapat_memverifikasi_pengajuan()
-    {
-        $anggota = User::factory()->create();
-        $anggota->assignRole('anggota');
-
-        $pencairan = PencairanSimpanan::factory()->create();
-
-        $response = $this
-            ->actingAs($anggota)
-            ->put(
-                route(
-                    'pencairan-simpanan.verifikasi',
-                    $pencairan->id
-                )
-            );
-
-        $response->assertStatus(302);
-    }
-
-    public function test_bendahara_tidak_dapat_memverifikasi_pengajuan()
-    {
-        $bendahara = User::factory()->create();
-
-        $bendahara->assignRole('bendahara');
-
-        $pencairan = PencairanSimpanan::factory()->create();
-
-        $response = $this
-            ->actingAs($bendahara)
-            ->put(
-                route(
-                    'pencairan-simpanan.verifikasi',
-                    $pencairan->id
-                )
-            );
-
-        $response->assertStatus(302);
+        $this->assertDatabaseHas(
+            'pencairan_simpanan',
+            [
+                'id' => $pencairan->id,
+                'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+            ]
+        );
     }
 
     public function test_bendahara_dapat_mencairkan_pengajuan()
     {
-        Storage::fake('public');
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
 
         $bendahara = User::factory()->create();
+
         $bendahara->assignRole('bendahara');
 
-        $pencairan = PencairanSimpanan::factory()
-            ->diverifikasi()
-            ->create();
+        $anggota = User::factory()->create();
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'nominal_pencairan' => 1000000,
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
 
         $response = $this
             ->actingAs($bendahara)
@@ -429,13 +490,8 @@ class PencairanSimpananTest extends TestCase
                 route(
                     'pencairan-simpanan.cairkan',
                     $pencairan->id
-                ),
-                [
-                    'bukti_transfer' => UploadedFile::fake()->image('bukti.png'),
-                ]
+                )
             );
-
-        $response->assertRedirect();
 
         $response->assertSessionHas(
             'success',
@@ -450,44 +506,128 @@ class PencairanSimpananTest extends TestCase
                 'id_bendahara' => $bendahara->id,
             ]
         );
+
+        $this->assertNotNull(
+            $pencairan->fresh()->tanggal_pencairan
+        );
     }
 
-    public function test_bendahara_wajib_mengunggah_bukti_transfer()
+    public function test_bendahara_tidak_dapat_mencairkan_pengajuan_yang_bukan_diverifikasi()
     {
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
+
         $bendahara = User::factory()->create();
+
         $bendahara->assignRole('bendahara');
 
-        $pencairan = PencairanSimpanan::factory()
-            ->diverifikasi()
-            ->create();
+        $anggota = User::factory()->create();
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'status' => PencairanSimpanan::STATUS_PENDING,
+        ]);
 
         $response = $this
             ->actingAs($bendahara)
-            ->from(route('pencairan-simpanan.index'))
             ->put(
                 route(
                     'pencairan-simpanan.cairkan',
                     $pencairan->id
-                ),
-                []
+                )
             );
 
-        $response
-            ->assertRedirect(route('pencairan-simpanan.index'));
+        $response->assertSessionHas(
+            'error',
+            'Pencairan hanya dapat dilakukan pada pengajuan yang telah diverifikasi.'
+        );
 
-        $response->assertSessionHasErrors(
-            'bukti_transfer'
+        $this->assertDatabaseHas(
+            'pencairan_simpanan',
+            [
+                'id' => $pencairan->id,
+                'status' => PencairanSimpanan::STATUS_PENDING,
+            ]
         );
     }
 
-    public function test_bendahara_dapat_menandai_pencairan_gagal()
+    public function test_status_berubah_menjadi_dicairkan()
     {
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
+
         $bendahara = User::factory()->create();
+
         $bendahara->assignRole('bendahara');
 
-        $pencairan = PencairanSimpanan::factory()
-            ->diverifikasi()
-            ->create();
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
+
+        $this->actingAs($bendahara)
+            ->put(
+                route(
+                    'pencairan-simpanan.cairkan',
+                    $pencairan->id
+                )
+            );
+
+        $this->assertEquals(
+            PencairanSimpanan::STATUS_DICAIRKAN,
+            $pencairan->fresh()->status
+        );
+    }
+
+    public function test_tanggal_pencairan_dan_bendahara_tercatat()
+    {
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
+
+        $bendahara = User::factory()->create();
+
+        $bendahara->assignRole('bendahara');
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
+
+        $this->actingAs($bendahara)
+            ->put(
+                route(
+                    'pencairan-simpanan.cairkan',
+                    $pencairan->id
+                )
+            );
+
+        $this->assertNotNull(
+            $pencairan->fresh()->tanggal_pencairan
+        );
+
+        $this->assertEquals(
+            $bendahara->id,
+            $pencairan->fresh()->id_bendahara
+        );
+    }
+
+    public function test_bendahara_dapat_memberikan_status_gagal()
+    {
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
+
+        $bendahara = User::factory()->create();
+
+        $bendahara->assignRole('bendahara');
+
+        $anggota = User::factory()->create();
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
 
         $response = $this
             ->actingAs($bendahara)
@@ -497,59 +637,199 @@ class PencairanSimpananTest extends TestCase
                     $pencairan->id
                 ),
                 [
-                    'catatan' => 'Transfer gagal.',
+                    'catatan' => 'Transfer gagal karena rekening tidak aktif.'
                 ]
             );
 
-        $response->assertRedirect();
+        $response->assertSessionHas(
+            'success',
+            'Status pencairan berhasil diperbarui.'
+        );
 
         $this->assertDatabaseHas(
             'pencairan_simpanan',
             [
                 'id' => $pencairan->id,
                 'status' => PencairanSimpanan::STATUS_GAGAL,
-                'catatan' => 'Transfer gagal.',
                 'id_bendahara' => $bendahara->id,
+                'catatan' => 'Transfer gagal karena rekening tidak aktif.',
             ]
         );
     }
 
-    public function test_bendahara_wajib_mengisi_catatan_saat_pencairan_gagal()
+    public function test_bendahara_tidak_dapat_memberikan_status_gagal_jika_bukan_diverifikasi()
     {
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
+
         $bendahara = User::factory()->create();
+
         $bendahara->assignRole('bendahara');
 
-        $pencairan = PencairanSimpanan::factory()
-            ->diverifikasi()
-            ->create();
+        $anggota = User::factory()->create();
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'id_anggota' => $anggota->id,
+            'status' => PencairanSimpanan::STATUS_PENDING,
+        ]);
 
         $response = $this
             ->actingAs($bendahara)
-            ->from(route('pencairan-simpanan.index'))
             ->put(
                 route(
                     'pencairan-simpanan.gagal',
                     $pencairan->id
                 ),
                 [
-                    'catatan' => '',
+                    'catatan' => 'Transfer gagal.'
                 ]
             );
 
-        $response
-            ->assertRedirect(route('pencairan-simpanan.index'));
+        $response->assertSessionHas(
+            'error',
+            'Status gagal hanya dapat diberikan pada pengajuan yang telah diverifikasi.'
+        );
 
-        $response->assertSessionHasErrors('catatan');
+        $this->assertDatabaseHas(
+            'pencairan_simpanan',
+            [
+                'id' => $pencairan->id,
+                'status' => PencairanSimpanan::STATUS_PENDING,
+            ]
+        );
+    }
+
+    public function test_catatan_gagal_berhasil_disimpan()
+    {
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
+
+        $bendahara = User::factory()->create();
+
+        $bendahara->assignRole('bendahara');
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
+
+        $this->actingAs($bendahara)
+            ->put(
+                route(
+                    'pencairan-simpanan.gagal',
+                    $pencairan->id
+                ),
+                [
+                    'catatan' => 'Rekening tujuan tidak ditemukan.'
+                ]
+            );
+
+        $this->assertEquals(
+            'Rekening tujuan tidak ditemukan.',
+            $pencairan->fresh()->catatan
+        );
+    }
+
+    public function test_id_bendahara_tersimpan_saat_status_gagal()
+    {
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
+
+        $bendahara = User::factory()->create();
+
+        $bendahara->assignRole('bendahara');
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
+
+        $this->actingAs($bendahara)
+            ->put(
+                route(
+                    'pencairan-simpanan.gagal',
+                    $pencairan->id
+                ),
+                [
+                    'catatan' => 'Transfer gagal.'
+                ]
+            );
+
+        $this->assertEquals(
+            $bendahara->id,
+            $pencairan->fresh()->id_bendahara
+        );
+    }
+
+    public function test_anggota_tidak_dapat_memverifikasi_pengajuan()
+    {
+        Role::firstOrCreate([
+            'name' => 'anggota'
+        ]);
+
+        $anggota = User::factory()->create();
+
+        $anggota->assignRole('anggota');
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_PENDING,
+        ]);
+
+        $response = $this
+            ->actingAs($anggota)
+            ->put(
+                route(
+                    'pencairan-simpanan.verifikasi',
+                    $pencairan->id
+                )
+            );
+
+        $response->assertStatus(302);
+    }
+
+    public function test_anggota_tidak_dapat_menolak_pengajuan()
+    {
+        Role::firstOrCreate([
+            'name' => 'anggota'
+        ]);
+
+        $anggota = User::factory()->create();
+
+        $anggota->assignRole('anggota');
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_PENDING,
+        ]);
+
+        $response = $this
+            ->actingAs($anggota)
+            ->put(
+                route(
+                    'pencairan-simpanan.tolak',
+                    $pencairan->id
+                ),
+                [
+                    'catatan' => 'Tidak sesuai.'
+                ]
+            );
+
+        $response->assertStatus(302);
     }
 
     public function test_admin_tidak_dapat_mencairkan_pengajuan()
     {
+        Role::firstOrCreate([
+            'name' => 'admin'
+        ]);
+
         $admin = User::factory()->create();
+
         $admin->assignRole('admin');
 
-        $pencairan = PencairanSimpanan::factory()
-            ->diverifikasi()
-            ->create();
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
 
         $response = $this
             ->actingAs($admin)
@@ -557,229 +837,93 @@ class PencairanSimpananTest extends TestCase
                 route(
                     'pencairan-simpanan.cairkan',
                     $pencairan->id
-                ),
-                [
-                    'bukti_transfer' => UploadedFile::fake()->image('bukti.png'),
-                ]
+                )
             );
 
-        $response->assertRedirect();
+        $response->assertStatus(302);
     }
 
-    public function test_anggota_tidak_dapat_mencairkan_pengajuan()
+    public function test_admin_tidak_dapat_memberikan_status_gagal()
     {
-        $anggota = User::factory()->create();
-        $anggota->assignRole('anggota');
+        Role::firstOrCreate([
+            'name' => 'admin'
+        ]);
 
-        $pencairan = PencairanSimpanan::factory()
-            ->diverifikasi()
-            ->create();
+        $admin = User::factory()->create();
+
+        $admin->assignRole('admin');
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
+        ]);
 
         $response = $this
-            ->actingAs($anggota)
+            ->actingAs($admin)
             ->put(
                 route(
-                    'pencairan-simpanan.cairkan',
+                    'pencairan-simpanan.gagal',
                     $pencairan->id
                 ),
                 [
-                    'bukti_transfer' => UploadedFile::fake()->image('bukti.png'),
+                    'catatan' => 'Transfer gagal.'
                 ]
             );
 
-        $response->assertRedirect();
+        $response->assertStatus(302);
     }
 
-    public function test_dashboard_anggota_menampilkan_total_saldo()
+    public function test_bendahara_tidak_dapat_memverifikasi_pengajuan()
     {
-        $anggota = User::factory()->create();
-
-        $anggota->assignRole('anggota');
-
-        SimpananPokok::factory()->create([
-            'id_anggota' => $anggota->id,
-            'nilai' => 1000000,
-            'status' => 'selesai',
+        Role::firstOrCreate([
+            'name' => 'bendahara'
         ]);
 
-        $response = $this
-            ->actingAs($anggota)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertStatus(200);
-
-        $response->assertViewHas('saldo');
-    }
-
-    public function test_dashboard_anggota_menampilkan_total_pending()
-    {
-        $anggota = User::factory()->create();
-
-        $anggota->assignRole('anggota');
-
-        PencairanSimpanan::factory()->create([
-            'id_anggota' => $anggota->id,
-            'status' => PencairanSimpanan::STATUS_PENDING,
-        ]);
-
-        $response = $this
-            ->actingAs($anggota)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertViewHas('totalPending');
-    }
-
-    public function test_dashboard_anggota_menampilkan_total_dicairkan()
-    {
-        $anggota = User::factory()->create();
-
-        $anggota->assignRole('anggota');
-
-        PencairanSimpanan::factory()
-            ->dicairkan()
-            ->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-        $response = $this
-            ->actingAs($anggota)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertViewHas('totalDicairkan');
-    }
-
-    public function test_dashboard_admin_menampilkan_total_pending()
-    {
-        $admin = User::factory()->create();
-
-        $admin->assignRole('admin');
-
-        PencairanSimpanan::factory()->count(3)->create([
-            'status' => PencairanSimpanan::STATUS_PENDING,
-        ]);
-
-        $response = $this
-            ->actingAs($admin)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertViewHas('totalPending');
-    }
-
-    public function test_dashboard_admin_menampilkan_total_diverifikasi()
-    {
-        $admin = User::factory()->create();
-
-        $admin->assignRole('admin');
-
-        PencairanSimpanan::factory()
-            ->count(2)
-            ->diverifikasi()
-            ->create();
-
-        $response = $this
-            ->actingAs($admin)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertViewHas('totalDiverifikasi');
-    }
-
-    public function test_dashboard_admin_menampilkan_total_ditolak()
-    {
-        $admin = User::factory()->create();
-
-        $admin->assignRole('admin');
-
-        PencairanSimpanan::factory()
-            ->count(2)
-            ->ditolak()
-            ->create();
-
-        $response = $this
-            ->actingAs($admin)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertViewHas('totalDitolak');
-    }
-
-    public function test_dashboard_bendahara_menampilkan_total_siap_dicairkan()
-    {
         $bendahara = User::factory()->create();
 
         $bendahara->assignRole('bendahara');
 
-        PencairanSimpanan::factory()
-            ->count(2)
-            ->diverifikasi()
-            ->create();
-
-        $response = $this
-            ->actingAs($bendahara)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertViewHas('totalSiapDicairkan');
-    }
-
-    public function test_dashboard_bendahara_menampilkan_total_sudah_dicairkan()
-    {
-        $bendahara = User::factory()->create();
-
-        $bendahara->assignRole('bendahara');
-
-        PencairanSimpanan::factory()
-            ->count(2)
-            ->dicairkan()
-            ->create();
-
-        $response = $this
-            ->actingAs($bendahara)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertViewHas('totalSudahDicairkan');
-    }
-
-    public function test_dashboard_bendahara_menampilkan_total_gagal()
-    {
-        $bendahara = User::factory()->create();
-
-        $bendahara->assignRole('bendahara');
-
-        PencairanSimpanan::factory()
-            ->count(2)
-            ->gagal()
-            ->create();
-
-        $response = $this
-            ->actingAs($bendahara)
-            ->get(route('pencairan-simpanan.index'));
-
-        $response->assertViewHas('totalGagal');
-    }
-
-    public function test_filter_pencairan_berdasarkan_status()
-    {
-        $admin = User::factory()->create();
-
-        $admin->assignRole('admin');
-
-        PencairanSimpanan::factory()->create([
+        $pencairan = PencairanSimpanan::factory()->create([
             'status' => PencairanSimpanan::STATUS_PENDING,
         ]);
 
-        PencairanSimpanan::factory()
-            ->dicairkan()
-            ->create();
+        $response = $this
+            ->actingAs($bendahara)
+            ->put(
+                route(
+                    'pencairan-simpanan.verifikasi',
+                    $pencairan->id
+                )
+            );
+
+        $response->assertStatus(302);
+    }
+
+    public function test_bendahara_tidak_dapat_menolak_pengajuan()
+    {
+        Role::firstOrCreate([
+            'name' => 'bendahara'
+        ]);
+
+        $bendahara = User::factory()->create();
+
+        $bendahara->assignRole('bendahara');
+
+        $pencairan = PencairanSimpanan::factory()->create([
+            'status' => PencairanSimpanan::STATUS_PENDING,
+        ]);
 
         $response = $this
-            ->actingAs($admin)
-            ->get(route(
-                'pencairan-simpanan.index',
+            ->actingAs($bendahara)
+            ->put(
+                route(
+                    'pencairan-simpanan.tolak',
+                    $pencairan->id
+                ),
                 [
-                    'status' => PencairanSimpanan::STATUS_PENDING,
+                    'catatan' => 'Tidak sesuai.'
                 ]
-            ));
+            );
 
-        $response->assertStatus(200);
-
-        $response->assertViewHas('data');
+        $response->assertStatus(302);
     }
 }

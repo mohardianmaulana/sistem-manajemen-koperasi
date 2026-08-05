@@ -11,7 +11,7 @@
                 </h3>
 
                 <p>
-                    Saldo Simpanan
+                    Saldo Simpanan Sukarela
                 </p>
 
             </div>
@@ -82,14 +82,25 @@
 
             <div class="card-body text-right">
 
-                <a href="{{ route('pencairan-simpanan.create') }}"
-                    class="btn btn-primary">
+                <form
+                    action="{{ route('pencairan-simpanan.store') }}"
+                    method="POST"
+                    class="d-inline">
 
-                    <i class="fas fa-plus-circle mr-1"></i>
+                    @csrf
 
-                    Ajukan Pencairan
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        onclick="return confirm('Apakah Anda yakin ingin mengajukan pencairan seluruh saldo simpanan sukarela?')">
 
-                </a>
+                        <i class="fas fa-plus-circle mr-1"></i>
+
+                        Ajukan Pencairan
+
+                    </button>
+
+                </form>
 
             </div>
 

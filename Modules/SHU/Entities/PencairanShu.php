@@ -20,7 +20,6 @@ class PencairanShu extends Model
         'status',
         'keterangan',
         'dicairkan_oleh',
-        'bukti',
     ];
 
      protected $casts = [

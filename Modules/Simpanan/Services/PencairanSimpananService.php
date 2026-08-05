@@ -7,27 +7,24 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Modules\Simpanan\Entities\PencairanSimpanan;
 use Modules\Simpanan\Repositories\PencairanSimpananRepository;
-use Modules\Simpanan\Repositories\SimpananPokokRepository;
-use Modules\Simpanan\Repositories\SimpananWajibRepository;
 use Modules\Simpanan\Repositories\SimpananSukarelaRepository;
+use Exception;
+use Modules\Rat\Repositories\RatRepository;
 
 class PencairanSimpananService
 {
     protected $repository;
-    protected $simpananPokokRepository;
-    protected $simpananWajibRepository;
     protected $simpananSukarelaRepository;
+    protected $ratRepository;
 
     public function __construct(
-        PencairanSimpananRepository $repository,
-        SimpananPokokRepository $simpananPokokRepository,
-        SimpananWajibRepository $simpananWajibRepository,
-        SimpananSukarelaRepository $simpananSukarelaRepository
+    PencairanSimpananRepository $repository,
+    SimpananSukarelaRepository $simpananSukarelaRepository,
+    RatRepository $ratRepository
     ) {
         $this->repository = $repository;
-        $this->simpananPokokRepository = $simpananPokokRepository;
-        $this->simpananWajibRepository = $simpananWajibRepository;
         $this->simpananSukarelaRepository = $simpananSukarelaRepository;
+        $this->ratRepository = $ratRepository;
     }
 
     public function getAll()
@@ -40,42 +37,47 @@ class PencairanSimpananService
         return $this->repository->getById($id);
     }
 
-    public function hitungSaldo($idAnggota)
+   public function hitungSaldo($idAnggota)
     {
-        $totalPokok = $this->simpananPokokRepository
-            ->totalSimpanan($idAnggota);
-
-        $totalWajib = $this->simpananWajibRepository
-            ->totalSimpanan($idAnggota);
-
         $totalSukarela = $this->simpananSukarelaRepository
             ->totalSimpanan($idAnggota);
 
         $totalPencairan = $this->repository
             ->totalPencairanAnggota($idAnggota);
 
-        return (
-            $totalPokok
-            + $totalWajib
-            + $totalSukarela
-        ) - $totalPencairan;
+        return $totalSukarela - $totalPencairan;
     }
 
-    public function store(array $data)
+    public function store()
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () {
+
+            if (!$this->ratRepository->isRatSelesai()) {
+                throw new Exception(
+                    'Pengajuan pencairan hanya dapat dilakukan setelah RAT selesai.'
+                );
+            }
+
+            if ($this->repository->hasPendingRequest(Auth::id())) {
+                throw new Exception(
+                    'Masih terdapat pengajuan pencairan yang sedang diproses.'
+                );
+            }
 
             $saldo = $this->hitungSaldo(Auth::id());
 
-            if ($data['nominal_pencairan'] > $saldo) {
-                throw new \Exception('Nominal pencairan melebihi saldo.');
+            if ($saldo <= 0) {
+                throw new Exception(
+                    'Saldo simpanan sukarela tidak tersedia.'
+                );
             }
 
-            $data['kode_pencairan'] = $this->generateKode();
-            $data['status'] = PencairanSimpanan::STATUS_PENDING;
-            $data['id_anggota'] = Auth::id();
-
-            return $this->repository->store($data);
+            return $this->repository->store([
+                'kode_pencairan' => $this->generateKode(),
+                'nominal_pencairan' => $saldo,
+                'status' => PencairanSimpanan::STATUS_PENDING,
+                'id_anggota' => Auth::id(),
+            ]);
         });
     }
 
@@ -83,17 +85,39 @@ class PencairanSimpananService
     {
         return DB::transaction(function () use ($id) {
 
+            $pencairan = $this->repository->getById($id);
+
+            if (
+                $pencairan->status !==
+                PencairanSimpanan::STATUS_PENDING
+            ) {
+                throw new Exception(
+                    'Pengajuan pencairan hanya dapat diverifikasi jika masih berstatus pending.'
+                );
+            }
+
             return $this->repository->update($id, [
                 'status' => PencairanSimpanan::STATUS_DIVERIFIKASI,
                 'id_verifikator' => Auth::id(),
                 'tanggal_verifikasi' => Carbon::now(),
             ]);
         });
-    }   
+    }  
 
     public function tolak($id, $catatan)
     {
         return DB::transaction(function () use ($id, $catatan) {
+
+            $pencairan = $this->repository->getById($id);
+
+            if (
+                $pencairan->status !==
+                PencairanSimpanan::STATUS_PENDING
+            ) {
+                throw new Exception(
+                    'Pengajuan pencairan hanya dapat ditolak jika masih berstatus pending.'
+                );
+            }
 
             return $this->repository->update($id, [
                 'status' => PencairanSimpanan::STATUS_DITOLAK,
@@ -104,25 +128,25 @@ class PencairanSimpananService
         });
     }
 
-    public function cairkan($id, array $data)
+    public function cairkan($id)
     {
-        return DB::transaction(function () use ($id, $data) {
+        return DB::transaction(function () use ($id) {
+
+            $pencairan = $this->repository->getById($id);
 
             if (
-                isset($data['bukti_transfer']) &&
-                $data['bukti_transfer']
+                $pencairan->status !==
+                PencairanSimpanan::STATUS_DIVERIFIKASI
             ) {
-
-                $data['bukti_transfer'] = $data['bukti_transfer']
-                    ->store('bukti-pencairan', 'public');
-
+                throw new Exception(
+                    'Pencairan hanya dapat dilakukan pada pengajuan yang telah diverifikasi.'
+                );
             }
 
             return $this->repository->update($id, [
-                'status'              => PencairanSimpanan::STATUS_DICAIRKAN,
-                'id_bendahara'        => Auth::id(),
-                'tanggal_pencairan'   => Carbon::now(),
-                'bukti_transfer'      => $data['bukti_transfer'] ?? null,
+                'status' => PencairanSimpanan::STATUS_DICAIRKAN,
+                'id_bendahara' => Auth::id(),
+                'tanggal_pencairan' => Carbon::now(),
             ]);
         });
     }
@@ -131,8 +155,19 @@ class PencairanSimpananService
     {
         return DB::transaction(function () use ($id, $catatan) {
 
+            $pencairan = $this->repository->getById($id);
+
+            if (
+                $pencairan->status !==
+                PencairanSimpanan::STATUS_DIVERIFIKASI
+            ) {
+                throw new Exception(
+                    'Status gagal hanya dapat diberikan pada pengajuan yang telah diverifikasi.'
+                );
+            }
+
             return $this->repository->update($id, [
-                'status' => PencairanSimpanan::STATUS_GAGAL,
+                    'status' => PencairanSimpanan::STATUS_GAGAL,
                 'id_bendahara' => Auth::id(),
                 'catatan' => $catatan,
             ]);
@@ -140,50 +175,7 @@ class PencairanSimpananService
     }
 
 
-    public function update($id, array $data)
-    {
-        return DB::transaction(function () use ($id, $data) {
-
-            $pencairan = $this->repository->getByIdAnggota(
-                $id,
-                Auth::id()
-            );
-
-            if (
-                $pencairan->status != PencairanSimpanan::STATUS_PENDING
-            ) {
-                throw new \Exception(
-                    'Pengajuan yang telah diproses tidak dapat diubah.'
-                );
-            }
-
-            $saldo = $this->hitungSaldo(Auth::id());
-
-            $saldo += $pencairan->nominal_pencairan;
-
-            if ($data['nominal_pencairan'] > $saldo) {
-                throw new \Exception(
-                    'Nominal pencairan melebihi saldo.'
-                );
-            }
-
-            return $this->repository->update(
-                $pencairan->id,
-                [
-                    'nominal_pencairan' => $data['nominal_pencairan'],
-                    'alasan' => $data['alasan'],
-                ]
-            );
-        });
-    }
-
-    public function edit($id)
-    {
-        return $this->repository->getByIdAnggota(
-            $id,
-            Auth::id()
-        );
-    }
+    
     private function generateKode()
     {
         return 'PCS-' . now()->format('YmdHis');

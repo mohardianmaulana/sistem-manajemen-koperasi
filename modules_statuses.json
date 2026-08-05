@@ -4,5 +4,6 @@
     "Simpanan": true,
     "SHU": true,
     "User": true,
-    "Unit": true
+    "Unit": true,
+    "Rat": true
 }

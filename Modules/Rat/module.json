@@ -1,0 +1,13 @@
+{
+    "name": "Rat",
+    "alias": "rat",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\Rat\\Providers\\RatServiceProvider"
+    ],
+    "aliases": {},
+    "files": [],
+    "requires": []
+}

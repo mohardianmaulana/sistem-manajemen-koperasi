@@ -126,39 +126,6 @@
                     </div>
 
 
-                    <div class="form-group">
-
-                        <label>
-
-                            Bukti Transfer
-                            <span class="text-danger">*</span>
-
-                        </label>
-
-                        <input
-                            type="file"
-                            class="form-control @error('bukti') is-invalid @enderror"
-                            name="bukti"
-                            accept=".jpg,.jpeg,.png">
-
-                        @error('bukti')
-
-                            <div class="invalid-feedback">
-
-                                {{ $message }}
-
-                            </div>
-
-                        @enderror
-
-                        <small class="text-muted">
-
-                            Format: JPG, JPEG, PNG.
-                            Maksimal 2 MB.
-
-                        </small>
-
-                    </div>
 
                 </div>
 

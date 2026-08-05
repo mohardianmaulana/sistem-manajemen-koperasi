@@ -1,13 +1,13 @@
 @extends('adminlte::page')
 
-@section('title', 'Pencairan Simpanan')
+@section('title', 'Pencairan Simpanan Sukarela')
 
 @section('content')
 
 <section class="content-header">
     <div class="container-fluid">
-        @if(session('success'))
 
+        @if(session('success'))
         <div class="alert alert-success alert-dismissible">
 
             <button
@@ -22,11 +22,9 @@
             {{ session('success') }}
 
         </div>
-
         @endif
 
         @if(session('error'))
-
         <div class="alert alert-danger alert-dismissible">
 
             <button
@@ -41,11 +39,9 @@
             {{ session('error') }}
 
         </div>
-
         @endif
 
         @if($errors->any())
-
         <div class="alert alert-danger alert-dismissible">
 
             <button
@@ -60,28 +56,24 @@
             <strong>Terjadi kesalahan:</strong>
 
             <ul class="mb-0">
-
                 @foreach($errors->all() as $error)
-
                     <li>{{ $error }}</li>
-
                 @endforeach
-
             </ul>
 
         </div>
-
         @endif
 
         <div class="row mb-2">
 
             <div class="col-sm-6">
-                <h1>Pencairan Simpanan</h1>
+                <h1>Pencairan Simpanan Sukarela</h1>
             </div>
 
             <div class="col-sm-6">
 
                 <ol class="breadcrumb float-sm-right">
+
                     <li class="breadcrumb-item">
                         <a href="{{ route('home.index') }}">
                             Dashboard
@@ -91,6 +83,7 @@
                     <li class="breadcrumb-item active">
                         Pencairan Simpanan
                     </li>
+
                 </ol>
 
             </div>
@@ -104,7 +97,6 @@
 
     <div class="container-fluid">
 
-        {{-- Card Ringkasan --}}
         @role('anggota')
             @include('simpanan::pencairan.partials.card-anggota')
         @endrole
@@ -117,7 +109,6 @@
             @include('simpanan::pencairan.partials.card-bendahara')
         @endrole
 
-        {{-- Tabel --}}
         @include('simpanan::pencairan.partials.table')
 
     </div>
@@ -126,7 +117,9 @@
     @include('simpanan::pencairan.partials.modal-tolak')
     @include('simpanan::pencairan.partials.modal-cairkan')
     @include('simpanan::pencairan.partials.modal-gagal')
+
 </section>
+
 @endsection
 
 @section('js')
@@ -137,7 +130,7 @@ $(function () {
 
     $('.btn-verifikasi').on('click', function () {
 
-        let id = $(this).data('id');
+        const id = $(this).data('id');
 
         $('#formVerifikasi').attr(
             'action',
@@ -146,20 +139,26 @@ $(function () {
 
     });
 
-        $('.btn-tolak').on('click', function () {
+    $('.btn-tolak').on('click', function () {
 
-            let id = $(this).data('id');
+        const id = $(this).data('id');
 
-            $('#formTolak').attr(
-                'action',
-                "{{ url('pencairan-simpanan') }}/" + id + "/tolak"
-            );
+        $('#formTolak').attr(
+            'action',
+            "{{ url('pencairan-simpanan') }}/" + id + "/tolak"
+        );
 
-        });
+        $('#tolakKode').text($(this).data('kode'));
+        $('#tolakNama').text($(this).data('nama'));
+        $('#tolakNominal').text(
+            "Rp " + $(this).data('nominal')
+        );
 
-        $('.btn-cairkan').click(function () {
+    });
 
-        let id = $(this).data('id');
+        $('.btn-cairkan').on('click', function () {
+
+        const id = $(this).data('id');
 
         $('#formCairkan').attr(
             'action',
@@ -169,27 +168,31 @@ $(function () {
         $('#modalKode').text($(this).data('kode'));
         $('#modalNama').text($(this).data('nama'));
         $('#modalRekening').text($(this).data('rekening'));
-        $('#modalNominal').text("Rp " + $(this).data('nominal'));
+        $('#modalNominal').text(
+            "Rp " + $(this).data('nominal')
+        );
 
     });
 
-    $(document).on('click', '.btn-tolak', function () {
+        $('.btn-gagal').on('click', function () {
 
-    alert('Tombol Tolak diklik');
+        const id = $(this).data('id');
 
-    let id = $(this).data('id');
+        $('#formGagal').attr(
+            'action',
+            "{{ url('pencairan-simpanan') }}/" + id + "/gagal"
+        );
 
-    $('#formTolak').attr(
-        'action',
-        "{{ url('pencairan-simpanan') }}/" + id + "/tolak"
-    );
+        $('#gagalKode').text($(this).data('kode'));
+        $('#gagalNama').text($(this).data('nama'));
+        $('#gagalNominal').text(
+            "Rp " + $(this).data('nominal')
+        );
 
-    $('#tolakKode').text($(this).data('kode'));
-    $('#tolakNama').text($(this).data('nama'));
-    $('#tolakNominal').text("Rp " + $(this).data('nominal'));
+    });
 
 });
-});
+
 </script>
 
 @endsection

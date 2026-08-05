@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\Rat\Repositories\RatRepository;
 use Modules\SHU\Entities\PencairanShu;
 use Modules\SHU\Repositories\PencairanShuRepository;
 use Modules\SHU\Repositories\ShuAnggotaRepository;
@@ -13,15 +14,17 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 class PencairanShuService
 {
     protected PencairanShuRepository $repository;
-
     protected ShuAnggotaRepository $shuRepository;
+    protected RatRepository $ratRepository;
 
     public function __construct(
-        PencairanShuRepository $repository,
-        ShuAnggotaRepository $shuRepository
+    PencairanShuRepository $repository,
+    ShuAnggotaRepository $shuRepository,
+    RatRepository $ratRepository
     ) {
         $this->repository = $repository;
         $this->shuRepository = $shuRepository;
+        $this->ratRepository = $ratRepository;
     }
 
     /**
@@ -47,12 +50,15 @@ class PencairanShuService
     /**
      * Generate data pencairan setelah SHU selesai dihitung.
      */
-    public function generatePencairan($idShuAnggota)
+   public function generatePencairan($idShuAnggota)
     {
+
         $shu = $this->shuRepository->findById($idShuAnggota);
 
         if (!$shu) {
-            throw new Exception('Data SHU anggota tidak ditemukan.');
+            throw new Exception(
+                'Data SHU anggota tidak ditemukan.'
+            );
         }
 
         return $this->repository->store([
@@ -73,7 +79,7 @@ class PencairanShuService
     /**
      * Melakukan pencairan SHU.
      */
-    public function cairkan(Request $request, $id)
+    public function cairkan($id)
     {
         $pencairan = $this->repository->findById($id);
 
@@ -86,15 +92,6 @@ class PencairanShuService
             );
         }
 
-        $bukti = $pencairan->bukti;
-
-        if ($request->hasFile('bukti')) {
-
-            $bukti = $request
-                ->file('bukti')
-                ->store('bukti-pencairan-shu', 'public');
-        }
-
         return $this->repository->update($id, [
 
             'status' => PencairanShu::STATUS_DICAIRKAN,
@@ -102,8 +99,6 @@ class PencairanShuService
             'tanggal_pencairan' => now(),
 
             'dicairkan_oleh' => Auth::id(),
-
-            'bukti' => $bukti,
 
         ]);
     }
@@ -280,6 +275,12 @@ class PencairanShuService
     {
         return DB::transaction(function () use ($tahun) {
 
+            if (!$this->ratRepository->isRatSelesai()) {
+                throw new Exception(
+                    'Generate pencairan SHU hanya dapat dilakukan setelah RAT selesai.'
+                );
+            }
+
             $shuAnggota = $this->shuRepository->getByTahun($tahun);
 
             if ($shuAnggota->isEmpty()) {
@@ -294,7 +295,6 @@ class PencairanShuService
 
             foreach ($shuAnggota as $item) {
 
-                // Jika pencairan SHU anggota sudah ada, lewati
                 if ($this->repository->existsByShuAnggota($item->id)) {
                     continue;
                 }

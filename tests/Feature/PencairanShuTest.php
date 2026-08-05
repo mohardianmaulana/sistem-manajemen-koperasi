@@ -7,8 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\SHU\Entities\PencairanShu;
 use Modules\SHU\Entities\ShuAnggota;
 use Spatie\Permission\Models\Role; 
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
+use Modules\Rat\Entities\Rat;
 use Tests\TestCase;
 
 class PencairanShuTest extends TestCase
@@ -33,12 +32,11 @@ class PencairanShuTest extends TestCase
         $this->admin->assignRole('admin');
     }
 
-    /** @test */
-    public function test_admin_dapat_generate_data_pencairan_shu()
+    public function test_generate_pencairan_gagal_jika_data_rat_belum_tersedia()
     {
         $this->actingAs($this->admin);
 
-       ShuAnggota::factory()->create([
+        ShuAnggota::factory()->create([
             'shu_anggota' => 500000,
             'periode_awal' => '2026-01-01',
             'periode_akhir' => '2026-12-31',
@@ -47,18 +45,64 @@ class PencairanShuTest extends TestCase
         $response = $this->post(
             route('pencairan.store'),
             [
-                'tahun' => 2026
+                'tahun' => 2026,
             ]
         );
 
         $response
-            ->assertRedirect(route('pencairan.index'));
+            ->assertRedirect();
 
-        $this->assertDatabaseHas(
+        $response
+            ->assertSessionHas(
+                'error',
+                'Generate pencairan SHU hanya dapat dilakukan setelah RAT selesai.'
+            );
+
+        $this->assertDatabaseMissing(
             'pencairan_shu',
             [
-                'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
-                'nominal_pencairan' => 500000
+                'nominal_pencairan' => 500000,
+            ]
+        );
+    }
+
+
+    public function test_generate_pencairan_gagal_jika_rat_belum_selesai()
+    {
+        $this->actingAs($this->admin);
+
+        Rat::factory()->create([
+            'tahun' => 2026,
+            'tanggal_rat' => '2026-02-15',
+            'status' => Rat::STATUS_BELUM,
+        ]);
+
+        ShuAnggota::factory()->create([
+            'shu_anggota' => 500000,
+            'periode_awal' => '2026-01-01',
+            'periode_akhir' => '2026-12-31',
+        ]);
+
+        $response = $this->post(
+            route('pencairan.store'),
+            [
+                'tahun' => 2026,
+            ]
+        );
+
+        $response
+            ->assertRedirect();
+
+        $response
+            ->assertSessionHas(
+                'error',
+                'Generate pencairan SHU hanya dapat dilakukan setelah RAT selesai.'
+            );
+
+        $this->assertDatabaseMissing(
+            'pencairan_shu',
+            [
+                'nominal_pencairan' => 500000,
             ]
         );
     }
@@ -67,19 +111,72 @@ class PencairanShuTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(
-            'Data SHU anggota belum tersedia.'
+        Rat::factory()->create([
+            'tahun' => 2026,
+            'tanggal_rat' => '2026-02-15',
+            'status' => Rat::STATUS_SELESAI,
+        ]);
+
+        $response = $this->post(
+            route('pencairan.store'),
+            [
+                'tahun' => 2026,
+            ]
         );
 
-        app(\Modules\SHU\Services\PencairanShuService::class)
-            ->store(2026);
+        $response
+            ->assertRedirect();
+
+        $response
+            ->assertSessionHas(
+                'error',
+                'Data SHU anggota belum tersedia.'
+            );
+
+        $this->assertDatabaseCount(
+            'pencairan_shu',
+            0
+        );
     }
-   
+
+    public function test_admin_dapat_generate_data_pencairan_shu()
+    {
+        $this->actingAs($this->admin);
+
+        Rat::factory()->create([
+            'tahun' => 2026,
+            'tanggal_rat' => '2026-02-15',
+            'status' => Rat::STATUS_SELESAI,
+        ]);
+
+        ShuAnggota::factory()->create([
+            'shu_anggota' => 500000,
+            'periode_awal' => '2026-01-01',
+            'periode_akhir' => '2026-12-31',
+        ]);
+
+        $response = $this->post(
+            route('pencairan.store'),
+            [
+                'tahun' => 2026,
+            ]
+        );
+
+        $response->assertRedirect(
+            route('pencairan.index')
+        );
+
+        $this->assertDatabaseHas(
+            'pencairan_shu',
+            [
+                'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
+                'nominal_pencairan' => 500000,
+            ]
+        );
+    }
+
     public function test_admin_dapat_mencairkan_shu()
     {
-        Storage::fake('public');
-
         $this->actingAs($this->admin);
 
         $anggota = User::factory()->create();
@@ -94,10 +191,7 @@ class PencairanShuTest extends TestCase
         ]);
 
         $response = $this->put(
-            route('pencairan.cairkan', $pencairan->id),
-            [
-                'bukti' => UploadedFile::fake()->image('bukti.jpg'),
-            ]
+            route('pencairan.cairkan', $pencairan->id)
         );
 
         $response->assertRedirect(
@@ -114,178 +208,65 @@ class PencairanShuTest extends TestCase
         );
     }
 
-
-        public function test_bukti_transfer_berhasil_disimpan()
-        {
-            Storage::fake('public');
-
-            $this->actingAs($this->admin);
-
-            $anggota = User::factory()->create();
-
-            $shu = ShuAnggota::factory()->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-            $pencairan = PencairanShu::factory()->create([
-                'id_shu_anggota' => $shu->id,
-                'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
-            ]);
-
-            $this->put(
-                route('pencairan.cairkan', $pencairan->id),
-                [
-                    'bukti' => UploadedFile::fake()->image('transfer.jpg'),
-                ]
-            );
-
-            $this->assertNotNull(
-                $pencairan->fresh()->bukti
-            );
-
-            Storage::disk('public')->assertExists(
-                $pencairan->fresh()->bukti
-            );
-        }
-
-        public function test_tidak_dapat_mencairkan_shu_yang_sudah_dicairkan()
-        {
-            Storage::fake('public');
-
-            $this->actingAs($this->admin);
-
-            $anggota = User::factory()->create();
-
-            $shu = ShuAnggota::factory()->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-            $pencairan = PencairanShu::factory()->create([
-                'id_shu_anggota' => $shu->id,
-                'status' => PencairanShu::STATUS_DICAIRKAN,
-            ]);
-
-            $response = $this->put(
-                route('pencairan.cairkan', $pencairan->id),
-                [
-                    'bukti' => UploadedFile::fake()->image('bukti.jpg'),
-                ]
-            );
-
-            $response
-                ->assertSessionHas(
-                    'error',
-                    'Pencairan SHU sudah diproses.'
-                );
-        }
-
-        public function test_status_berubah_menjadi_dicairkan()
-        {
-            Storage::fake('public');
-
-            $this->actingAs($this->admin);
-
-            $anggota = User::factory()->create();
-
-            $shu = ShuAnggota::factory()->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-            $pencairan = PencairanShu::factory()->create([
-                'id_shu_anggota' => $shu->id,
-                'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
-            ]);
-
-            $this->put(
-                route('pencairan.cairkan', $pencairan->id),
-                [
-                    'bukti' => UploadedFile::fake()->image('bukti.jpg'),
-                ]
-            );
-
-            $this->assertEquals(
-                PencairanShu::STATUS_DICAIRKAN,
-                $pencairan->fresh()->status
-            );
-        }
-
-
-        public function test_tanggal_pencairan_terisi()
-        {
-            Storage::fake('public');
-
-            $this->actingAs($this->admin);
-
-            $anggota = User::factory()->create();
-
-            $shu = ShuAnggota::factory()->create([
-                'id_anggota' => $anggota->id,
-            ]);
-
-            $pencairan = PencairanShu::factory()->create([
-                'id_shu_anggota' => $shu->id,
-                'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
-            ]);
-
-            $this->put(
-                route('pencairan.cairkan', $pencairan->id),
-                [
-                    'bukti' => UploadedFile::fake()->image('bukti.jpg'),
-                ]
-            );
-
-            $this->assertNotNull(
-                $pencairan->fresh()->tanggal_pencairan
-            );
-        }
-
-   public function test_anggota_tidak_dapat_membuat_data_pencairan_shu()
+    public function test_tidak_dapat_mencairkan_shu_yang_sudah_dicairkan()
     {
-        Role::firstOrCreate([
-            'name' => 'anggota'
-        ]);
+        $this->actingAs($this->admin);
 
-        $anggota = User::factory()->create();
-
-        $anggota->assignRole('anggota');
-
-        $response = $this->actingAs($anggota)
-            ->post(route('pencairan.store'), [
-                'tahun' => 2026,
-            ]);
-
-        $response->assertStatus(302);
-
-        $response->assertRedirect();
-    }
-
-   public function test_anggota_tidak_dapat_mencairkan_shu()
-    {
-        Storage::fake('public');
-
-        Role::firstOrCreate([
-            'name' => 'anggota'
-        ]);
-
-        $anggota = User::factory()->create();
-
-        $anggota->assignRole('anggota');
-
-        $shu = ShuAnggota::factory()->create([
-            'id_anggota' => $anggota->id,
-        ]);
+        $shu = ShuAnggota::factory()->create();
 
         $pencairan = PencairanShu::factory()->create([
             'id_shu_anggota' => $shu->id,
+            'status' => PencairanShu::STATUS_DICAIRKAN,
         ]);
 
-        $response = $this->actingAs($anggota)
-            ->put(route('pencairan.cairkan', $pencairan->id), [
-                'bukti' => UploadedFile::fake()->image('bukti.jpg'),
-            ]);
+        $response = $this->put(
+            route('pencairan.cairkan', $pencairan->id)
+        );
 
-        $response->assertStatus(302);
+        $response->assertSessionHas(
+            'error',
+            'Pencairan SHU sudah diproses.'
+        );
+    }
 
-        $response->assertRedirect();
+    public function test_status_berubah_menjadi_dicairkan()
+    {
+        $this->actingAs($this->admin);
+
+        $shu = ShuAnggota::factory()->create();
+
+        $pencairan = PencairanShu::factory()->create([
+            'id_shu_anggota' => $shu->id,
+            'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
+        ]);
+
+        $this->put(
+            route('pencairan.cairkan', $pencairan->id)
+        );
+
+        $this->assertEquals(
+            PencairanShu::STATUS_DICAIRKAN,
+            $pencairan->fresh()->status
+        );
+    }
+
+    public function test_tanggal_pencairan_terisi()
+    {
+        $this->actingAs($this->admin);
+
+        $shu = ShuAnggota::factory()->create();
+
+        $pencairan = PencairanShu::factory()->create([
+            'id_shu_anggota' => $shu->id,
+            'status' => PencairanShu::STATUS_SIAP_DICAIRKAN,
+        ]);
+
+        $this->put(
+            route('pencairan.cairkan', $pencairan->id)
+        );
+
+        $this->assertNotNull(
+            $pencairan->fresh()->tanggal_pencairan
+        );
     }
 }

@@ -38,7 +38,6 @@ class PencairanShuFactory extends Factory
 
             'dicairkan_oleh' => null,
 
-            'bukti' => null,
 
         ];
         }

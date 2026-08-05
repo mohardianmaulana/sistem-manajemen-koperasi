@@ -27,7 +27,6 @@ class CreatePencairanShuTable extends Migration
 
             $table->date('tanggal_pencairan');
 
-            $table->string('bukti')->nullable();
 
             $table->enum('status', [
                 'siap_dicairkan',

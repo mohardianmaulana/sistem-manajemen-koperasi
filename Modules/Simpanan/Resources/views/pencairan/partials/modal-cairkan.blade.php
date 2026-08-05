@@ -59,22 +59,6 @@
 
                     <hr>
 
-                    <div class="form-group">
-
-                        <label>
-
-                            Bukti Transfer
-
-                        </label>
-
-                        <input
-                            type="file"
-                            name="bukti_transfer"
-                            class="form-control"
-                            required>
-
-                    </div>
-
                 </div>
 
                 <div class="modal-footer">

@@ -75,7 +75,7 @@ Informasi Pengajuan
 </tr>
 
 <tr>
-    <th>Nominal</th>
+    <th>Jumlah Pencairan Simpanan Sukarela</th>
     <td>
         Rp {{ number_format($data->nominal_pencairan,0,',','.') }}
     </td>
@@ -104,17 +104,6 @@ Informasi Pengajuan
 
 </tr>
 
-<tr>
-
-    <th>Alasan</th>
-
-    <td>
-
-        {{ $data->alasan ?? '-' }}
-
-    </td>
-
-</tr>
 
 </table>
 
@@ -222,35 +211,6 @@ Catatan
 
 </tr>
 
-<tr>
-
-<th>
-
-Bukti Transfer
-
-</th>
-
-<td>
-
-@if($data->bukti_transfer)
-
-<a
-href="{{ asset('storage/'.$data->bukti_transfer) }}"
-target="_blank">
-
-Lihat Bukti
-
-</a>
-
-@else
-
--
-
-@endif
-
-</td>
-
-</tr>
 
 </table>
 

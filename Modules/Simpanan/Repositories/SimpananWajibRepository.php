@@ -188,9 +188,4 @@ class SimpananWajibRepository
             ->exists();
     }
 
-    public function totalSimpanan($idAnggota)
-    {
-        return SimpananWajib::where('id_anggota', $idAnggota)
-            ->sum('nilai');
-    }
 }
