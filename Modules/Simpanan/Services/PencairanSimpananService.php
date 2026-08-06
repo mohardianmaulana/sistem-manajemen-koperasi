@@ -64,6 +64,12 @@ class PencairanSimpananService
                 );
             }
 
+            if ($this->repository->hasPencairanByTahun(Auth::id(), now()->year)) {
+                throw new Exception(
+                    'Pencairan simpanan untuk tahun ini sudah pernah dilakukan.'
+                );
+            }
+
             $saldo = $this->hitungSaldo(Auth::id());
 
             if ($saldo <= 0) {

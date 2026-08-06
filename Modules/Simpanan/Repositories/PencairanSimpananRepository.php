@@ -189,4 +189,11 @@ class PencairanSimpananRepository
             ])
             ->exists();
     }
+
+    public function hasPencairanByTahun($idAnggota, $tahun)
+    {
+        return PencairanSimpanan::where('id_anggota', $idAnggota)
+            ->whereYear('tanggal_pencairan', $tahun)
+            ->exists();
+    }
 }
