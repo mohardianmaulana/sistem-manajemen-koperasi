@@ -158,10 +158,10 @@ class PersetujuanController extends Controller
             $fields = ['*'];
             $pinjaman = $this->persetujuanService->pencairan($fields, $id);
 
-            return redirect()->route('persetujuan.indexPersetujuan')->with('success', 'Data pinjaman telah aktif');
+            return redirect()->route('persetujuan.indexPencairan')->with('success', 'Data pinjaman telah aktif');
         } catch (Exception $e) {
             return redirect()
-                ->route('persetujuan.index')
+                ->route('persetujuan.indexPencairan')
                 ->with('error', 'Terjadi kesalahan saat memproses data.');
         }
     }

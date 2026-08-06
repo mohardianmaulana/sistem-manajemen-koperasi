@@ -1,13 +1,13 @@
 <?php
 
-namespace Modules\Pinjaman\Http\Controllers;
+namespace Modules\Pinjaman\Http\Controllers\api;
 
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Modules\Pinjaman\Services\PinjamanService;
 use Modules\Pinjaman\Transformers\PinjamanResource;
-use PinjamanService;
 
 class PinjamanApiController extends Controller
 {

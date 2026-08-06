@@ -2,6 +2,7 @@
 
 namespace Modules\Pinjaman\Services;
 
+use App\Models\Core\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -19,13 +20,15 @@ class PersetujuanService {
     private PengajuanPinjamanRepository $pengajuanPinjamanRepository;
     private SkemaPinjamanRepository $skemaPinjamanRepository;
     private AngsuranRepository $angsuranRepository;
+    private TelegramService $telegramService;
 
     public function __construct(
         PersetujuanRepository $persetujuanRepository, 
         PinjamanRepository $pinjamanRepository, 
         PengajuanPinjamanRepository $pengajuanPinjamanRepository, 
         SkemaPinjamanRepository $skemaPinjamanRepository, 
-        AngsuranRepository $angsuranRepository
+        AngsuranRepository $angsuranRepository,
+        TelegramService $telegramService
     )
         {
             $this->persetujuanRepository = $persetujuanRepository;
@@ -33,6 +36,7 @@ class PersetujuanService {
             $this->pengajuanPinjamanRepository = $pengajuanPinjamanRepository;
             $this->skemaPinjamanRepository = $skemaPinjamanRepository;
             $this->angsuranRepository = $angsuranRepository;
+            $this->telegramService = $telegramService;
         }
 
     public function getByRole($role)
@@ -71,6 +75,29 @@ class PersetujuanService {
             ];
 
             $persetujuanBaru = $this->persetujuanRepository->create($dataBaru);
+
+            // $wadir = User::role('wadir')->first();
+
+            // if ($wadir && $wadir->telegram_chat_id) {
+
+            // $pesan =
+            // "📢 <b>Persetujuan Pinjaman</b>
+
+            // Halo {$wadir->name},
+
+            // Pengajuan pinjaman berikut telah disetujui Bendahara poliwangi dan menunggu persetujuan Anda.
+
+            // 👤 Anggota : {$persetujuan->pengajuan->anggota->nama}
+            // 💰 Nominal : Rp ".number_format($persetujuan->pengajuan->jumlah_pengajuan,0,',','.')."
+
+            // Silakan login ke sistem untuk melakukan persetujuan.
+            // 🔗 https://app.koperasi-poliwangi.my.id ";
+
+            //     $this->telegramService->sendMessage(
+            //         $wadir->telegram_chat_id,
+            //         $pesan
+            //     );
+            // }
 
             DB::commit();
             return $updatePersetujuan;
@@ -139,6 +166,29 @@ class PersetujuanService {
             ];
     
             $persetujuanBaru = $this->persetujuanRepository->create($dataBaru);
+
+            // $ketua = User::role('ketua')->first();
+
+            // if ($ketua && $ketua->telegram_chat_id) {
+
+            // $pesan =
+            // "📢 <b>Persetujuan Pinjaman</b>
+
+            // Halo {$ketua->name},
+
+            // Pengajuan pinjaman berikut telah disetujui Wadir dan menunggu persetujuan Anda.
+
+            // 👤 Anggota : {$persetujuan->pengajuan->anggota->nama}
+            // 💰 Nominal : Rp ".number_format($persetujuan->pengajuan->jumlah_pengajuan,0,',','.')."
+
+            // Silakan login ke sistem untuk melakukan persetujuan.
+            // 🔗 https://app.koperasi-poliwangi.my.id ";
+
+            //     $this->telegramService->sendMessage(
+            //         $ketua->telegram_chat_id,
+            //         $pesan
+            //     );
+            // }
     
             DB::commit();
             return $updatePersetujuan;
@@ -232,6 +282,29 @@ class PersetujuanService {
                 'status_pinjaman' => 'belum_aktif',
             ];
             $pinjaman = $this->pinjamanRepository->create($dataPinjaman);
+
+            // $koordinator = User::role('koordinator')->first();
+
+            // if ($koordinator && $koordinator->telegram_chat_id) {
+
+            //     $pesan =
+            // "📢 <b>Persetujuan Pinjaman</b>
+
+            // Halo {$koordinator->name},
+
+            // Pengajuan pinjaman berikut telah disetujui ketua.
+
+            // 👤 Anggota : {$persetujuan->pengajuan->anggota->nama}
+            // 💰 Nominal : Rp ".number_format($persetujuan->pengajuan->jumlah_pengajuan,0,',','.')."
+
+            // Silakan login ke sistem untuk melakukan persetujuan akhir.
+            // 🔗 https://app.koperasi-poliwangi.my.id ";
+
+            //     $this->telegramService->sendMessage(
+            //         $koordinator->telegram_chat_id,
+            //         $pesan
+            //     );
+            // }
     
             DB::commit();
             return $updatePersetujuan;
@@ -290,7 +363,32 @@ class PersetujuanService {
             'dokumen_ttd'      => $namaFile,
         ];
 
-        return $this->pengajuanPinjamanRepository->update($data, $id);
+        $updatePengajuan = $this->pengajuanPinjamanRepository->update($data, $id);
+
+        // $bendahara = User::role('bendahara')->first();
+
+        // if ($bendahara && $bendahara->telegram_chat_id) {
+
+        // $pesan =
+        // "📢 <b>Konfirmasi pencairan pinjaman</b>
+
+        // Halo {$bendahara->name},
+
+        // Pengajuan pinjaman berikut telah memperoleh persetujuan akhir.
+
+        // 👤 Anggota : {$updatePengajuan->anggota->nama}
+        // 💰 Nominal : Rp ".number_format($updatePengajuan->jumlah_pengajuan,0,',','.')."
+
+        // Silakan login ke sistem untuk melakukan konfirmasi pencairan.
+        // 🔗 https://app.koperasi-poliwangi.my.id ";
+
+        // $this->telegramService->sendMessage(
+        //         $bendahara->telegram_chat_id,
+        //         $pesan
+        //     );
+        // }
+
+        return $updatePengajuan;
     }
 
     public function getPencairan($fields)
@@ -339,6 +437,27 @@ class PersetujuanService {
                 ];
                 $angsuran = $this->angsuranRepository->create($dataAngsuran);
             }
+
+            // $anggota = User::role('anggota')->where('id', $pengajuan->id_anggota)->first();
+
+            // if ($anggota && $anggota->telegram_chat_id) {
+
+            // $pesan =
+            // "🎉 <b>Pinjaman disetujui</b>
+
+            // Halo {$anggota->name},
+
+            // Selamat, pinjaman Anda telah disetujui dan dana telah dicairkan.
+
+            // 💰 Nominal : Rp ".number_format($updatePengajuan->jumlah_pengajuan,0,',','.')."
+
+            // Silakan cek rekening anda.";
+
+            // $this->telegramService->sendMessage(
+            //         $anggota->telegram_chat_id,
+            //         $pesan
+            //     );
+            // }
             DB::commit();
             return $updatePinjaman;
         } catch (Exception $e) {

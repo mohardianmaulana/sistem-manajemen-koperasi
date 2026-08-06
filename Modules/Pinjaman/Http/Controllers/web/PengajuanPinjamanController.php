@@ -98,7 +98,6 @@ class PengajuanPinjamanController extends Controller
      */
     public function store(StorePengajuanPinjamanRequest $request)
     {
-        // dd($request->all());
         try {
             $user_id = Auth::id();
             if ($this->pinjamanService->cekPinjamanAktif($user_id)) {

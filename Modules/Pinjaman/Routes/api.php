@@ -2,13 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Modules\Pinjaman\Http\Controllers\AngsuranApiController;
+use Modules\Pinjaman\Http\Controllers\api\AngsuranApiController;
 use Modules\Pinjaman\Http\Controllers\api\PengajuanPinjamanApiController;
 use Modules\Pinjaman\Http\Controllers\api\SkemaPinjamanApiController;
-use Modules\Pinjaman\Http\Controllers\PembayaranApiController;
-use Modules\Pinjaman\Http\Controllers\PersetujuanApiController;
-use Modules\Pinjaman\Http\Controllers\PinjamanApiController;
-use Modules\Pinjaman\Http\Controllers\web\SimulasiPinjamanController;
+use Modules\Pinjaman\Http\Controllers\api\PembayaranApiController;
+use Modules\Pinjaman\Http\Controllers\api\PersetujuanApiController;
+use Modules\Pinjaman\Http\Controllers\api\PinjamanApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,8 +23,6 @@ use Modules\Pinjaman\Http\Controllers\web\SimulasiPinjamanController;
 Route::middleware('auth:api')->get('/pinjaman', function (Request $request) {
     return $request->user();
 });
-
-Route::apiResource('skema-pinjaman', SkemaPinjamanApiController::class);
 
 Route::prefix('skema_pinjaman')->middleware('api')->group(function () {
     Route::get('/', [SkemaPinjamanApiController::class, 'index']);

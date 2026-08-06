@@ -8,10 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Modules\Pinjaman\Http\Requests\PengajuanPinjamanRequest;
+use Modules\Pinjaman\Http\Requests\StorePengajuanPinjamanRequest;
+use Modules\Pinjaman\Http\Requests\UpdatePengajuanPinjamanRequest;
+use Modules\Pinjaman\Services\PengajuanPinjamanService;
+use Modules\Pinjaman\Services\PinjamanService;
 use Modules\Pinjaman\Services\SkemaPinjamanService;
 use Modules\Pinjaman\Transformers\PengajuanPinjamanResource;
-use PengajuanPinjamanService;
-use PinjamanService;
 
 class PengajuanPinjamanApiController extends Controller
 {
@@ -58,7 +60,7 @@ class PengajuanPinjamanApiController extends Controller
      * @param Request $request
      * @return Renderable
      */
-    public function store(PengajuanPinjamanRequest $request)
+    public function store(StorePengajuanPinjamanRequest $request)
     {
         $pengajuanPinjaman = $this->pengajuanPinjamanService->create($request->validated());
         return response()->json(new PengajuanPinjamanResource($pengajuanPinjaman));
@@ -88,7 +90,7 @@ class PengajuanPinjamanApiController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function update(PengajuanPinjamanRequest $request, $id)
+    public function update(UpdatePengajuanPinjamanRequest $request, $id)
     {
         try {
             $pengajuanPinjaman = $this->pengajuanPinjamanService->update($request->validated(), $id);

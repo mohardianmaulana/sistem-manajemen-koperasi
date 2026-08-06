@@ -90,7 +90,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="text-center">
+                                        <td colspan="8" class="text-center">
                                             Data pinjaman belum tersedia
                                         </td>
                                     </tr>

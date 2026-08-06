@@ -1,14 +1,14 @@
 <?php
 
-namespace Modules\Pinjaman\Http\Controllers;
+namespace Modules\Pinjaman\Http\Controllers\api;
 
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Pinjaman\Http\Requests\PembayaranRequest;
+use Modules\Pinjaman\Services\PembayaranService;
 use Modules\Pinjaman\Transformers\PembayaranResource;
-use PembayaranService;
 
 class PembayaranApiController extends Controller
 {

@@ -2,24 +2,24 @@
 
 namespace Modules\Pinjaman\Services;
 
+use App\Models\Core\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Modules\Pinjaman\Repositories\PengajuanPinjamanRepository;
 use Modules\Pinjaman\Repositories\PersetujuanRepository;
-use Modules\Pinjaman\Repositories\SkemaPinjamanRepository;
 
 class PengajuanPinjamanService {
     private PengajuanPinjamanRepository $pengajuanPinjamanRepository;
     private PersetujuanRepository $persetujuanRepository;
-    private SkemaPinjamanRepository $skemaPinjamanRepository;
+    private TelegramService $telegramService;
 
-    public function __construct(PengajuanPinjamanRepository $pengajuanPinjamanRepository, PersetujuanRepository $persetujuanRepository, SkemaPinjamanRepository $skemaPinjamanRepository)
+    public function __construct(PengajuanPinjamanRepository $pengajuanPinjamanRepository, PersetujuanRepository $persetujuanRepository, TelegramService $telegramService)
     {
         $this->pengajuanPinjamanRepository = $pengajuanPinjamanRepository;
         $this->persetujuanRepository = $persetujuanRepository;
-        $this->skemaPinjamanRepository = $skemaPinjamanRepository;
+        $this->telegramService = $telegramService;
     }
 
     public function getAll($fields)
@@ -190,6 +190,30 @@ class PengajuanPinjamanService {
             if ($pengajuanUpdate['status_pengajuan'] == 'persetujuan_awal') {
                 $persetujuan = $this->persetujuanRepository->create($data);
             }
+
+            // $ketua = User::role('ketua')->first();
+
+            // if ($ketua && $ketua->telegram_chat_id) {
+
+            // $pesan =
+            // "📢 <b>Pengajuan Pinjaman Baru</b>
+
+            // Halo {$ketua->name},
+
+            // Terdapat pengajuan pinjaman yang memerlukan persetujuan Anda.
+
+            // 👤 Anggota : {$pengajuan->users->name}
+            // 💰 Nominal : Rp ".number_format($pengajuan->jumlah_pengajuan,0,',','.')."
+            // 📅 Tanggal : ".date('d-m-Y')."
+
+            // Silakan login ke Sistem Informasi Koperasi untuk melakukan persetujuan.
+            // 🔗 https://app.koperasi-poliwangi.my.id ";
+
+            //     $this->telegramService->sendMessage(
+            //         $ketua->telegram_chat_id,
+            //         $pesan
+            //     );
+            // }
             DB::commit();
             return $updatePengajuanPinjaman;
         } catch (Exception $e) {

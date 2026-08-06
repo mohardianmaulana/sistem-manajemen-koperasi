@@ -1,12 +1,11 @@
 <?php
 
-namespace Modules\Pinjaman\Http\Controllers;
+namespace Modules\Pinjaman\Http\Controllers\api;
 
-use AngsuranService;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Modules\Pinjaman\Entities\Angsuran;
+use Modules\Pinjaman\Services\AngsuranService;
 use Modules\Pinjaman\Transformers\AngsuranResource;
 
 class AngsuranApiController extends Controller

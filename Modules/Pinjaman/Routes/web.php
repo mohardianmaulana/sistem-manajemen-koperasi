@@ -12,6 +12,7 @@
 */
 
 use Illuminate\Support\Facades\Route;
+use Modules\Pinjaman\Http\Controllers\web\TelegramController;
 use Modules\Pinjaman\Http\Controllers\web\AngsuranController;
 use Modules\Pinjaman\Http\Controllers\web\JaminanController;
 use Modules\Pinjaman\Http\Controllers\web\PengajuanPinjamanController;
@@ -24,6 +25,8 @@ use Modules\Pinjaman\Http\Controllers\web\SkemaPinjamanController;
 Route::prefix('pinjaman')->group(function() {
     Route::get('/', 'PinjamanController@index');
 });
+
+Route::post('/telegram/webhook', [TelegramController::class, 'webhook']);
 
 Route::prefix('simulasi_pinjaman')->middleware('web')->group(function () {
     Route::get('/', [SimulasiPinjamanController::class, 'index'])->name('simulasiPinjaman.index')->middleware('role:anggota');

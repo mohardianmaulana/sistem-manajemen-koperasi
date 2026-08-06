@@ -11,15 +11,18 @@ use Modules\Pinjaman\Entities\Angsuran;
 use Modules\Pinjaman\Http\Requests\PembayaranRequest;
 use Modules\Pinjaman\Repositories\AngsuranRepository;
 use Modules\Pinjaman\Repositories\PembayaranRepository;
+use Modules\Pinjaman\Repositories\PinjamanRepository;
 
 class PembayaranService {
     private PembayaranRepository $pembayaranRepository;
     private AngsuranRepository $angsuranRepository;
+    private PinjamanRepository $pinjamanRepository;
 
-    public function __construct(PembayaranRepository $pembayaranRepository, AngsuranRepository $angsuranRepository)
+    public function __construct(PembayaranRepository $pembayaranRepository, AngsuranRepository $angsuranRepository, PinjamanRepository $pinjamanRepository)
     {
         $this->pembayaranRepository = $pembayaranRepository;
         $this->angsuranRepository = $angsuranRepository;
+        $this->pinjamanRepository = $pinjamanRepository;
     }
 
     public function getAll($fields)
@@ -200,6 +203,7 @@ class PembayaranService {
             $updateAngsuran = $this->angsuranRepository->update(
                 $data, $id_angsuran
             );
+            $this->cekStatusPinjaman($angsuran->id_pinjaman);
             DB::commit();
             return $pembayaran;
         } catch (Exception $e) {
@@ -248,6 +252,7 @@ class PembayaranService {
             $updateAngsuran = $this->angsuranRepository->update(
                 $dataAngsuran, $id_angsuran
             );
+            $this->cekStatusPinjaman($angsuran->id_pinjaman);
             DB::commit();
             return $pembayaran;
         } catch (Exception $e) {
@@ -305,6 +310,18 @@ class PembayaranService {
             DB::rollBack();
 
             throw $e;
+        }
+    }
+
+    private function cekStatusPinjaman(int $pinjamanId): void
+    {
+        $belumLunas = $this->angsuranRepository
+            ->existsBelumLunas($pinjamanId);
+
+        if (! $belumLunas) {
+            $this->pinjamanRepository->update([
+                'status_pinjaman' => 'selesai',
+            ], $pinjamanId);
         }
     }
 }

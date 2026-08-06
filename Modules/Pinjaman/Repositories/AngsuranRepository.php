@@ -75,6 +75,15 @@ class AngsuranRepository {
         return $angsuran;
     }
 
+    public function existsBelumLunas($id)
+    {
+        $masihAdaAngsuran = Angsuran::where('id_pinjaman', $id)
+        ->where('status_bayar', '!=', 'lunas')
+        ->exists();
+
+        return $masihAdaAngsuran;
+    }
+
     public function getAngsuran($id)
     {
         $angsuran = Angsuran::with([

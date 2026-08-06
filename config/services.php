@@ -36,6 +36,10 @@ return [
         'redirect' => env('OAUTH_SERVER_REDIRECT_URI'),
         'uri' => env('OAUTH_SERVER_URI'),
         'uriLogout' => env('OAUTH_SERVER_LOGOUT_URI'),
-    ]
+    ],
+
+    'telegram' => [
+        'token' => env('TELEGRAM_BOT_TOKEN'),
+    ],
 
 ];

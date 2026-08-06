@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Pinjaman\Http\Controllers;
+namespace Modules\Pinjaman\Http\Controllers\api;
 
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Modules\Pinjaman\Http\Requests\PersetujuanRequest;
+use Modules\Pinjaman\Services\PersetujuanService;
 use Modules\Pinjaman\Transformers\PersetujuanResource;
-use PersetujuanService;
 
 class PersetujuanApiController extends Controller
 {
