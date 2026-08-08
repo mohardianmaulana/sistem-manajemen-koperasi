@@ -101,7 +101,7 @@
             @include('simpanan::pencairan.partials.card-anggota')
         @endrole
 
-        @role('admin')
+        @role('koordinator')
             @include('simpanan::pencairan.partials.card-koordinator')
         @endrole
 

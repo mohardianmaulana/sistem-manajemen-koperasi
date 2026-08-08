@@ -188,4 +188,21 @@ class SimpananWajibRepository
             ->exists();
     }
 
+    public function getSimpananWajibSummary($idAnggota)
+    {
+        $query = MasterSimpananWajib::where('id_anggota', $idAnggota);
+
+        return [
+            'total' => (clone $query)->sum('nilai'),
+
+            'selesai' => (clone $query)
+                ->where('status', 'selesai')
+                ->count(),
+
+            'gagal' => (clone $query)
+                ->where('status', 'tidak berhasil')
+                ->count(),
+        ];
+    }
+    
 }

@@ -21,7 +21,7 @@ Route::prefix('simpanan')->middleware(['auth'])->group(function() {
     Route::put('/updatedata/{id}', 'SimpananController@update')->name('simpanan-pokok.update');
 });
 
-Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:admin'])->group(function() {
+Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:koordinator'])->group(function() {
     Route::get('/', 'MasterJenisSimpananController@index')->name('master-jenis-simpanan.index');
     Route::get('/master-jenis-simpanan/create', 'MasterJenisSimpananController@create')->name('master-jenis-simpanan.create');
     Route::post('/master-jenis-simpanan/store', 'MasterJenisSimpananController@store')->name('master-jenis-simpanan.store');
@@ -33,7 +33,7 @@ Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:admin'])->group(func
 
         Route::get('/', 'SimpananSukarelaController@index')->name('simpanan-sukarela.index');
 
-        Route::middleware(['role:admin'])->group(function () {
+        Route::middleware(['role:koordinator'])->group(function () {
             Route::get('/export-auto-debit', 'SimpananSukarelaController@exportAutoDebit')->name('simpanan-sukarela.export-auto-debit');
             Route::get('/{id}/verifikasi', 'SimpananSukarelaController@verifikasi')->name('simpanan-sukarela.verifikasi');
             Route::put('/{id}/verifikasi', 'SimpananSukarelaController@updateStatus')->name('simpanan-sukarela.update-status');
@@ -54,7 +54,7 @@ Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:admin'])->group(func
 Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
     Route::get('/', 'SimpananWajibController@index')
         ->name('simpanan-wajib.index');
-    Route::middleware(['role:admin'])->group(function () {
+    Route::middleware(['role:koordinator'])->group(function () {
         Route::get('/create', 'SimpananWajibController@create')->name('simpanan-wajib.create');
         Route::post('/store', 'SimpananWajibController@store')->name('simpanan-wajib.store');
         Route::get('/export-auto-debit','SimpananWajibController@exportAutoDebit')->name('simpanan-wajib.export-auto-debit');
@@ -65,11 +65,11 @@ Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
 
 Route::prefix('pencairan-simpanan')->middleware(['auth'])->group(function () {
     Route::middleware(['role:anggota'])->group(function () {
-        Route::post('/store','PencairanSimpananController@store')->name('pencairan-simpanan.store');});
+    Route::post('/store','PencairanSimpananController@store')->name('pencairan-simpanan.store');});
     Route::get('/','PencairanSimpananController@index')->name('pencairan-simpanan.index');
     Route::get('/{id}','PencairanSimpananController@show')->name('pencairan-simpanan.show');
     
-    Route::middleware(['role:admin'])->group(function () {
+    Route::middleware(['role:koordinator'])->group(function () {
         Route::put('/{id}/verifikasi','PencairanSimpananController@verifikasi')->name('pencairan-simpanan.verifikasi');
         Route::put('/{id}/tolak','PencairanSimpananController@tolak')->name('pencairan-simpanan.tolak');});
 

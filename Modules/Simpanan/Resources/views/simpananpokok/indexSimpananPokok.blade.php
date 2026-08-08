@@ -69,7 +69,7 @@
 
             <div class="col-md-6">
 
-                @role('admin')
+                @role('koordinator')
                 <a href="{{ route('simpanan-pokok.create') }}"
                    class="btn btn-primary">
 
@@ -263,7 +263,7 @@
 
                         <td class="text-center">
 
-                            @role('admin')
+                            @role('koordinator')
 
                                 <a href="{{ route('simpanan-pokok.show',$item->id) }}"
                                    class="btn btn-success btn-sm"

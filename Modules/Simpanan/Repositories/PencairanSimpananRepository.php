@@ -196,4 +196,54 @@ class PencairanSimpananRepository
             ->whereYear('tanggal_pencairan', $tahun)
             ->exists();
     }
+
+    public function getPenarikanSummary()
+    {
+        return [
+            'menunggu' => PencairanSimpanan::where(
+                'status',
+                PencairanSimpanan::STATUS_PENDING
+            )->count(),
+
+            'diverifikasi' => PencairanSimpanan::where(
+                'status',
+                PencairanSimpanan::STATUS_DIVERIFIKASI
+            )->count(),
+
+            'berhasil' => PencairanSimpanan::where(
+                'status',
+                PencairanSimpanan::STATUS_DICAIRKAN
+            )->count(),
+
+            'ditolak' => PencairanSimpanan::where(
+                'status',
+                PencairanSimpanan::STATUS_DITOLAK
+            )->count(),
+
+            'gagal' => PencairanSimpanan::where(
+                'status',
+                PencairanSimpanan::STATUS_GAGAL
+            )->count(),
+        ];
+    }
+
+    public function getBendaharaSummary()
+    {
+        return [
+            'menunggu' => PencairanSimpanan::where(
+                'status',
+                PencairanSimpanan::STATUS_DIVERIFIKASI
+            )->count(),
+
+            'berhasil' => PencairanSimpanan::where(
+                'status',
+                PencairanSimpanan::STATUS_DICAIRKAN
+            )->count(),
+
+            'gagal' => PencairanSimpanan::where(
+                'status',
+                PencairanSimpanan::STATUS_GAGAL
+            )->count(),
+        ];
+    }
 }

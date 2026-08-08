@@ -27,7 +27,7 @@ class SimpananSukarelaService
      */
     public function getAll()
     {
-        $idAnggota = Auth::user()->hasRole('admin')
+        $idAnggota = Auth::user()->hasRole('koordinator')
             ? null
             : Auth::id();
 
@@ -40,7 +40,7 @@ class SimpananSukarelaService
 
     public function getSummary()
     {
-        $idAnggota = Auth::user()->hasRole('admin')
+        $idAnggota = Auth::user()->hasRole('koordinator')
             ? null
             : Auth::id();
 

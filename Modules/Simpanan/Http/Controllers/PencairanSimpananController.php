@@ -33,7 +33,7 @@ class PencairanSimpananController extends Controller
                 return view('simpanan::pencairan.index', compact('data','saldo','totalPending','totalDicairkan'));
             }
 
-            if (auth()->user()->hasRole('admin')) {
+            if (auth()->user()->hasRole('koordinator')) {
 
                 $totalPending = $this->service->totalPending();
 

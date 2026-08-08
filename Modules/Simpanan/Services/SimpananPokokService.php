@@ -17,7 +17,7 @@
         $bulan = request('bulan');
         $tahun = request('tahun');
 
-        $idAnggota = Auth::user()->hasRole('admin')
+        $idAnggota = Auth::user()->hasRole('koordinator')
             ? null
             : Auth::id();
 
@@ -46,14 +46,14 @@
     {
         $simpanan = $this->repository->findById($id);
 
-        // Jika yang login adalah admin
-        if (Auth::user()->hasRole('admin')) {
+        // Jika yang login adalah koordinator
+        if (Auth::user()->hasRole('koordinator')) {
 
             $data = [
                 'nilai'   => $data['nilai'] ?? $simpanan->nilai,
                 'tanggal' => $data['tanggal'] ?? $simpanan->tanggal,
                 'status'  => $data['status'] ?? $simpanan->status,
-                'bukti'   => $simpanan->bukti, // admin tidak boleh mengubah bukti
+                'bukti'   => $simpanan->bukti, // koordinator tidak boleh mengubah bukti
             ];
 
         } else {
@@ -81,7 +81,7 @@
         $bulan = request('bulan');
         $tahun = request('tahun');
 
-        $idAnggota = Auth::user()->hasRole('admin')
+        $idAnggota = Auth::user()->hasRole('koordinator')
             ? null
             : Auth::id();
 

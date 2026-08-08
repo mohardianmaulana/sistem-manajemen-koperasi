@@ -35,7 +35,7 @@ class SimpananController extends Controller
 
     public function create()
     {
-        if (!Auth::user()->hasRole('admin')) {
+        if (!Auth::user()->hasRole('koordinator')) {
         return redirect()
             ->route('simpanan-pokok.index')
             ->with('error', 'Anda tidak memiliki hak akses untuk mengakses halaman ini.');

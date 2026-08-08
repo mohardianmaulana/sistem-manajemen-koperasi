@@ -25,7 +25,7 @@
 @section('content')
 
 @php
-    $cardClass = auth()->user()->hasRole('admin')
+    $cardClass = auth()->user()->hasRole('koordinator')
         ? 'col-lg-3 col-md-6'
         : 'col-lg-4 col-md-6';
 @endphp
@@ -113,7 +113,7 @@
 
     </div>
 
-    @role('admin')
+    @role('koordinator')
 
         {{-- Total Anggota Membayar --}}
         <div class="{{ $cardClass }}">
@@ -156,7 +156,7 @@
         {{-- Tombol --}}
         <div class="col-lg-5 col-md-12 mb-2">
 
-            @role('admin')
+            @role('koordinator')
 
                 <a href="{{ route('simpanan-wajib.create') }}"
                    class="btn btn-primary">
@@ -416,7 +416,7 @@
 
                         <td class="text-center align-middle">
 
-                            @role('admin')
+                            @role('koordinator')
 
                                 <a
                                     href="{{ route('simpanan-wajib.show',$item->id) }}"

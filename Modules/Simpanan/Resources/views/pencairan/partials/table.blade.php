@@ -249,7 +249,7 @@
                        
 
 
-                        @role('admin')
+                        @role('koordinator')
 
                             @if($item->status == 'pending')
 

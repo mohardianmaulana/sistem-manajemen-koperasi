@@ -193,4 +193,24 @@ class PencairanShuRepository
     {
         return PencairanShu::max('id') ?? 0;
     }
+
+    public function getBendaharaSummary()
+    {
+        return [
+            'menunggu' => PencairanShu::where(
+                'status',
+                PencairanShu::STATUS_SIAP_DICAIRKAN
+            )->count(),
+
+            'berhasil' => PencairanShu::where(
+                'status',
+                PencairanShu::STATUS_DICAIRKAN
+            )->count(),
+
+            'gagal' => PencairanShu::where(
+                'status',
+                PencairanShu::STATUS_GAGAL
+            )->count(),
+        ];
+    }
 }

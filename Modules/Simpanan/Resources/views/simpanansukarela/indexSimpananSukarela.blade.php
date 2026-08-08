@@ -34,7 +34,7 @@
 @endif
 
 @php
-    $cardClass = auth()->user()->hasRole('admin')
+    $cardClass = auth()->user()->hasRole('koordinator')
         ? 'col-lg-3 col-md-6'
         : 'col-lg-4 col-md-6';
 @endphp
@@ -122,7 +122,7 @@
 
     </div>
 
-    @role('admin')
+    @role('koordinator')
 
         {{-- Total Anggota Membayar --}}
         <div class="{{ $cardClass }}">
@@ -176,7 +176,7 @@
                 </a>
 
                 @endrole
-                @role('admin')
+                @role('koordinator')
                 <button
                     type="button"
                     class="btn btn-success"
@@ -434,8 +434,8 @@
 
 <td class="text-center align-middle">
 
-    {{-- ================= ADMIN ================= --}}
-    @role('admin')
+    {{-- ================= koordinator ================= --}}
+    @role('koordinator')
 
         @if($item->status == 'selesai')
 

@@ -164,5 +164,20 @@ class SimpananSukarelaRepository
             ->sum('nilai');
     }
 
-    
+    public function getSimpananSukarelaSummary($idAnggota)
+    {
+        $query = MasterSimpananSukarela::where('id_anggota', $idAnggota);
+
+        return [
+            'total' => (clone $query)->sum('nilai'),
+
+            'selesai' => (clone $query)
+                ->where('status', 'selesai')
+                ->count(),
+
+            'gagal' => (clone $query)
+                ->where('status', 'tidak berhasil')
+                ->count(),
+        ];
+    }
 }

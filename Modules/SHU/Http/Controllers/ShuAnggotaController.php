@@ -22,7 +22,7 @@ class ShuAnggotaController extends Controller
      */
     public function index()
     {
-        if (Auth::user()->hasRole('admin')) {
+        if (Auth::user()->hasRole('koordinator')) {
             return view(
                 'shu::shuanggota.dasboard',
                 [

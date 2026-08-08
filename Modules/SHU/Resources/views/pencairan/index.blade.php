@@ -97,9 +97,9 @@
         @endif
 
 
-        {{-- ===================== ADMIN ===================== --}}
+        {{-- ===================== bendahara ===================== --}}
 
-        @role('admin')
+        @role('bendahara')
 
             @include('shu::pencairan.partials.dashboard-admin')
 
@@ -125,7 +125,7 @@
 </section>
 
 
-@role('admin')
+@role('bendahara')
 
     @include('shu::pencairan.partials.modal-cairkan')
 

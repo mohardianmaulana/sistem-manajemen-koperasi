@@ -56,7 +56,7 @@ class SimpananWajibService
      */
     public function getAll()
     {
-        $idAnggota = Auth::user()->hasRole('admin')
+        $idAnggota = Auth::user()->hasRole('koordinator')
             ? null
             : Auth::id();
 
@@ -72,7 +72,7 @@ class SimpananWajibService
      */
     public function getSummary()
     {
-        $idAnggota = Auth::user()->hasRole('admin')
+        $idAnggota = Auth::user()->hasRole('koordinator')
             ? null
             : Auth::id();
 

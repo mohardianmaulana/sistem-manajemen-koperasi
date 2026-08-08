@@ -73,19 +73,19 @@ class UserRepository
 
     public function getDashboardSummary()
     {
-        $query = User::query();
-
         return [
-            'totalUser' => $query->count(),
-
-            'pendingUser' => User::where(function ($query) {
-                $query->whereNull('username')
-                    ->orWhereNull('email');
-            })->count(),
-
-            'activeUser' => User::whereNotNull('username')
-                ->whereNotNull('email')
+            'pendingUser' => User::where('status', 1)
                 ->count(),
+
+            'activeUser' => User::where('status', 2)
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'anggota');
+                })
+                ->count(),
+
+            'totalUser' => User::whereHas('roles', function ($query) {
+                $query->where('name', 'anggota');
+            })->count(),
         ];
     }
 
