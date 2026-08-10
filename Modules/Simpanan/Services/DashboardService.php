@@ -2,6 +2,9 @@
 
 namespace Modules\Simpanan\Services;
 
+use Modules\Pinjaman\Repositories\PengajuanPinjamanRepository;
+use Modules\Pinjaman\Repositories\PersetujuanRepository;
+use Modules\Pinjaman\Repositories\PinjamanRepository;
 use Modules\SHU\Repositories\PencairanShuRepository;
 use Modules\Simpanan\Repositories\PencairanSimpananRepository;
 use Modules\Simpanan\Repositories\SimpananSukarelaRepository;
@@ -13,17 +16,26 @@ class DashboardService
     protected $simpananWajibRepository;
     protected $pencairanSimpananRepository;
     protected $pencairanShuRepository;
+    protected $pinjamanRepository;
+    protected $pengajuanPinjamanRepository;
+    protected $persetujuanRepository;
 
     public function __construct(
         SimpananSukarelaRepository $repository,
         SimpananWajibRepository $simpananWajibRepository,
         PencairanSimpananRepository $pencairanSimpananRepository,
-        PencairanShuRepository $pencairanShuRepository
+        PencairanShuRepository $pencairanShuRepository,
+        PinjamanRepository $pinjamanRepository,
+        PengajuanPinjamanRepository $pengajuanPinjamanRepository,
+        PersetujuanRepository $persetujuanRepository,
     ) {
         $this->repository = $repository;
         $this->simpananWajibRepository = $simpananWajibRepository;
         $this->pencairanSimpananRepository = $pencairanSimpananRepository;
         $this->pencairanShuRepository = $pencairanShuRepository;
+        $this->pinjamanRepository = $pinjamanRepository;
+        $this->pengajuanPinjamanRepository = $pengajuanPinjamanRepository;
+        $this->persetujuanRepository = $persetujuanRepository;
     }
 
     public function getSummary($idAnggota)
@@ -34,6 +46,9 @@ class DashboardService
 
             'wajib' => $this->simpananWajibRepository
                 ->getSimpananWajibSummary($idAnggota),
+
+            'pinjaman' => $this->pinjamanRepository
+                ->getPinjamanSummary($idAnggota),
         ];
     }
 
@@ -48,6 +63,9 @@ class DashboardService
 
             'penarikan' => $this->pencairanSimpananRepository
                 ->getPenarikanSummary(),
+            
+            'pinjaman' => $this->pengajuanPinjamanRepository
+                ->getPengajuanSummary(),
         ];
     }
 
@@ -59,6 +77,26 @@ class DashboardService
 
             'shu' => $this->pencairanShuRepository
                 ->getBendaharaSummary(),
+
+            'pinjaman' => $this->persetujuanRepository
+                ->getPinjamanSummary(),
+        ];
+    }
+
+    public function getKetuaSummary()
+    {
+        return [
+            'sukarela' => $this->repository
+                ->getSummary(),
+
+            'wajib' => $this->simpananWajibRepository
+                ->getSummary(),
+
+            'penarikan' => $this->pencairanSimpananRepository
+                ->getPenarikanSummary(),
+            
+            'pinjaman' => $this->pengajuanPinjamanRepository
+                ->getPengajuanSummary(),
         ];
     }
 }

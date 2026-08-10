@@ -69,6 +69,11 @@ class HomeController extends Controller
                         ->getBendaharaSummary();
                 }
 
+                if (auth()->user()->role_aktif === 'ketua') {
+                    $data['summary'] = $this->dashboardService
+                        ->getKetuaSummary();
+                }
+
                 return view($view, $data);
             }
         }

@@ -39,8 +39,7 @@
                 </h2>
 
                 <p>
-                    Pantau dan lakukan verifikasi terhadap aktivitas simpanan
-                    dan penarikan anggota.
+                    Pantau dan lakukan verifikasi terhadap aktivitas simpanan, penarikan dan pengajuan pinjaman anggota.
                 </p>
             </div>
 
@@ -51,31 +50,62 @@
         </div>
     </div>
 
+<div class="row">
+    {{-- Perlu Tindakan --}}
+    <div class="col-md-6">
+        <div class="action-summary mb-4">
+    
+            <div class="action-summary-header">
+                <div>
+                    <span class="section-label">
+                        PERLU TINDAKAN
+                    </span>
+    
+                    <h3>
+                        {{ $totalMenunggu }} aktivitas
+                    </h3>
+    
+                    <p>
+                        Data yang masih membutuhkan proses verifikasi.
+                    </p>
+                </div>
+    
+                <div class="action-summary-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+            </div>
+    
+        </div>
+    </div>
 
     {{-- Perlu Tindakan --}}
-    <div class="action-summary mb-4">
+    <div class="col-md-6">
 
-        <div class="action-summary-header">
-            <div>
-                <span class="section-label">
-                    PERLU TINDAKAN
-                </span>
-
-                <h3>
-                    {{ $totalMenunggu }} aktivitas
-                </h3>
-
-                <p>
-                    Data yang masih membutuhkan proses verifikasi.
-                </p>
+        <div class="action-summary mb-4">
+    
+            <div class="action-summary-header">
+                <div>
+                    <span class="section-label">
+                        PERLU VERIFIKASI
+                    </span>
+    
+                    <h3>
+                        {{ $summary['pinjaman']['jumlahPengajuan'] }} aktivitas
+                    </h3>
+    
+                    <p>
+                        Data pengajuan yang masih membutuhkan proses verifikasi.
+                    </p>
+                </div>
+    
+                <div class="action-summary-icon">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
             </div>
-
-            <div class="action-summary-icon">
-                <i class="fas fa-bell"></i>
-            </div>
+    
         </div>
-
     </div>
+</div>
 
 
     {{-- Kartu Perlu Verifikasi --}}
@@ -387,6 +417,181 @@
 
                         <strong>
                             {{ $summary['penarikan']['ditolak'] }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- Ringkasan Status --}}
+    <div class="section-title">
+        <h3>Ringkasan Pinjaman</h3>
+    </div>
+
+
+    <div class="row">
+
+        {{-- Pinjaman Aktif --}}
+        <div class="col-lg-3 mb-4">
+
+            <div class="status-card">
+
+                <div class="status-card-header">
+
+                    <div>
+                        <span class="card-label">
+                            PINJAMAN
+                        </span>
+
+                        <h4>Pinjaman Aktif</h4>
+                    </div>
+
+                    <i class="fas fa-hand-holding-usd"></i>
+
+                </div>
+
+                <div class="status-list">
+
+                    <div class="status-row">
+                        <span>
+                            <i class="fas fa-check-circle text-success"></i>
+                            Aktif
+                        </span>
+
+                        <strong>
+                            {{ $summary['pinjaman']['jumlahPinjamanAktif'] }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Total Nominal Pinjaman Aktif --}}
+        <div class="col-lg-3 mb-4">
+
+            <div class="status-card">
+
+                <div class="status-card-header">
+
+                    <div>
+                        <span class="card-label">
+                            PINJAMAN
+                        </span>
+
+                        <h4>Total Nominal</h4>
+                    </div>
+
+                    <i class="fas fa-money-bill-wave"></i>
+
+                </div>
+
+                <div class="status-list">
+
+                    <div class="status-row">
+                        <span>
+                            <i class="fas fa-wallet text-primary"></i>
+                            Pinjaman Aktif
+                        </span>
+
+                        <strong>
+                            Rp {{ number_format(
+                                $summary['pinjaman']['sisaPinjaman'],
+                                0,
+                                ',',
+                                '.'
+                            ) }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Total Tunggakan --}}
+        <div class="col-lg-3 mb-4">
+
+            <div class="status-card">
+
+                <div class="status-card-header">
+
+                    <div>
+                        <span class="card-label">
+                            PINJAMAN
+                        </span>
+
+                        <h4>Tunggakan</h4>
+                    </div>
+
+                    <i class="fas fa-exclamation-triangle"></i>
+
+                </div>
+
+                <div class="status-list">
+
+                    <div class="status-row">
+                        <span>
+                            <i class="fas fa-clock text-warning"></i>
+                            Belum Dibayar
+                        </span>
+
+                        <strong>
+                            Rp {{ number_format(
+                                $summary['pinjaman']['totalTunggakan'],
+                                0,
+                                ',',
+                                '.'
+                            ) }}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Pengajuan Bulan Ini --}}
+        <div class="col-lg-3 mb-4">
+
+            <div class="status-card">
+
+                <div class="status-card-header">
+
+                    <div>
+                        <span class="card-label">
+                            PINJAMAN
+                        </span>
+
+                        <h4>Pengajuan Bulan Ini</h4>
+                    </div>
+
+                    <i class="fas fa-file-alt"></i>
+
+                </div>
+
+                <div class="status-list">
+
+                    <div class="status-row">
+                        <span>
+                            <i class="fas fa-calendar-alt text-info"></i>
+                            Pengajuan
+                        </span>
+
+                        <strong>
+                            {{ $summary['pinjaman']['totalPengajuanPinjamanBulanIni'] }}
                         </strong>
                     </div>
 

@@ -38,7 +38,7 @@
                 </h2>
 
                 <p>
-                    Kelola proses penarikan simpanan dan penyaluran SHU
+                    Kelola proses penarikan simpanan, penyaluran SHU, dan konfirmasi pencairan pinjaman
                     anggota koperasi.
                 </p>
             </div>
@@ -51,39 +51,73 @@
     </div>
 
 
-    {{-- Perlu Tindakan --}}
-    <div class="action-summary mb-4">
-
-        <div class="action-summary-content">
-
-            <div>
-                <span class="section-label">
-                    PERLU TINDAKAN
-                </span>
-
-                <h2>
-                    {{ $totalMenunggu }} transaksi
-                </h2>
-
-                <p>
-                    Transaksi yang membutuhkan proses Bendahara.
-                </p>
+    <div class="row">
+        <div class="col-md-6">
+            {{-- Perlu Tindakan --}}
+            <div class="action-summary mb-4">
+        
+                <div class="action-summary-content">
+        
+                    <div>
+                        <span class="section-label">
+                            PERLU TINDAKAN
+                        </span>
+        
+                        <h2>
+                            {{ $totalMenunggu }} transaksi
+                        </h2>
+        
+                        <p>
+                            Transaksi yang membutuhkan proses Bendahara.
+                        </p>
+                    </div>
+        
+                    <div class="action-summary-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+        
+                </div>
+        
             </div>
-
-            <div class="action-summary-icon">
-                <i class="fas fa-tasks"></i>
-            </div>
-
         </div>
 
+        <div class="col-md-6">
+            {{-- Perlu Tindakan --}}
+            <div class="action-summary mb-4">
+        
+                <div class="action-summary-content">
+        
+                    <div>
+                        <span class="section-label">
+                            PERLU VERIFIKASI
+                        </span>
+        
+                        <h2>
+                            {{ $summary['pinjaman']['jumlahPencairan'] }} verifikasi pencairan
+                        </h2>
+        
+                        <p>
+                            Verifikasi pencairan yang membutuhkan proses Bendahara.
+                        </p>
+                    </div>
+        
+                    <div class="action-summary-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+        
+                </div>
+        
+            </div>
+        </div>
     </div>
+
 
 
     {{-- Dua Proses Utama --}}
     <div class="row">
 
         {{-- Penarikan Simpanan --}}
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-3 mb-2">
 
             <div class="process-card">
 
@@ -144,7 +178,7 @@
 
 
         {{-- Penyaluran SHU --}}
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-3 mb-2">
 
             <div class="process-card">
 
@@ -193,6 +227,125 @@
                     </span>
 
                     <a href="{{ route('pencairan.index') }}">
+                        Proses
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {{-- Konfirmasi Auto debet --}}
+        <div class="col-lg-3 mb-2">
+
+            <div class="process-card">
+
+                <div class="process-card-header">
+
+                    <div>
+                        <span class="card-label">
+                            KONFIRMASI
+                        </span>
+
+                        <h3>
+                            Auto debet
+                        </h3>
+                    </div>
+
+                    <div class="process-icon penarikan">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                    </div>
+
+                </div>
+
+                <div class="process-main">
+
+                    <div class="process-number">
+                        {{ $summary['pinjaman']['totalAngsuranBulanIni'] }}
+                    </div>
+
+                    <div>
+                        <strong>
+                            Menunggu Proses
+                        </strong>
+
+                        <p>
+                            Angsuran yang jatuh tempo pada bulan ini.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="process-footer">
+
+                    <span>
+                        <i class="fas fa-info-circle"></i>
+                        Menunggu proses konfirmasi
+                    </span>
+
+                    <a href="{{ route('angsuran.index') }}">
+                        Proses
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- Penyaluran SHU --}}
+        <div class="col-lg-3 mb-2">
+
+            <div class="process-card">
+
+                <div class="process-card-header">
+
+                    <div>
+                        <span class="card-label">
+                            Konfirmasi
+                        </span>
+
+                        <h3>
+                            Pembayaran manual
+                        </h3>
+                    </div>
+
+                    <div class="process-icon shu">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+
+                </div>
+
+                <div class="process-main">
+
+                    <div class="process-number">
+                        {{ $summary['pinjaman']['jumlahPembayaran'] }}
+                    </div>
+
+                    <div>
+                        <strong>
+                            Perlu diverifikasi
+                        </strong>
+
+                        <p>
+                            Bukti pembayaran yang siap diverifikasi.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="process-footer">
+
+                    <span>
+                        <i class="fas fa-info-circle"></i>
+                        Menunggu proses verifikasi
+                    </span>
+
+                    <a href="{{ route('pembayaran.indexVerifikasi') }}">
                         Proses
                         <i class="fas fa-arrow-right"></i>
                     </a>

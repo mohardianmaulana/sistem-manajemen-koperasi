@@ -2,6 +2,7 @@
 
 namespace Modules\Pinjaman\Repositories;
 
+use Illuminate\Support\Carbon;
 use Modules\Pinjaman\Entities\PengajuanPinjaman;
 use Modules\Pinjaman\Entities\Pinjaman;
 
@@ -78,5 +79,46 @@ class PinjamanRepository {
         }
 
         return $query->latest()->get();
+    }
+
+    public function getPinjamanSummary($idAnggota)
+    {
+        $pinjaman = Pinjaman::whereHas('pengajuan', function ($query) use ($idAnggota) {
+                        $query->where('id_anggota', $idAnggota);
+                    })
+                    ->where('status_pinjaman', 'aktif')
+                    ->with('angsuran')
+                    ->get();
+
+        // Semua angsuran yang belum lunas
+        $angsuranBelumLunas = $pinjaman->flatMap(function ($item) {
+            return $item->angsuran
+                ->whereNotIn('status_bayar', ['lunas', 'verifikasi']);
+        });
+
+        $sisaPinjaman = $angsuranBelumLunas->sum('jumlah_angsuran');
+
+        $sisaBulan = $angsuranBelumLunas->count();
+
+        // Angsuran yang jatuh tempo bulan ini dan belum lunas
+        $angsuranBulanIni = $angsuranBelumLunas->filter(function ($angsuran) {
+            return Carbon::parse($angsuran->tanggal_jatuh_tempo)
+                ->lte(Carbon::now());
+        });
+
+        $jumlahAngsuranBulanIni = $angsuranBulanIni->count();
+
+        $totalAngsuranBulanIni = $angsuranBulanIni
+            ->sum('jumlah_angsuran');
+
+        return [
+            'sisa' => $sisaPinjaman,
+            'sisaBulan' => $sisaBulan,
+            'angsuranBulanIni' => [
+                'jumlah' => $jumlahAngsuranBulanIni,
+                'total' => $totalAngsuranBulanIni,
+                'detail' => $angsuranBulanIni,
+            ],
+        ];
     }
 }

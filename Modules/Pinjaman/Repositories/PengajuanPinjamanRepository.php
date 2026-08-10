@@ -2,8 +2,11 @@
 
 namespace Modules\Pinjaman\Repositories;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Modules\Pinjaman\Entities\PengajuanPinjaman;
+use Modules\Pinjaman\Entities\Persetujuan;
+use Modules\Pinjaman\Entities\Pinjaman;
 
 class PengajuanPinjamanRepository {
     public function getAll($fields)
@@ -118,5 +121,68 @@ class PengajuanPinjamanRepository {
         $pengajuanPinjaman = PengajuanPinjaman::findOrFail($id);
 
         $pengajuanPinjaman->jaminan()->detach();
+    }
+
+    public function getPengajuanSummary()
+    {
+        $pengajuanPinjaman = PengajuanPinjaman::where('status_pengajuan', ['menunggu', 'persetujuan_akhir', 'verifikasi'])
+                    ->get();
+        
+        $jumlahPengajuan = $pengajuanPinjaman->count();
+
+        $pinjamanAktif = Pinjaman::where('status_pinjaman', 'aktif')->get();
+
+        $jumlahPinjamanAktif = $pinjamanAktif->count();
+
+        $pinjaman = Pinjaman::where('status_pinjaman', 'aktif')
+                    ->with('angsuran')
+                    ->get();
+
+        // Semua angsuran yang belum lunas
+        $angsuranBelumLunas = $pinjaman->flatMap(function ($item) {
+            return $item->angsuran
+                ->whereNotIn('status_bayar', ['lunas', 'verifikasi']);
+        });
+
+        $sisaPinjaman = $angsuranBelumLunas->sum('jumlah_angsuran');
+
+        $tunggakanBelumLunas = $pinjaman->flatMap(function ($item) {
+            return $item->angsuran
+                ->where('status_bayar', 'gagal_debet');
+        });
+
+        // Angsuran yang jatuh tempo bulan ini dan belum lunas
+        $tunggakanBulanIni = $tunggakanBelumLunas->filter(function ($angsuran) {
+            return Carbon::parse($angsuran->tanggal_jatuh_tempo)
+                ->lte(Carbon::now());
+        });
+
+        $totalAngsuranBulanIni = $tunggakanBulanIni
+            ->sum('jumlah_angsuran');
+
+        $pengajuanPinjamanBulanIni = PengajuanPinjaman::where('status_pengajuan', 'menunggu')
+                    ->whereBetween('tanggal_pengajuan', [
+                        Carbon::now()->startOfMonth(),
+                        Carbon::now()->endOfMonth(),
+                    ])
+                    ->get();
+        
+        $totalPengajuanPinjamanBulanIni = $pengajuanPinjamanBulanIni->count();
+
+        $persetujuan = Persetujuan::where('status', 'menunggu')
+                    ->where('role', 'ketua')
+                    ->get();
+
+        $jumlahPersetujuan = $persetujuan->count();
+
+        return [
+            'jumlahPengajuan' => $jumlahPengajuan,
+            'jumlahPinjamanAktif' => $jumlahPinjamanAktif,
+            'sisaPinjaman' => $sisaPinjaman,
+            'angsuranBulanIni' => $tunggakanBulanIni,
+            'totalTunggakan' => $totalAngsuranBulanIni,
+            'totalPengajuanPinjamanBulanIni' => $totalPengajuanPinjamanBulanIni,
+            'jumlahPersetujuan' => $jumlahPersetujuan,
+        ];
     }
 }

@@ -15,6 +15,8 @@
 
     @php
         $totalSimpanan = $summary['sukarela']['total'] + $summary['wajib']['total'];
+        $sisaPinjaman = $summary['pinjaman']['sisa'];
+        $sisaBulan = $summary['pinjaman']['sisaBulan'];
 
         $totalSukarela =
             $summary['sukarela']['selesai'] +
@@ -46,7 +48,7 @@
                 </h2>
 
                 <p>
-                    Pantau perkembangan simpanan Anda dengan mudah melalui dashboard ini.
+                    Pantau perkembangan simpanan dan pinjaman Anda dengan mudah melalui dashboard ini.
                 </p>
             </div>
 
@@ -77,6 +79,58 @@
                 </small>
             </div>
 
+        </div>
+    </div>
+
+    <div class="row">
+        {{-- Total Sisa pinjaman --}}
+        <div class="col-md-6 mb-2">
+            <div class="total-card mb-2">
+                <div class="total-card-content">
+        
+                    <div class="total-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+        
+                    <div class="total-info">
+                        <span>Sisa pinjaman</span>
+        
+                        <h2>
+                            Rp {{ number_format($sisaPinjaman, 0, ',', '.') }}
+                        </h2>
+        
+                        <small>
+                            Tersisa {{ $sisaBulan }} bulan angsuran
+                        </small>
+                    </div>
+        
+                </div>
+            </div>
+        </div>
+    
+        <div class="col-md-6 mb-2">
+            <div class="total-card mb-2">
+                <div class="total-card-content">
+        
+                    <div class="total-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+        
+                    <div class="total-info">
+                        <span>Angsuran Bulan Ini</span>
+        
+                        <h2>
+                            Rp {{ number_format($summary['pinjaman']['angsuranBulanIni']['total'], 0, ',', '.') }}
+                        </h2>
+        
+                        <small>
+                            {{ $summary['pinjaman']['angsuranBulanIni']['jumlah'] }}
+                            angsuran jatuh tempo bulan ini
+                        </small>
+                    </div>
+        
+                </div>
+            </div>
         </div>
     </div>
 

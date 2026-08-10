@@ -76,8 +76,8 @@ Route::prefix('persetujuan')->middleware('web')->group(function () {
     Route::put('/setujui/{id}', [PersetujuanController::class, 'setujui'])->name('persetujuan.setujui')->middleware('role:ketua');
     Route::put('/tolak/{id}', [PersetujuanController::class, 'tolak'])->name('persetujuan.tolak')->middleware('role:ketua');
     Route::patch('/persetujuanAkhir/{id}', [PersetujuanController::class, 'persetujuanAkhir'])->name('persetujuan.persetujuanAkhir')->middleware('role:koordinator');
-    Route::get('/pencairan', [PersetujuanController::class, 'indexPencairan'])->name('persetujuan.indexPencairan')->middleware('role:bendahara');
-    Route::patch('/pencairan/{id}', [PersetujuanController::class, 'pencairan'])->name('persetujuan.pencairan')->middleware('role:bendahara');
+    Route::get('/pencairanPinjaman', [PersetujuanController::class, 'indexPencairan'])->name('persetujuan.indexPencairan')->middleware('role:bendahara');
+    Route::patch('/pencairanPinjaman/{id}', [PersetujuanController::class, 'pencairan'])->name('persetujuan.pencairan')->middleware('role:bendahara');
 });
 
 Route::prefix('pinjaman')->middleware('web')->group(function () {
@@ -86,17 +86,17 @@ Route::prefix('pinjaman')->middleware('web')->group(function () {
 });
 
 Route::prefix('angsuran')->middleware('web')->group(function () {
-    Route::get('/', [AngsuranController::class, 'index'])->name('angsuran.index')->middleware('role:koordinator');
+    Route::get('/', [AngsuranController::class, 'index'])->name('angsuran.index')->middleware('role:bendahara');
     Route::get('/getAngsuran', [AngsuranController::class, 'getAngsuranByIdAnggota'])->name('angsuran.indexAnggota')->middleware('role:anggota');
-    Route::patch('/gagal_debet/{id}', [AngsuranController::class, 'gagalDebet'])->name('angsuran.gagal_debet')->middleware('role:koordinator');
-    Route::get('/cetakDataTagihan', [AngsuranController::class, 'cetakDataTagihan'])->name('angsuran.cetakDataTagihan')->middleware('role:koordinator');
+    Route::patch('/gagal_debet/{id}', [AngsuranController::class, 'gagalDebet'])->name('angsuran.gagal_debet')->middleware('role:bendahara');
+    Route::get('/cetakDataTagihan', [AngsuranController::class, 'cetakDataTagihan'])->name('angsuran.cetakDataTagihan')->middleware('role:bendahara');
 });
 
 Route::prefix('pembayaran')->middleware('web')->group(function () {
     Route::post('/store_manual', [PembayaranController::class, 'storeManual'])->name('pembayaran.store_manual')->middleware('role:anggota');
     Route::post('/store_ulang_manual', [PembayaranController::class, 'storeUlangManual'])->name('pembayaran.store_ulang_manual')->middleware('role:anggota');
-    Route::post('/store_auto_debet', [PembayaranController::class, 'storeAutoDebet'])->name('pembayaran.store_auto_debet')->middleware('role:koordinator');
-    Route::get('/verifikasi', [PembayaranController::class, 'indexVerifikasi'])->name('pembayaran.indexVerifikasi')->middleware('role:koordinator');
-    Route::patch('/verifikasi/{id}', [PembayaranController::class, 'update'])->name('pembayaran.verifikasi')->middleware('role:koordinator');
-    Route::patch('/gagalVerifikasi/{id}', [PembayaranController::class, 'gagalUpdate'])->name('pembayaran.gagalVerifikasi')->middleware('role:koordinator');
+    Route::post('/store_auto_debet', [PembayaranController::class, 'storeAutoDebet'])->name('pembayaran.store_auto_debet')->middleware('role:bendahara');
+    Route::get('/verifikasi', [PembayaranController::class, 'indexVerifikasi'])->name('pembayaran.indexVerifikasi')->middleware('role:bendahara');
+    Route::patch('/verifikasi/{id}', [PembayaranController::class, 'update'])->name('pembayaran.verifikasi')->middleware('role:bendahara');
+    Route::patch('/gagalVerifikasi/{id}', [PembayaranController::class, 'gagalUpdate'])->name('pembayaran.gagalVerifikasi')->middleware('role:bendahara');
 });

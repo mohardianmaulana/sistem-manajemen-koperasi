@@ -138,7 +138,7 @@ class AngsuranTest extends TestCase
 
         $this->actingAs($user1);
 
-        $response = $this->patch("persetujuan/pencairan/{$pinjaman->id}", [
+        $response = $this->patch("persetujuan/pencairanPinjaman/{$pinjaman->id}", [
             'id_pengajuan' => $pengajuan->id,
         ]);
 

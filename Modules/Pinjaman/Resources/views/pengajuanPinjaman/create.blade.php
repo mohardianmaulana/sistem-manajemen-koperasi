@@ -92,7 +92,7 @@
                                     <input type="date"
                                         name="tanggal_pengajuan"
                                         class="form-control @error('tanggal_pengajuan') is-invalid @enderror"
-                                        value="{{ old('tanggal_pengajuan', date('Y-m-d')) }}">
+                                        value="{{ old('tanggal_pengajuan', date('Y-m-d')) }}" readonly>
 
                                     @error('tanggal_pengajuan')
                                         <span class="invalid-feedback d-block">
