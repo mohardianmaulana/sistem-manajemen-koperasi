@@ -52,6 +52,90 @@ class CreateAdminUserSeeder extends Seeder
 
         $admin->assignRole($adminRole);
 
+        $koordinator = User::create([
+        'name'           => 'koordinator',
+        'nip'            => '199001010001',
+        'email'          => 'koordinator@gmail.com',
+        'username'       => 'koordinator',
+        'password'       => Hash::make('admin!@#123'),
+        'unit'           => 0,
+        'staff'          => 0,
+        'no_rek'         => '1234567890',
+        'tempat_lahir'   => 'Banyuwangi',
+        'tanggal_lahir'  => '1990-01-01',
+        'alamat'         => 'Politeknik Negeri Banyuwangi',
+        'no_hp'          => '081234567890',
+        'file_sk'        => null,
+        'role_aktif'     => 'koordinator',
+        'status'         => 2,
+        ]);
+
+        $koordinatorRole = Role::create([
+            'name' => 'koordinator'
+        ]);
+
+        $permissions = Permission::pluck('id', 'id')->all();
+
+        $koordinatorRole->syncPermissions($permissions);
+
+        $koordinator->assignRole($koordinatorRole);
+
+        $bendahara = User::create([
+        'name'           => 'bendahara',
+        'nip'            => '199001010001',
+        'email'          => 'bendahara@gmail.com',
+        'username'       => 'bendahara',
+        'password'       => Hash::make('admin!@#123'),
+        'unit'           => 0,
+        'staff'          => 0,
+        'no_rek'         => '1234567890',
+        'tempat_lahir'   => 'Banyuwangi',
+        'tanggal_lahir'  => '1990-01-01',
+        'alamat'         => 'Politeknik Negeri Banyuwangi',
+        'no_hp'          => '081234567890',
+        'file_sk'        => null,
+        'role_aktif'     => 'bendahara',
+        'status'         => 2,
+        ]);
+
+        $bendaharaRole = Role::create([
+            'name' => 'bendahara'
+        ]);
+
+        $permissions = Permission::pluck('id', 'id')->all();
+
+        $bendaharaRole->syncPermissions($permissions);
+
+        $bendahara->assignRole($bendaharaRole);
+
+        $ketua = User::create([
+        'name'           => 'ketua',
+        'nip'            => '199001010001',
+        'email'          => 'ketua@gmail.com',
+        'username'       => 'ketua',
+        'password'       => Hash::make('admin!@#123'),
+        'unit'           => 0,
+        'staff'          => 0,
+        'no_rek'         => '1234567890',
+        'tempat_lahir'   => 'Banyuwangi',
+        'tanggal_lahir'  => '1990-01-01',
+        'alamat'         => 'Politeknik Negeri Banyuwangi',
+        'no_hp'          => '081234567890',
+        'file_sk'        => null,
+        'role_aktif'     => 'ketua',
+        'status'         => 2,
+        ]);
+
+        $ketuaRole = Role::create([
+            'name' => 'ketua'
+        ]);
+
+        $permissions = Permission::pluck('id', 'id')->all();
+
+        $ketuaRole->syncPermissions($permissions);
+
+        $ketua->assignRole($ketuaRole);
+
         // =======================
         // ANGGOTA
         // =======================

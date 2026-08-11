@@ -88,15 +88,15 @@ Route::prefix('pinjaman')->middleware('web')->group(function () {
 Route::prefix('angsuran')->middleware('web')->group(function () {
     Route::get('/', [AngsuranController::class, 'index'])->name('angsuran.index')->middleware('role:bendahara');
     Route::get('/getAngsuran', [AngsuranController::class, 'getAngsuranByIdAnggota'])->name('angsuran.indexAnggota')->middleware('role:anggota');
-    Route::patch('/gagal_debet/{id}', [AngsuranController::class, 'gagalDebet'])->name('angsuran.gagal_debet')->middleware('role:bendahara');
-    Route::get('/cetakDataTagihan', [AngsuranController::class, 'cetakDataTagihan'])->name('angsuran.cetakDataTagihan')->middleware('role:bendahara');
+    Route::patch('/gagal_debet/{id}', [AngsuranController::class, 'gagalDebet'])->name('angsuran.gagal_debet')->middleware('role:koordinator');
+    Route::get('/cetakDataTagihan', [AngsuranController::class, 'cetakDataTagihan'])->name('angsuran.cetakDataTagihan')->middleware('role:koordinator');
 });
 
 Route::prefix('pembayaran')->middleware('web')->group(function () {
     Route::post('/store_manual', [PembayaranController::class, 'storeManual'])->name('pembayaran.store_manual')->middleware('role:anggota');
     Route::post('/store_ulang_manual', [PembayaranController::class, 'storeUlangManual'])->name('pembayaran.store_ulang_manual')->middleware('role:anggota');
-    Route::post('/store_auto_debet', [PembayaranController::class, 'storeAutoDebet'])->name('pembayaran.store_auto_debet')->middleware('role:bendahara');
-    Route::get('/verifikasi', [PembayaranController::class, 'indexVerifikasi'])->name('pembayaran.indexVerifikasi')->middleware('role:bendahara');
-    Route::patch('/verifikasi/{id}', [PembayaranController::class, 'update'])->name('pembayaran.verifikasi')->middleware('role:bendahara');
-    Route::patch('/gagalVerifikasi/{id}', [PembayaranController::class, 'gagalUpdate'])->name('pembayaran.gagalVerifikasi')->middleware('role:bendahara');
+    Route::post('/store_auto_debet', [PembayaranController::class, 'storeAutoDebet'])->name('pembayaran.store_auto_debet')->middleware('role:koordinator');
+    Route::get('/verifikasi', [PembayaranController::class, 'indexVerifikasi'])->name('pembayaran.indexVerifikasi')->middleware('role:koordinator');
+    Route::patch('/verifikasi/{id}', [PembayaranController::class, 'update'])->name('pembayaran.verifikasi')->middleware('role:koordinator');
+    Route::patch('/gagalVerifikasi/{id}', [PembayaranController::class, 'gagalUpdate'])->name('pembayaran.gagalVerifikasi')->middleware('role:koordinator');
 });
