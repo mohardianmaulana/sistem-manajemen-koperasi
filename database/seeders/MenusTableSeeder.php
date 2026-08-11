@@ -357,5 +357,248 @@ class MenusTableSeeder extends Seeder
             'urut' => 3,
             'parent_id' => 17,
         ]);
+
+                /*
+        |--------------------------------------------------------------------------
+        | SIMPANAN
+        |--------------------------------------------------------------------------
+        */
+
+        Menu::create([
+            'id' => 22,
+            'modul' => 'Core',
+            'label' => 'Simpanan',
+            'url' => '',
+            'icon' => 'fas fa-archive',
+            'can' => '',
+            'active' => serialize([
+                'koordinator',
+                'bendahara',
+                'anggota'
+            ]),
+            'urut' => 1,
+            'parent_id' => 0,
+        ]);
+
+        Menu::create([
+            'id' => 23,
+            'modul' => 'Core',
+            'label' => 'Simpanan Pokok',
+            'url' => '/simpanan',
+            'icon' => 'far fa-circle',
+            'can' => serialize([
+                '/simpanan',
+                '/simpanan*'
+            ]),
+            'active' => serialize([
+                'koordinator',
+                'anggota'
+            ]),
+            'urut' => 1,
+            'parent_id' => 22,
+        ]);
+
+        Menu::create([
+            'id' => 24,
+            'modul' => 'Core',
+            'label' => 'Simpanan Wajib',
+            'url' => '/simpanan-wajib',
+            'icon' => 'far fa-circle',
+            'can' => serialize([
+                '/simpanan-wajib',
+                '/simpanan-wajib*'
+            ]),
+            'active' => serialize([
+                'koordinator',
+                'anggota'
+            ]),
+            'urut' => 2,
+            'parent_id' => 22,
+        ]);
+
+        Menu::create([
+            'id' => 25,
+            'modul' => 'Core',
+            'label' => 'Simpanan Sukarela',
+            'url' => '/simpanan-sukarela',
+            'icon' => 'far fa-circle',
+            'can' => serialize([
+                '/simpanan-sukarela',
+                '/simpanan-sukarela*'
+            ]),
+            'active' => serialize([
+                'koordinator',
+                'anggota'
+            ]),
+            'urut' => 3,
+            'parent_id' => 22,
+        ]);
+
+        Menu::create([
+            'id' => 26,
+            'modul' => 'Core',
+            'label' => 'Penarikan Simpanan Sukarela',
+            'url' => '/pencairan-simpanan',
+            'icon' => 'far fa-circle',
+            'can' => serialize([
+                '/pencairan-simpanan',
+                '/pencairan-simpanan*'
+            ]),
+            'active' => serialize([
+                'koordinator',
+                'bendahara'
+            ]),
+            'urut' => 4,
+            'parent_id' => 22,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SISA HASIL USAHA
+        |--------------------------------------------------------------------------
+        */
+
+        Menu::create([
+            'id' => 27,
+            'modul' => 'Core',
+            'label' => 'Sisa Hasil Usaha',
+            'url' => '',
+            'icon' => 'fas fa-chart-pie',
+            'can' => '',
+            'active' => serialize([
+                'koordinator',
+                'bendahara',
+                'anggota'
+            ]),
+            'urut' => 2,
+            'parent_id' => 0,
+        ]);
+
+        Menu::create([
+            'id' => 28,
+            'modul' => 'Core',
+            'label' => 'SHU Koperasi',
+            'url' => '/shu-koperasi',
+            'icon' => 'far fa-circle',
+            'can' => serialize([
+                '/shu-koperasi',
+                '/shu-koperasi*'
+            ]),
+            'active' => serialize([
+                'koordinator'
+            ]),
+            'urut' => 1,
+            'parent_id' => 27,
+        ]);
+
+        Menu::create([
+            'id' => 29,
+            'modul' => 'Core',
+            'label' => 'SHU Anggota',
+            'url' => '/shu',
+            'icon' => 'far fa-circle',
+            'can' => serialize([
+                '/shu',
+                '/shu*'
+            ]),
+            'active' => serialize([
+                'koordinator',
+                'anggota'
+            ]),
+            'urut' => 2,
+            'parent_id' => 27,
+        ]);
+
+        Menu::create([
+            'id' => 30,
+            'modul' => 'Core',
+            'label' => 'Penyaluran SHU',
+            'url' => '/pencairan',
+            'icon' => 'far fa-circle',
+            'can' => serialize([
+                '/pencairan',
+                '/pencairan*'
+            ]),
+            'active' => serialize([
+                'koordinator',
+                'bendahara',
+                'anggota'
+            ]),
+            'urut' => 3,
+            'parent_id' => 27,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | JADWAL SIMPANAN
+        |--------------------------------------------------------------------------
+        */
+
+        Menu::create([
+            'id' => 31,
+            'modul' => 'Core',
+            'label' => 'Jadwal Simpanan',
+            'url' => '/jadwal-simpanan',
+            'icon' => 'far fa-calendar-alt',
+            'can' => serialize([
+                '/jadwal-simpanan',
+                '/jadwal-simpanan*'
+            ]),
+            'active' => serialize([
+                'koordinator'
+            ]),
+            'urut' => 3,
+            'parent_id' => 0,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PENDAFTARAN
+        |--------------------------------------------------------------------------
+        */
+
+        Menu::create([
+            'id' => 32,
+            'modul' => 'Core',
+            'label' => 'Pendaftaran',
+            'url' => '/user',
+            'icon' => 'fas fa-child',
+            'can' => serialize([
+                '/user',
+                '/user*'
+            ]),
+            'active' => serialize([
+                'admin'
+            ]),
+            'urut' => 9,
+            'parent_id' => 0,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RAT
+        |--------------------------------------------------------------------------
+        */
+
+        Menu::create([
+            'id' => 33,
+            'modul' => 'Core',
+            'label' => 'RAT',
+            'url' => '/rat',
+            'icon' => 'far fa-bookmark',
+            'can' => serialize([
+                '/rat',
+                '/rat*'
+            ]),
+            'active' => serialize([
+                'koordinator'
+            ]),
+            'urut' => 4,
+            'parent_id' => 0,
+        ]);
     }
 }
