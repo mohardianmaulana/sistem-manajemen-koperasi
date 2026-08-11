@@ -27,11 +27,11 @@ class MenusTableSeeder extends Seeder
             'modul' => 'Core',
             'label' => 'Master',
             'url' => '',
+            'can' => serialize(['admin']),
             'icon' => 'fas fa-columns',
-            'can' => '',
-            'active' => serialize(['admin']),
-            'urut' => 7,
+            'urut' => 11,
             'parent_id' => 0,
+            'active' => '',
         ]);
 
         Menu::create([
@@ -39,11 +39,11 @@ class MenusTableSeeder extends Seeder
             'modul' => 'Core',
             'label' => 'User',
             'url' => 'users',
+            'can' => serialize(['admin']),
             'icon' => 'fas fa-fw fa-users',
-            'can' => serialize(['users', 'users*']),
-            'active' => serialize(['admin']),
             'urut' => 1,
             'parent_id' => 1,
+            'active' => serialize(['users', 'users*']),
         ]);
 
         Menu::create([
@@ -51,11 +51,11 @@ class MenusTableSeeder extends Seeder
             'modul' => 'Core',
             'label' => 'Menu',
             'url' => 'menus',
+            'can' => serialize(['admin']),
             'icon' => 'fas fa-bars',
-            'can' => serialize(['menus', 'menus*']),
-            'active' => serialize(['admin']),
             'urut' => 2,
             'parent_id' => 1,
+            'active' => serialize(['menus', 'menus*']),
         ]);
 
 
@@ -71,10 +71,10 @@ class MenusTableSeeder extends Seeder
             'label' => 'Roles & Permisions',
             'url' => '',
             'icon' => 'fas fa-address-card',
-            'can' => '',
-            'active' => serialize(['admin']),
-            'urut' => 8,
+            'can' => serialize(['admin']),
+            'urut' => 10,
             'parent_id' => 0,
+            'active' => '',
         ]);
 
         Menu::create([
@@ -82,11 +82,11 @@ class MenusTableSeeder extends Seeder
             'modul' => 'Core',
             'label' => 'Roles',
             'url' => 'roles',
+            'can' => serialize(['admin']),
             'icon' => 'far fa-circle',
-            'can' => serialize(['roles', 'roles*']),
-            'active' => serialize(['admin']),
             'urut' => 1,
             'parent_id' => 4,
+            'active' => serialize(['roles', 'roles*']),
         ]);
 
         Menu::create([
@@ -94,11 +94,11 @@ class MenusTableSeeder extends Seeder
             'modul' => 'Core',
             'label' => 'Permissions',
             'url' => 'permissions',
+            'can' => serialize(['admin']),
             'icon' => 'far fa-circle',
-            'can' => serialize(['permissions', 'permissions*']),
-            'active' => serialize(['admin']),
             'urut' => 2,
             'parent_id' => 4,
+            'active' => serialize(['permissions', 'permissions*']),
         ]);
 
 
@@ -114,8 +114,8 @@ class MenusTableSeeder extends Seeder
             'label' => 'Pinjaman',
             'url' => '',
             'icon' => 'far fa-circle',
-            'can' => '',
-            'active' => serialize(['anggota']),
+            'active' => '',
+            'can' => serialize(['anggota']),
             'urut' => 4,
             'parent_id' => 0,
         ]);
@@ -126,11 +126,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Pengajuan Pinjaman',
             'url' => '/pengajuan_pinjaman/indexAnggota',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/pengajuan_pinjaman/indexAnggota',
                 '/pengajuan_pinjaman/indexAnggota*'
             ]),
-            'active' => serialize(['anggota']),
+            'can' => serialize(['anggota']),
             'urut' => 2,
             'parent_id' => 7,
         ]);
@@ -141,11 +141,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Simulasi Pinjaman',
             'url' => 'simulasi_pinjaman/',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 'simulasi_pinjaman/',
                 'simulasi_pinjaman/*'
             ]),
-            'active' => serialize(['anggota']),
+            'can' => serialize(['anggota']),
             'urut' => 1,
             'parent_id' => 7,
         ]);
@@ -156,11 +156,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Riwayat pinjaman',
             'url' => '/pinjaman/indexAnggota',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/pinjaman/indexAnggota',
                 '/pinjaman/indexAnggota*'
             ]),
-            'active' => serialize(['anggota']),
+            'can' => serialize(['anggota']),
             'urut' => 3,
             'parent_id' => 7,
         ]);
@@ -171,12 +171,12 @@ class MenusTableSeeder extends Seeder
             'label' => 'Angsuran',
             'url' => '/angsuran/getAngsuran',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/angsuran/getAngsuran',
                 '/angsuran/getAngsuran*'
             ]),
-            'active' => '',
-            'urut' => 3,
+            'can' => '',
+            'urut' => 4,
             'parent_id' => 7,
         ]);
 
@@ -193,11 +193,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Persetujuan',
             'url' => '/persetujuan',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/persetujuan',
                 '/persetujuan*'
             ]),
-            'active' => serialize(['ketua']),
+            'can' => serialize(['ketua']),
             'urut' => 2,
             'parent_id' => 0,
         ]);
@@ -215,9 +215,9 @@ class MenusTableSeeder extends Seeder
             'label' => 'Master Pinjaman',
             'url' => '',
             'icon' => 'far fa-circle',
-            'can' => '',
-            'active' => serialize(['koordinator']),
-            'urut' => 6,
+            'active' => '',
+            'can' => serialize(['koordinator']),
+            'urut' => 5,
             'parent_id' => 0,
         ]);
 
@@ -227,11 +227,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Jenis jaminan',
             'url' => 'jaminan/index',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 'jaminan/index',
                 'jaminan/index*'
             ]),
-            'active' => serialize(['koordinator']),
+            'can' => serialize(['koordinator']),
             'urut' => 1,
             'parent_id' => 13,
         ]);
@@ -242,11 +242,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Jenis skema pinjaman',
             'url' => 'skema_pinjaman/',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 'skema_pinjaman/',
                 'skema_pinjaman/*'
             ]),
-            'active' => serialize(['koordinator']),
+            'can' => serialize(['koordinator']),
             'urut' => 2,
             'parent_id' => 13,
         ]);
@@ -264,11 +264,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Pinjaman',
             'url' => '/pinjaman',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/pinjaman',
                 '/pinjaman*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'ketua',
                 'bendahara',
                 'koordinator'
@@ -290,11 +290,12 @@ class MenusTableSeeder extends Seeder
             'label' => 'Verifikasi',
             'url' => '',
             'icon' => 'far fa-circle',
-            'can' => '',
-            'active' => serialize([
-                'koordinator'
+            'active' => '',
+            'can' => serialize([
+                'koordinator',
+                'bendahara'
             ]),
-            'urut' => 5,
+            'urut' => 3,
             'parent_id' => 0,
         ]);
 
@@ -304,11 +305,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Pengajuan Pinjaman',
             'url' => 'pengajuan_pinjaman/',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 'pengajuan_pinjaman/',
                 'pengajuan_pinjaman/*'
             ]),
-            'active' => serialize(['koordinator']),
+            'can' => serialize(['koordinator']),
             'urut' => 1,
             'parent_id' => 17,
         ]);
@@ -319,11 +320,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Verifikasi pembayaran',
             'url' => '/pembayaran/verifikasi',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/pembayaran/verifikasi',
                 '/pembayaran/verifikasi*'
             ]),
-            'active' => serialize(['koordinator']),
+            'can' => serialize(['koordinator']),
             'urut' => 4,
             'parent_id' => 17,
         ]);
@@ -334,11 +335,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Pencairan',
             'url' => '/persetujuan/pencairanPinjaman',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/pencairan',
                 '/pencairan*'
             ]),
-            'active' => serialize(['bendahara']),
+            'can' => serialize(['bendahara']),
             'urut' => 2,
             'parent_id' => 17,
         ]);
@@ -349,16 +350,16 @@ class MenusTableSeeder extends Seeder
             'label' => 'Konfirmasi auto debet',
             'url' => '/angsuran',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/angsuran',
                 '/angsuran*'
             ]),
-            'active' => serialize(['koordinator']),
+            'can' => serialize(['koordinator']),
             'urut' => 3,
             'parent_id' => 17,
         ]);
 
-                /*
+        /*
         |--------------------------------------------------------------------------
         | SIMPANAN
         |--------------------------------------------------------------------------
@@ -370,13 +371,13 @@ class MenusTableSeeder extends Seeder
             'label' => 'Simpanan',
             'url' => '',
             'icon' => 'fas fa-archive',
-            'can' => '',
-            'active' => serialize([
+            'active' => '',
+            'can' => serialize([
                 'koordinator',
                 'bendahara',
                 'anggota'
             ]),
-            'urut' => 1,
+            'urut' => 9,
             'parent_id' => 0,
         ]);
 
@@ -386,11 +387,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Simpanan Pokok',
             'url' => '/simpanan',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/simpanan',
                 '/simpanan*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator',
                 'anggota'
             ]),
@@ -404,11 +405,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Simpanan Wajib',
             'url' => '/simpanan-wajib',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/simpanan-wajib',
                 '/simpanan-wajib*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator',
                 'anggota'
             ]),
@@ -422,11 +423,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Simpanan Sukarela',
             'url' => '/simpanan-sukarela',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/simpanan-sukarela',
                 '/simpanan-sukarela*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator',
                 'anggota'
             ]),
@@ -440,11 +441,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Penarikan Simpanan Sukarela',
             'url' => '/pencairan-simpanan',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/pencairan-simpanan',
                 '/pencairan-simpanan*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator',
                 'bendahara'
             ]),
@@ -465,13 +466,13 @@ class MenusTableSeeder extends Seeder
             'label' => 'Sisa Hasil Usaha',
             'url' => '',
             'icon' => 'fas fa-chart-pie',
-            'can' => '',
-            'active' => serialize([
+            'active' => '',
+            'can' => serialize([
                 'koordinator',
                 'bendahara',
                 'anggota'
             ]),
-            'urut' => 2,
+            'urut' => 8,
             'parent_id' => 0,
         ]);
 
@@ -481,11 +482,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'SHU Koperasi',
             'url' => '/shu-koperasi',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/shu-koperasi',
                 '/shu-koperasi*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator'
             ]),
             'urut' => 1,
@@ -498,11 +499,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'SHU Anggota',
             'url' => '/shu',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/shu',
                 '/shu*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator',
                 'anggota'
             ]),
@@ -516,11 +517,11 @@ class MenusTableSeeder extends Seeder
             'label' => 'Penyaluran SHU',
             'url' => '/pencairan',
             'icon' => 'far fa-circle',
-            'can' => serialize([
+            'active' => serialize([
                 '/pencairan',
                 '/pencairan*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator',
                 'bendahara',
                 'anggota'
@@ -542,14 +543,14 @@ class MenusTableSeeder extends Seeder
             'label' => 'Jadwal Simpanan',
             'url' => '/jadwal-simpanan',
             'icon' => 'far fa-calendar-alt',
-            'can' => serialize([
+            'active' => serialize([
                 '/jadwal-simpanan',
                 '/jadwal-simpanan*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator'
             ]),
-            'urut' => 3,
+            'urut' => 7,
             'parent_id' => 0,
         ]);
 
@@ -566,14 +567,14 @@ class MenusTableSeeder extends Seeder
             'label' => 'Pendaftaran',
             'url' => '/user',
             'icon' => 'fas fa-child',
-            'can' => serialize([
+            'active' => serialize([
                 '/user',
                 '/user*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'admin'
             ]),
-            'urut' => 9,
+            'urut' => 12,
             'parent_id' => 0,
         ]);
 
@@ -590,14 +591,14 @@ class MenusTableSeeder extends Seeder
             'label' => 'RAT',
             'url' => '/rat',
             'icon' => 'far fa-bookmark',
-            'can' => serialize([
+            'active' => serialize([
                 '/rat',
                 '/rat*'
             ]),
-            'active' => serialize([
+            'can' => serialize([
                 'koordinator'
             ]),
-            'urut' => 4,
+            'urut' => 6,
             'parent_id' => 0,
         ]);
     }

@@ -86,7 +86,7 @@ Route::prefix('pinjaman')->middleware('web')->group(function () {
 });
 
 Route::prefix('angsuran')->middleware('web')->group(function () {
-    Route::get('/', [AngsuranController::class, 'index'])->name('angsuran.index')->middleware('role:bendahara');
+    Route::get('/', [AngsuranController::class, 'index'])->name('angsuran.index')->middleware('role:koordinator');
     Route::get('/getAngsuran', [AngsuranController::class, 'getAngsuranByIdAnggota'])->name('angsuran.indexAnggota')->middleware('role:anggota');
     Route::patch('/gagal_debet/{id}', [AngsuranController::class, 'gagalDebet'])->name('angsuran.gagal_debet')->middleware('role:koordinator');
     Route::get('/cetakDataTagihan', [AngsuranController::class, 'cetakDataTagihan'])->name('angsuran.cetakDataTagihan')->middleware('role:koordinator');

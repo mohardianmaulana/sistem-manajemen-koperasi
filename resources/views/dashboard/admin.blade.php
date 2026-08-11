@@ -13,6 +13,28 @@
 
 @section('content')
 
+@if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show">
+                    <i class="fa-solid fa-circle-check"></i>
+                    {{ session('success') }}
+
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    {{ session('error') }}
+
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            @endif
+
     {{-- Welcome --}}
     <div class="welcome-card mb-4">
         <div class="welcome-content">
