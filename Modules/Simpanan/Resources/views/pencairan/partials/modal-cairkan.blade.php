@@ -16,7 +16,7 @@
 
                     <h5 class="modal-title">
 
-                        Pencairan Simpanan
+                        Penarikan Simpanan
 
                     </h5>
 
@@ -36,7 +36,7 @@
                     <table class="table table-borderless">
 
                         <tr>
-                            <th width="35%">Kode Pencairan</th>
+                            <th width="35%">Kode Penarikan</th>
                             <td id="modalKode"></td>
                         </tr>
 

@@ -15,7 +15,7 @@
 
                     <h5 class="modal-title">
 
-                        Pencairan Gagal
+                        Penarikan Gagal
 
                     </h5>
 

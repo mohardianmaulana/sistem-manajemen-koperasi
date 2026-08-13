@@ -43,7 +43,7 @@
                 </p>
 
                 <small>
-                    Menunggu proses pencairan oleh Bendahara
+                    Menunggu proses penarikan oleh Bendahara
                 </small>
 
             </div>
@@ -71,7 +71,7 @@
                 </p>
 
                 <small>
-                    Tidak memenuhi persyaratan pencairan
+                    Tidak memenuhi persyaratan penarikan
                 </small>
 
             </div>

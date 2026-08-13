@@ -12,7 +12,7 @@
 
             <div class="col-sm-6">
 
-                <h1>Detail Pencairan Simpanan</h1>
+                <h1>Detail Penarikan Simpanan</h1>
 
             </div>
 
@@ -22,7 +22,7 @@
 
                     <li class="breadcrumb-item">
                         <a href="{{ route('pencairan-simpanan.index') }}">
-                            Pencairan Simpanan
+                            Penarikan Simpanan
                         </a>
                     </li>
 
@@ -75,7 +75,7 @@ Informasi Pengajuan
 </tr>
 
 <tr>
-    <th>Jumlah Pencairan Simpanan Sukarela</th>
+    <th>Jumlah Penarikan Simpanan Sukarela</th>
     <td>
         Rp {{ number_format($data->nominal_pencairan,0,',','.') }}
     </td>
@@ -183,7 +183,7 @@ Bendahara
 
 <th>
 
-Tanggal Pencairan
+Tanggal Penarikan
 
 </th>
 

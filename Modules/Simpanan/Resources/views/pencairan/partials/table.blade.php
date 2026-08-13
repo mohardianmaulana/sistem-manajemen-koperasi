@@ -3,7 +3,7 @@
     <div class="card-header">
 
         <h3 class="card-title">
-            Daftar Pencairan Simpanan
+            Daftar Penarikan Simpanan
         </h3>
 
     </div>
@@ -81,7 +81,7 @@
 
             <div class="col-md-3">
 
-                <label>Kode Pencairan</label>
+                <label>Kode Penarikan</label>
 
                 <input
                     type="text"
@@ -338,7 +338,7 @@
                         colspan="@role('anggota')6 @else 7 @endrole"
                         class="text-center">
 
-                        Belum ada data pencairan simpanan.
+                        Belum ada data penarikan simpanan.
 
                     </td>
 

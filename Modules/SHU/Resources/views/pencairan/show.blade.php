@@ -574,7 +574,7 @@
 
                         <th>
 
-                            Status Pencairan
+                            Status Penyaluran
 
                         </th>
 

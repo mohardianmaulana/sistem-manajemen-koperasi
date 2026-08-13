@@ -9,7 +9,7 @@
 @section('content')
 
 @php
-    $isAdmin = auth()->check() && auth()->user()->hasRole('admin');
+    $isAdmin = auth()->check() && auth()->user()->hasRole('koordinator');
 @endphp
 
 <div class="row">

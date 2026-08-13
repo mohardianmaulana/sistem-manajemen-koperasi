@@ -67,7 +67,7 @@
         <div class="row mb-2">
 
             <div class="col-sm-6">
-                <h1>Pencairan Simpanan Sukarela</h1>
+                <h1>Penarikan Simpanan Sukarela</h1>
             </div>
 
             <div class="col-sm-6">
@@ -81,7 +81,7 @@
                     </li>
 
                     <li class="breadcrumb-item active">
-                        Pencairan Simpanan
+                        Penarikan Simpanan
                     </li>
 
                 </ol>

@@ -6,7 +6,7 @@
 
             <i class="fas fa-table"></i>
 
-            Data Pencairan SHU
+            Data Penyaluran SHU
 
         </h3>
 

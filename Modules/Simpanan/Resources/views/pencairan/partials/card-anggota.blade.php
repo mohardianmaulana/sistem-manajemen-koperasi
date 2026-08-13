@@ -92,11 +92,11 @@
                     <button
                         type="submit"
                         class="btn btn-primary"
-                        onclick="return confirm('Apakah Anda yakin ingin mengajukan pencairan seluruh saldo simpanan sukarela?')">
+                        onclick="return confirm('Apakah Anda yakin ingin mengajukan penarikan seluruh saldo simpanan sukarela?')">
 
                         <i class="fas fa-plus-circle mr-1"></i>
 
-                        Ajukan Pencairan
+                        Ajukan Penarikan
 
                     </button>
 

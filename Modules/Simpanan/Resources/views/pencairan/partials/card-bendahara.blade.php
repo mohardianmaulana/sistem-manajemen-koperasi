@@ -43,7 +43,7 @@
                 </p>
 
                 <small>
-                    Total pencairan yang berhasil dilakukan
+                    Total penarikan yang berhasil dilakukan
                 </small>
 
             </div>
@@ -67,11 +67,11 @@
                 </h3>
 
                 <p>
-                    Pencairan Gagal
+                    Penarikan Gagal
                 </p>
 
                 <small>
-                    Pengajuan yang gagal dicairkan
+                    Pengajuan yang gagal ditarik
                 </small>
 
             </div>

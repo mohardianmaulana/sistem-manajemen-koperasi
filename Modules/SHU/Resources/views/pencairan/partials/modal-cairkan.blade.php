@@ -24,7 +24,7 @@
 
                         <i class="fas fa-money-check-alt"></i>
 
-                        Pencairan SHU
+                        Penyaluran SHU
 
                     </h5>
 
@@ -47,7 +47,7 @@
 
                             <div class="form-group">
 
-                                <label>Kode Pencairan</label>
+                                <label>Kode Penyaluran</label>
 
                                 <input
                                     type="text"
@@ -146,7 +146,7 @@
 
                         <i class="fas fa-check-circle"></i>
 
-                        Proses Pencairan
+                        Proses Penyaluran
 
                     </button>
 

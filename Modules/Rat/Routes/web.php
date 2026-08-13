@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('rat')->middleware(['auth', 'role:admin'])->group(function () {
+Route::prefix('rat')->middleware(['auth', 'role:bendahara'])->group(function () {
     Route::get('/','RatController@index')->name('rat.index');
     Route::get('/create','RatController@create')->name('rat.create');
     Route::post('/store','RatController@store')->name('rat.store');

@@ -6,7 +6,7 @@
 
             <i class="fas fa-history"></i>
 
-            Riwayat Pencairan SHU
+            Riwayat Penyaluran SHU
 
         </h3>
 
@@ -22,13 +22,13 @@
 
                     <th width="5%">No</th>
 
-                    <th>Kode Pencairan</th>
+                    <th>Kode Penyaluran</th>
 
                     <th>Periode SHU</th>
 
                     <th>Nominal SHU</th>
 
-                    <th>Tanggal Pencairan</th>
+                    <th>Tanggal Penyaluran</th>
 
                     <th>Status</th>
 

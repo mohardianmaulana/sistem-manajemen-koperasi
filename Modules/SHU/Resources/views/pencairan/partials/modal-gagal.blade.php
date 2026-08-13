@@ -23,7 +23,7 @@
 
                         <i class="fas fa-times-circle"></i>
 
-                        Tandai Pencairan Gagal
+                        Tandai Penyaluran Gagal
 
                     </h5>
 
@@ -44,7 +44,7 @@
 
                         <i class="fas fa-exclamation-triangle"></i>
 
-                        Berikan alasan mengapa pencairan SHU gagal dilakukan.
+                        Berikan alasan mengapa penyaluran SHU gagal dilakukan.
 
                     </div>
 
@@ -52,7 +52,7 @@
 
                         <label>
 
-                            Kode Pencairan
+                            Kode Penyaluran
 
                         </label>
 

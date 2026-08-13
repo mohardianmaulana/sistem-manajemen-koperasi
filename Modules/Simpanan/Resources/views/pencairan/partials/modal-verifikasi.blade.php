@@ -15,7 +15,7 @@
 
                     <h5 class="modal-title">
 
-                        Verifikasi Pencairan
+                        Verifikasi Penarikan
 
                     </h5>
 
@@ -33,7 +33,7 @@
                 <div class="modal-body">
 
                     <p>
-                        Apakah Anda yakin ingin memverifikasi pengajuan pencairan ini?
+                        Apakah Anda yakin ingin memverifikasi pengajuan penarikan ini?
                     </p>
 
                 </div>

@@ -6,7 +6,7 @@
 
             <i class="fas fa-filter"></i>
 
-            Filter Data Pencairan SHU
+            Filter Data Penyaluran SHU
 
         </h3>
 

@@ -15,7 +15,7 @@
 
                     <h5 class="modal-title">
 
-                        Tolak Pengajuan Pencairan
+                        Tolak Pengajuan Penarikan Simpanan
 
                     </h5>
 
@@ -35,7 +35,7 @@
                     <table class="table table-borderless">
 
                         <tr>
-                            <th width="35%">Kode Pencairan</th>
+                            <th width="35%">Kode Penarikan</th>
                             <td id="tolakKode"></td>
                         </tr>
 

@@ -16,7 +16,7 @@
 
                     <i class="fas fa-money-check-alt"></i>
 
-                    Pencairan SHU
+                    Penyaluran SHU
 
                 </h1>
 
@@ -38,7 +38,7 @@
 
                     <li class="breadcrumb-item active">
 
-                        Pencairan SHU
+                        Penyaluran SHU
 
                     </li>
 
