@@ -2,12 +2,9 @@
 
 namespace Modules\User\Http\Controllers;
 
-use App\Models\Core\Unit as CoreUnit;
-use App\Models\Core\User;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use Modules\User\Services\UserService;
 use Modules\User\Http\Requests\StoreUserRequest;
 use Modules\User\Http\Requests\UpdateUserRequest;
