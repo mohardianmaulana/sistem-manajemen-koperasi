@@ -56,7 +56,6 @@ class HomeController extends Controller
                 if (auth()->user()->role_aktif === 'koordinator') {
                     $data['summary'] = $this->dashboardService
                         ->getKoordinatorSummary();
-                    dd($data);
                 }
 
                 // Dashboard Admin
