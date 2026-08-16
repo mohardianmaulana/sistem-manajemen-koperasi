@@ -125,7 +125,7 @@ class PengajuanPinjamanRepository {
 
     public function getPengajuanSummary()
     {
-        $pengajuanPinjaman = PengajuanPinjaman::where('status_pengajuan', ['menunggu', 'persetujuan_akhir', 'verifikasi'])
+        $pengajuanPinjaman = PengajuanPinjaman::whereIn('status_pengajuan', ['menunggu', 'persetujuan_akhir', 'verifikasi'])
                     ->get();
         
         $jumlahPengajuan = $pengajuanPinjaman->count();
