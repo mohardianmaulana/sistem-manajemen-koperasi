@@ -3,6 +3,7 @@
 namespace Modules\Pinjaman\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Modules\Pinjaman\Entities\SkemaPinjaman;
 
 class UpdatePengajuanPinjamanRequest extends FormRequest
@@ -19,7 +20,7 @@ class UpdatePengajuanPinjamanRequest extends FormRequest
         );
 
         return [
-            'id_skema_pinjaman' => 'required|exists:skema_pinjaman,id',
+            'id_skema_pinjaman' => ['required', 'exists:skema_pinjaman,id', Rule::exists('skema_pinjaman', 'id')->where('status', 'aktif')],
             'tanggal_pengajuan' => 'required|date',
             'jumlah_pengajuan' => 'required|numeric|min:0|gte:'.$skema->min_nominal.'|lte:'.$skema->max_nominal,
             'lama_angsuran' => 'required|numeric|min:0|gte:'.$skema->min_tenor.'|lte:'.$skema->max_tenor,

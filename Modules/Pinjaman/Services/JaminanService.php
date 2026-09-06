@@ -17,6 +17,11 @@ class JaminanService {
         return $this->jaminanRepository->getAll($fields);
     }
 
+    public function getJaminanAktif($fields)
+    {
+        return $this->jaminanRepository->getJaminanAktif($fields);
+    }
+
     public function getById($fields, $id)
     {
         return $this->jaminanRepository->getById($fields, $id);

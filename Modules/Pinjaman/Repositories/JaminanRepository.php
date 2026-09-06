@@ -11,6 +11,11 @@ class JaminanRepository {
         return Jaminan::select($fields)->latest()->get();
     }
 
+    public function getJaminanAktif($fields)
+    {
+        return Jaminan::select($fields)->where('status', 'aktif')->get();
+    }
+
     public function getById($fields, $id)
     {
         return Jaminan::select($fields)->findOrFail($id);

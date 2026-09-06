@@ -4,6 +4,7 @@ namespace Modules\Pinjaman\Services;
 
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Modules\Pinjaman\Entities\Jaminan;
 use Modules\Pinjaman\Repositories\SkemaPinjamanRepository;
 
 class SkemaPinjamanService {
@@ -42,6 +43,13 @@ class SkemaPinjamanService {
                 $skemaPinjaman->jaminan === 'ada'
                 && !empty($jaminanIds)
             ) {
+                $jaminanTidakAktif = Jaminan::whereIn('id', $jaminanIds)
+                    ->where('status', '!=', 'aktif')
+                    ->exists();
+
+                if ($jaminanTidakAktif) {
+                    throw new Exception('Jaminan yang dipilih harus berstatus aktif.');
+                }
                 $this->skemaPinjamanRepository
                 ->syncJaminan($skemaPinjaman->id, $jaminanIds);
             }
@@ -65,8 +73,15 @@ class SkemaPinjamanService {
             $skemaPinjaman = $this->skemaPinjamanRepository->update($data, $id);
 
             if ($skemaPinjaman->jaminan === 'ada') {
-            $this->skemaPinjamanRepository
-                ->syncJaminan($skemaPinjaman->id, $jaminanIds);
+                $jaminanTidakAktif = Jaminan::whereIn('id', $jaminanIds)
+                    ->where('status', '!=', 'aktif')
+                    ->exists();
+
+                if ($jaminanTidakAktif) {
+                    throw new Exception('Jaminan yang dipilih harus berstatus aktif.');
+                }
+                $this->skemaPinjamanRepository
+                    ->syncJaminan($skemaPinjaman->id, $jaminanIds);
             } else {
                 $this->skemaPinjamanRepository
                     ->syncJaminan($skemaPinjaman->id, []);

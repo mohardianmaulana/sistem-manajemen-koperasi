@@ -40,7 +40,7 @@ class SkemaPinjamanController extends Controller
     public function create()
     {
         $fields = ['*'];
-        $jaminan = $this->jaminanService->getAll($fields);
+        $jaminan = $this->jaminanService->getJaminanAktif($fields);
         return view('pinjaman::skemaPinjaman.create', compact('jaminan'));
     }
 
@@ -96,7 +96,7 @@ class SkemaPinjamanController extends Controller
         $fields = ['*'];
         $skemaPinjaman = $this->skemaPinjamanServices
                             ->getById($fields, $id);
-        $jaminan = $this->jaminanService->getAll($fields);
+        $jaminan = $this->jaminanService->getJaminanAktif($fields);
         return view('pinjaman::skemaPinjaman.edit', 
                 compact('skemaPinjaman', 'jaminan'));
     }

@@ -69,6 +69,44 @@ class PengajuanPinjamanTest extends TestCase
         ]);
     }
 
+    public function test_create_pengajuan_pinjaman_gagal_skema_pinjaman_yang_dipilih_nonaktif()
+    {
+        $role = Role::firstOrCreate([
+            'name' => 'anggota',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'status' => 'nonaktif',
+            'jaminan' => 'tidak',
+        ]);
+
+        $response = $this->post("pengajuan_pinjaman/store",
+        [
+            'id_skema_pinjaman' => $skema_pinjaman->id,
+            'tanggal_pengajuan' => '2026-05-01',
+            'jumlah_pengajuan' => 500000,
+            'lama_angsuran' => 12,
+            'status_pengajuan' => 'menunggu',
+            'no_hp' => '082132945801',
+            'no_ktp' => '3510090503040006',
+            'no_rekening' => '1234567890',
+            'alamat' => 'Jl. Banyuwangi',
+            'nama_istri_suami' => 'Seseorang',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'id_skema_pinjaman',
+        ]);
+
+        $this->assertDatabaseCount('pengajuan_pinjaman', 0);
+    }
+
     public function test_create_pengajuan_pinjaman_gagal_masih_ada_pinjaman_yang_berjalan()
     {
         $role = Role::firstOrCreate([

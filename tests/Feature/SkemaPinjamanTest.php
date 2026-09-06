@@ -378,6 +378,41 @@ class SkemaPinjamanTest extends TestCase
         $this->assertDatabaseCount('skema_jaminan', 0);
     }
 
+    public function test_create_skema_pinjaman_dengan_jaminan_gagal_jaminan_nonaktif()
+    {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+        
+        $this->actingAs($user);
+        $jaminan = Jaminan::factory()->create([
+            'nama' => 'Surat tanah',
+            'deskripsi' => 'Ini surat tanah',
+            'status' => 'nonaktif',
+        ]);
+        $response = $this->post("skema_pinjaman/store", 
+            [
+                'nama' => 'Bunga Rendah',
+                'min_nominal' => 1000000,
+                'max_nominal' => 5000000,
+                'min_tenor' => 10,
+                'max_tenor' => 20,
+                'bunga' => 1,
+                'jaminan' => 'ada',
+                'jaminan_ids' => [$jaminan->id],
+                'deskripsi' => 'Ini pinjaman bunga rendah',
+                'status' => 'aktif',
+            ]
+        );
+
+        $this->assertDatabaseCount('skema_jaminan', 0);
+    }
+
     public function test_update_skema_pinjaman_sukses()
     {
         $role = Role::firstOrCreate([
@@ -821,6 +856,55 @@ class SkemaPinjamanTest extends TestCase
         );
 
         $response->assertSessionHasErrors('jaminan_ids.0');
+
+        // jumlah data tetap
+        $this->assertDatabaseCount('skema_pinjaman', 1);
+
+        // data lama tidak berubah
+        $this->assertDatabaseHas('skema_pinjaman', [
+            'id' => $skema_pinjaman->id,
+            'nama' => 'Bunga Rendah',
+            'jaminan' => 'tidak',
+        ]);
+
+        $this->assertDatabaseCount('skema_jaminan', 0);
+    }
+
+    public function test_update_skema_pinjaman_dengan_jaminan_gagal_jaminan_nonaktif()
+    {
+        $role = Role::firstOrCreate([
+            'name' => 'koordinator',
+            'guard_name' => 'web',
+        ]);
+
+        $user = User::factory()->create();
+
+        $user->assignRole($role);
+
+        $this->actingAs($user);
+        $skema_pinjaman = SkemaPinjaman::factory()->create([
+            'nama' => 'Bunga Rendah',
+            'jaminan' => 'tidak',
+        ]);
+        $jaminan = Jaminan::factory()->create([
+            'nama' => 'Surat tanah',
+            'deskripsi' => 'Ini surat tanah',
+            'status' => 'nonaktif',
+        ]);
+        $response = $this->put("skema_pinjaman/update/{$skema_pinjaman->id}", 
+            [
+                'nama' => 'Bunga Sedikit Rendah',
+                'min_nominal' => 500000,
+                'max_nominal' => 1000000,
+                'min_tenor' => 1,
+                'max_tenor' => 24,
+                'bunga' => 1,
+                'jaminan' => 'ada',
+                'jaminan_ids' => [$jaminan->id],
+                'deskripsi' => 'Ini pinjaman bunga sedikit rendah',
+                'status' => 'aktif',
+            ]
+        );
 
         // jumlah data tetap
         $this->assertDatabaseCount('skema_pinjaman', 1);

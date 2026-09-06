@@ -18,6 +18,7 @@ class JaminanFactory extends Factory
         return [
             'nama' => 'Surat tanah',
             'deskripsi' => 'Ini surat tanah',
+            'status' => 'aktif',
         ];
     }
 }
