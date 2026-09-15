@@ -38,4 +38,5 @@ Route::prefix('pencairan')->middleware(['auth', 'role:bendahara'])->group(functi
     Route::post('/', 'PencairanController@store')->name('pencairan.store');
     Route::put('/{id}/cairkan', 'PencairanController@cairkan')->name('pencairan.cairkan');
     Route::put('/{id}/gagal', 'PencairanController@gagal')->name('pencairan.gagal');
+    Route::post('/cairkan-semua','PencairanController@cairkanSemua')->name('shu.pencairan.cairkan-semua');
     });

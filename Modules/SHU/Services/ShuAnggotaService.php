@@ -56,9 +56,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
     }
 
     public function hitungSemuaAnggota(
-    $periodeAwal,
-    $periodeAkhir,
-  
+    $periode,
     $persenPajak
     ) {
         DB::beginTransaction();
@@ -69,8 +67,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
              * Mengambil data SHU koperasi
              */
             $shu = $this->repository->getShuKoperasi(
-                $periodeAwal,
-                $periodeAkhir
+                $periode
             );
 
             if (!$shu) {
@@ -86,8 +83,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
              */
             $totalSimpanan = $this->repository
                 ->totalSimpananSemua(
-                    $periodeAwal,
-                    $periodeAkhir
+                    $periode
                 );
 
             /**
@@ -95,8 +91,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
              */
             $totalJasaPinjaman = $this->repository
                 ->totalJasaPinjamanSemua(
-                    $periodeAwal,
-                    $periodeAkhir
+                    $periode
                 );
 
             /**
@@ -110,7 +105,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
             }
 
-               if ($this->repository->sudahAdaPeriode($periodeAwal, $periodeAkhir)) {
+               if ($this->repository->sudahAdaPeriode($periode)) {
                     throw new Exception(
                         "Perhitungan SHU untuk periode tersebut sudah pernah dilakukan."
                     );
@@ -126,8 +121,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
                 $simpananAnggota = $this->repository
                     ->totalSimpananAnggota(
                         $user->id,
-                        $periodeAwal,
-                        $periodeAkhir
+                        $periode
                     );
 
                 /**
@@ -136,8 +130,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
                 $jasaPinjamanAnggota = $this->repository
                     ->totalJasaPinjamanAnggota(
                         $user->id,
-                        $periodeAwal,
-                        $periodeAkhir
+                        $periode,
                     );
 
                 /**
@@ -201,9 +194,7 @@ use Modules\SHU\Repositories\ShuAnggotaRepository;
 
                     $user->id,
 
-                    $periodeAwal,
-
-                    $periodeAkhir,
+                    $periode,
 
                     $shuSimpanan,
 

@@ -2,6 +2,7 @@
 
 namespace Modules\Simpanan\Http\Controllers;
 
+use App\Models\Core\User;
 use Illuminate\Contracts\Support\Renderable;
 use Modules\Simpanan\Http\Requests\MasterSimpananSukarelaRequest;
 use Modules\Simpanan\Services\SimpananSukarelaService;
@@ -40,22 +41,28 @@ class SimpananSukarelaController extends Controller
      * Show the form for creating a new resource.
      * @return Renderable
      */
-    public function create()
+   public function create()
     {
-       try {
+        try {
 
-        $this->masterJenisSimpananService
-             ->cekJadwalAktif('Simpanan Sukarela');
+            $this->masterJenisSimpananService
+                ->cekJadwalAktif('Simpanan Sukarela');
 
-        return view('simpanan::simpanansukarela.createSimpananSukarela');
+            $users = User::query()
+                ->orderBy('name')
+                ->get();
 
-    } catch (\Exception $e) {
+            return view(
+                'simpanan::simpanansukarela.createSimpananSukarela',
+                compact('users')
+            );
 
-        return redirect()
-            ->route('simpanan-sukarela.index')
-            ->with('error', $e->getMessage());
+        } catch (\Exception $e) {
 
-    }
+            return redirect()
+                ->route('simpanan-sukarela.index')
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**
@@ -232,4 +239,5 @@ class SimpananSukarelaController extends Controller
             'Daftar Auto Debit Simpanan Sukarela.pdf'
         );
     }
+
 }

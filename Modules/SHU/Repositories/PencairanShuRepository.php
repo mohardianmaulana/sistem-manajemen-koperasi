@@ -213,4 +213,14 @@ class PencairanShuRepository
             )->count(),
         ];
     }
+
+    public function cairkanSemua(int $idPencair)
+    {
+        return PencairanShu::where('status', 'siap_dicairkan')
+            ->update([
+                'status' => 'dicairkan',
+                'dicairkan_oleh' => $idPencair,
+                'updated_at' => now(),
+            ]);
+    }
 }

@@ -33,8 +33,7 @@ class ShuKoperasiService
    public function store(array $data)
     {
         if ($this->repository->sudahAdaPeriode(
-            $data['periode_awal'],
-            $data['periode_akhir']
+            $data['periode'],
         )) {
             throw new Exception(
                 'Data SHU koperasi untuk periode tersebut sudah tersedia.'

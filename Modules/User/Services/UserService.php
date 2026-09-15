@@ -68,9 +68,9 @@ class UserService
                     ->store('file-sk', 'public');
             }
 
-            $data['username'] = null;
+            $data['username'] = $data['nip'];
             $data['email'] = null;
-            $data['password'] = null;
+            $data['password'] = Hash::make($data['nip']);
             $data['staff'] = null;
             $data['no_rek'] = null;
             $data['role_aktif'] = '0';
@@ -82,16 +82,27 @@ class UserService
     /**
      * Mengubah data user
      */
-   public function update($request, $id)
+    public function update($request, $id)
     {
         return DB::transaction(function () use ($request, $id) {
 
             $data = $request->validated();
 
+            // Ambil data user berdasarkan ID
+            $user = $this->repository->findById($id);
+
+            if (!$user) {
+                throw ValidationException::withMessages([
+                    'id' => 'Data user tidak ditemukan.'
+                ]);
+            }
+
+            // Jika password diisi, gunakan password baru
+            // Jika kosong, gunakan NIP sebagai password
             if (!empty($data['password'])) {
                 $data['password'] = Hash::make($data['password']);
             } else {
-                unset($data['password']);
+                $data['password'] = Hash::make($user->nip);
             }
 
             if ($request->hasFile('file_sk')) {

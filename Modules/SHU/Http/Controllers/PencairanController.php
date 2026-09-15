@@ -165,4 +165,28 @@ class PencairanController extends Controller
 
         }
     }
+
+   public function cairkanSemua()
+    {
+        try {
+
+            $result = $this->service->cairkanSemua();
+
+            return redirect()
+                ->back()
+                ->with(
+                    $result['success'] ? 'success' : 'warning',
+                    $result['message']
+                );
+
+        } catch (\Exception $e) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Gagal mencairkan SHU: ' . $e->getMessage()
+                );
+        }
+    }
 }

@@ -17,8 +17,7 @@ class ShuKoperasi extends Model
         'jasa_pengurus',
         'dana_sosial',
         'total_shu',
-        'periode_awal',
-        'periode_akhir',
+        'periode',
     ];
     
     protected static function newFactory()

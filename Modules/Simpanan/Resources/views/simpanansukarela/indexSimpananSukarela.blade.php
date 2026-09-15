@@ -165,7 +165,7 @@
         {{-- Tombol --}}
         <div class="col-lg-5 col-md-12 mb-2">
 
-            @role('anggota')
+
 
                 <a href="{{ route('simpanan-sukarela.create') }}"
                    class="btn btn-primary">
@@ -175,7 +175,6 @@
 
                 </a>
 
-                @endrole
                 @role('koordinator')
                 <button
                     type="button"

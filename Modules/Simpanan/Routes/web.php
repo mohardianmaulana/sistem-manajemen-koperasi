@@ -29,27 +29,32 @@ Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:koordinator'])->grou
     Route::put('/master-jenis-simpanan/updatedata/{id}', 'MasterJenisSimpananController@update')->name('master-jenis-simpanan.update'); 
 });
 
-    Route::prefix('simpanan-sukarela')->middleware(['auth'])->group(function () {
+   Route::prefix('simpanan-sukarela')->middleware(['auth'])->group(function () {
 
-        Route::get('/', 'SimpananSukarelaController@index')->name('simpanan-sukarela.index');
+    Route::get('/', 'SimpananSukarelaController@index')->name('simpanan-sukarela.index');
+    Route::middleware(['role:koordinator'])->group(function () {
 
-        Route::middleware(['role:koordinator'])->group(function () {
-            Route::get('/export-auto-debit', 'SimpananSukarelaController@exportAutoDebit')->name('simpanan-sukarela.export-auto-debit');
-            Route::get('/{id}/verifikasi', 'SimpananSukarelaController@verifikasi')->name('simpanan-sukarela.verifikasi');
-            Route::put('/{id}/verifikasi', 'SimpananSukarelaController@updateStatus')->name('simpanan-sukarela.update-status');
-        });
-
-        Route::middleware(['role:anggota'])->group(function () {
-            Route::get('/create', 'SimpananSukarelaController@create')->name('simpanan-sukarela.create');
-            Route::post('/store', 'SimpananSukarelaController@store')->name('simpanan-sukarela.store');
-            Route::get('/{id}/edit', 'SimpananSukarelaController@show')->name('simpanan-sukarela.edit');
-            Route::put('/{id}', 'SimpananSukarelaController@updatePengajuan')->name('simpanan-sukarela.update');
-            Route::get('/{id}/upload-bukti', 'SimpananSukarelaController@uploadBuktiForm')->name('simpanan-sukarela.upload-bukti');
-            Route::put('/{id}/upload-bukti', 'SimpananSukarelaController@uploadBukti')->name('simpanan-sukarela.upload-bukti.store');
-            Route::get('/{id}', 'SimpananSukarelaController@show')->name('simpanan-sukarela.show');
-        });
-
+        Route::get('/export-auto-debit', 'SimpananSukarelaController@exportAutoDebit')->name('simpanan-sukarela.export-auto-debit');
+        // Pencarian anggota untuk Select2
+        Route::get('/search-anggota', 'SimpananSukarelaController@searchAnggota')->name('simpanan-sukarela.search-anggota');
+        Route::get('/{id}/verifikasi', 'SimpananSukarelaController@verifikasi')->name('simpanan-sukarela.verifikasi');
+        Route::put('/{id}/verifikasi', 'SimpananSukarelaController@updateStatus')->name('simpanan-sukarela.update-status');
     });
+
+    Route::middleware(['role:anggota|koordinator'])->group(function () {
+        Route::get('/create', 'SimpananSukarelaController@create')->name('simpanan-sukarela.create');
+        Route::post('/store', 'SimpananSukarelaController@store')->name('simpanan-sukarela.store');
+    });
+
+    Route::middleware(['role:anggota'])->group(function () {
+        Route::get('/{id}/edit', 'SimpananSukarelaController@show')->name('simpanan-sukarela.edit');
+        Route::put('/{id}', 'SimpananSukarelaController@updatePengajuan')->name('simpanan-sukarela.update');
+        Route::get('/{id}/upload-bukti', 'SimpananSukarelaController@uploadBuktiForm')->name('simpanan-sukarela.upload-bukti');
+        Route::put('/{id}/upload-bukti', 'SimpananSukarelaController@uploadBukti')->name('simpanan-sukarela.upload-bukti.store');
+        Route::get('/{id}', 'SimpananSukarelaController@show')->name('simpanan-sukarela.show');
+    });
+
+});
 
 Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
     Route::get('/', 'SimpananWajibController@index')
@@ -62,19 +67,4 @@ Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
     Route::get('/{id}', 'SimpananWajibController@show')->name('simpanan-wajib.show');
     Route::put('/{id}', 'SimpananWajibController@update')->name('simpanan-wajib.update');
 });
-
-Route::prefix('pencairan-simpanan')->middleware(['auth'])->group(function () {
-    Route::middleware(['role:anggota'])->group(function () {
-    Route::post('/store','PencairanSimpananController@store')->name('pencairan-simpanan.store');});
-    Route::get('/','PencairanSimpananController@index')->name('pencairan-simpanan.index');
-    Route::get('/{id}','PencairanSimpananController@show')->name('pencairan-simpanan.show');
-    
-    Route::middleware(['role:koordinator'])->group(function () {
-        Route::put('/{id}/verifikasi','PencairanSimpananController@verifikasi')->name('pencairan-simpanan.verifikasi');
-        Route::put('/{id}/tolak','PencairanSimpananController@tolak')->name('pencairan-simpanan.tolak');});
-
-    Route::middleware(['role:bendahara'])->group(function () {
-        Route::put('/{id}/cairkan','PencairanSimpananController@cairkan')->name('pencairan-simpanan.cairkan');
-        Route::put('/{id}/gagal','PencairanSimpananController@gagal')->name('pencairan-simpanan.gagal');
-        });
-    });
+   

@@ -22,7 +22,7 @@ class ShuAnggotaRepository
         }
 
         return $query
-            ->orderByDesc('periode_akhir')
+            ->orderByDesc('periode')
             ->paginate(10);
     }
 
@@ -30,7 +30,7 @@ class ShuAnggotaRepository
     {
         return ShuAnggota::with('pencairan')
             ->where('id_anggota', $idAnggota)
-            ->orderByDesc('periode_akhir')
+            ->orderByDesc('periode')
             ->first();
     }
 
@@ -62,21 +62,21 @@ class ShuAnggotaRepository
     public function getRiwayat($idAnggota)
     {
         return ShuAnggota::where('id_anggota', $idAnggota)
-            ->orderByDesc('periode_akhir')
+            ->orderByDesc('periode')
             ->paginate(10);
     }
 
     public function getByPeriode($idAnggota, $tahun)
     {
         return ShuAnggota::where('id_anggota', $idAnggota)
-            ->whereYear('periode_akhir', $tahun)
+            ->whereYear('periode', $tahun)
             ->first();
     }
 
     public function getDaftarTahun($idAnggota)
     {
         return ShuAnggota::where('id_anggota', $idAnggota)
-            ->selectRaw('YEAR(periode_akhir) as tahun')
+            ->selectRaw('YEAR(periode) as tahun')
             ->distinct()
             ->orderByDesc('tahun')
             ->pluck('tahun');
@@ -85,21 +85,20 @@ class ShuAnggotaRepository
     public function getGrafik($idAnggota)
     {
         return ShuAnggota::where('id_anggota', $idAnggota)
-            ->orderBy('periode_akhir')
+            ->orderBy('periode')
             ->get([
-                'periode_akhir',
+                'periode',
                 'shu_anggota'
             ]);
     }
 
 
     public function getShuKoperasi(
-    $periodeAwal,
-    $periodeAkhir
+    $periode
     )
     {
-        return ShuKoperasi::where('periode_awal', $periodeAwal )
-            ->where('periode_akhir', $periodeAkhir)
+        return ShuKoperasi::where('periode', $periode )
+            ->where('periode_akhir', $periode)
             ->first();
     }
 
@@ -109,18 +108,17 @@ class ShuAnggotaRepository
     }
 
     public function totalSimpananSemua(
-    $periodeAwal,
-    $periodeAkhir
+    $periode
     )
     {
         $wajib = SimpananWajib::whereBetween(
             'periode',
-            [$periodeAwal, $periodeAkhir]
+            [$periode, $periode]
         )->sum('nilai');
 
         $sukarela = SimpananSukarela::whereBetween(
             'periode',
-            [$periodeAwal, $periodeAkhir]
+            [$periode]
         )->sum('nilai');
 
         return $wajib + $sukarela;
@@ -128,24 +126,22 @@ class ShuAnggotaRepository
 
    public function totalSimpananAnggota(
     $idAnggota,
-    $periodeAwal,
-    $periodeAkhir
+    $periode
     )
     {
         $wajib = SimpananWajib::where('id_anggota', $idAnggota)
-            ->whereBetween('periode',[$periodeAwal, $periodeAkhir])
+            ->whereBetween('periode',[$periode])
             ->sum('nilai');
 
         $sukarela = SimpananSukarela::where('id_anggota', $idAnggota)
-            ->whereBetween('periode',[$periodeAwal, $periodeAkhir])
+            ->whereBetween('periode',[$periode])
             ->sum('nilai');
 
         return $wajib + $sukarela;
     }
 
     public function totalJasaPinjamanSemua(
-    $periodeAwal,
-    $periodeAkhir
+    $periode
     ) {
         $total = 0;
 
@@ -168,7 +164,7 @@ class ShuAnggotaRepository
                 ->where('status_bayar', 'lunas')
                 ->whereBetween(
                     'tanggal_jatuh_tempo',
-                    [$periodeAwal, $periodeAkhir]
+                    [$periode]
                 )
                 ->count();
 
@@ -181,8 +177,7 @@ class ShuAnggotaRepository
 
    public function totalJasaPinjamanAnggota(
     $idAnggota,
-    $periodeAwal,
-    $periodeAkhir
+    $periode
     ) {
         $total = 0;
 
@@ -223,7 +218,7 @@ class ShuAnggotaRepository
                 )
                 ->whereBetween(
                     'tanggal_jatuh_tempo',
-                    [$periodeAwal, $periodeAkhir]
+                    [$periode]
                 )
                 ->count();
 
@@ -236,8 +231,7 @@ class ShuAnggotaRepository
 
    public function simpanShu(
     $idAnggota,
-    $periodeAwal,
-    $periodeAkhir,
+    $periode,
     $shuSimpanan,
     $shuPinjaman,
     $shuAnggota,
@@ -246,8 +240,7 @@ class ShuAnggotaRepository
     {
         return ShuAnggota::create([
             'id_anggota'    => $idAnggota,
-            'periode_awal'  => $periodeAwal,
-            'periode_akhir' => $periodeAkhir,
+            'periode'       => $periode,
             'shu_simpanan'  => round($shuSimpanan),
             'shu_pinjaman'  => round($shuPinjaman),
             'shu_anggota'   => round($shuAnggota),
@@ -263,10 +256,9 @@ class ShuAnggotaRepository
         ])->findOrFail($id);
     }
 
-    public function sudahAdaPeriode($periodeAwal, $periodeAkhir)
+    public function sudahAdaPeriode($periode)
     {
-        return ShuAnggota::where('periode_awal', $periodeAwal)
-            ->where('periode_akhir', $periodeAkhir)
+        return ShuAnggota::where('periode', $periode)
             ->exists();
     }
 
@@ -298,15 +290,13 @@ class ShuAnggotaRepository
         public function getByTahun($tahun)
         {
             return ShuAnggota::with('user')
-                ->whereYear('periode_awal', $tahun)
-                ->whereYear('periode_akhir', $tahun)
-              
+                ->whereYear('periode', $tahun)
                 ->get();
         }
         
         public function getTahunList()
         {
-            return ShuAnggota::select(DB::raw('YEAR(periode_awal) as tahun'))
+            return ShuAnggota::select(DB::raw('YEAR(periode) as tahun'))
                 ->distinct()
                 ->orderByDesc('tahun')
                 ->pluck('tahun');

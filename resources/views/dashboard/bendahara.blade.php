@@ -187,11 +187,6 @@
                         Sudah diverifikasi koordinator
                     </span>
 
-                    <a href="{{ route('pencairan-simpanan.index') }}">
-                        Proses
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-
                 </div>
 
             </div>

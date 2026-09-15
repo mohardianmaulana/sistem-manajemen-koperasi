@@ -32,7 +32,7 @@
 
                     <th>Status</th>
 
-                    <th>Bukti</th>
+                    
 
                     <th width="10%">Aksi</th>
 
@@ -110,28 +110,6 @@
 
                         </td>
 
-                        <td class="text-center">
-
-                            @if($item->bukti)
-
-                                <a
-                                    href="{{ asset('storage/'.$item->bukti) }}"
-                                    target="_blank"
-                                    class="btn btn-info btn-sm">
-
-                                    <i class="fas fa-eye"></i>
-
-                                    Lihat
-
-                                </a>
-
-                            @else
-
-                                -
-
-                            @endif
-
-                        </td>
 
                         <td class="text-center">
 

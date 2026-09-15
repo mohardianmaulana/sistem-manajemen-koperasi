@@ -3,11 +3,8 @@
     <div class="card-header">
 
         <h3 class="card-title">
-
             <i class="fas fa-filter"></i>
-
             Filter Data Penyaluran SHU
-
         </h3>
 
     </div>
@@ -25,6 +22,7 @@
 
                     <div class="form-row">
 
+                        {{-- Tahun SHU --}}
                         <div class="col-md-4">
 
                             <label>Tahun SHU</label>
@@ -49,6 +47,7 @@
 
                         </div>
 
+                        {{-- Status --}}
                         <div class="col-md-4">
 
                             <label>Status</label>
@@ -89,6 +88,7 @@
 
                         </div>
 
+                        {{-- Tombol Filter --}}
                         <div class="col-md-4 d-flex align-items-end">
 
                             <button
@@ -96,7 +96,6 @@
                                 class="btn btn-primary mr-2">
 
                                 <i class="fas fa-search"></i>
-
                                 Filter
 
                             </button>
@@ -106,7 +105,6 @@
                                 class="btn btn-secondary">
 
                                 <i class="fas fa-sync"></i>
-
                                 Reset
 
                             </a>
@@ -119,12 +117,14 @@
 
             </div>
 
-            {{-- Tombol Generate --}}
+            {{-- Tombol Aksi --}}
             <div class="col-md-4 d-flex justify-content-end align-items-end">
 
+                {{-- Generate Data --}}
                 <form
                     action="{{ route('pencairan.store') }}"
-                    method="POST">
+                    method="POST"
+                    class="mb-0">
 
                     @csrf
 
@@ -139,8 +139,27 @@
                         onclick="return confirm('Generate data pencairan SHU tahun {{ $tahun }}?')">
 
                         <i class="fas fa-plus-circle"></i>
-
                         Generate Data
+
+                    </button>
+
+                </form>
+
+                {{-- Cairkan Semua --}}
+                <form
+                    action="{{ route('shu.pencairan.cairkan-semua') }}"
+                    method="POST"
+                    class="mb-0 ml-2">
+
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                        onclick="return confirm('Apakah Anda yakin ingin mencairkan semua SHU yang siap dicairkan?')">
+
+                        <i class="fas fa-check-double"></i>
+                        Cairkan Semua
 
                     </button>
 

@@ -265,11 +265,6 @@
                         Menunggu tindakan
                     </span>
 
-                    <a href="{{ route('pencairan-simpanan.index') }}">
-                        Periksa
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-
                 </div>
 
             </div>

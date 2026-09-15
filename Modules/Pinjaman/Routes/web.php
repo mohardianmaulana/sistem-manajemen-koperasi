@@ -64,7 +64,7 @@ Route::prefix('pengajuan_pinjaman')->middleware('web')->group(function () {
     Route::delete('/delete/{id}', [PengajuanPinjamanController::class, 'destroy'])->name('pengajuanPinjaman.destroy')->middleware('role:anggota');
     Route::patch('/updateStatus/{id}', [PengajuanPinjamanController::class, 'updateStatusVerifikasi'])->name('pengajuanPinjaman.updateStatus')->middleware('role:koordinator');
     Route::patch('/teruskan/{id}', [PengajuanPinjamanController::class, 'teruskan'])->name('pengajuanPinjaman.teruskan')->middleware('role:koordinator');
-    Route::get('/cetak/{id}', [PengajuanPinjamanController::class, 'cetak'])->name('pengajuanPinjaman.cetak')->middleware('role:koordinator|anggota');
+    Route::get('/cetak/{id}', [PengajuanPinjamanController::class, 'cetak'])->name('pengajuanPinjaman.cetak')->middleware('role:koordinator|ketua|anggota');
     Route::patch('/verifikasi/{id}', [PengajuanPinjamanController::class, 'verifikasi'])->name('pengajuanPinjaman.verifikasi')->middleware('role:koordinator');
     Route::patch('/tolak/{id}', [PengajuanPinjamanController::class, 'tolak'])->name('pengajuanPinjaman.tolak')->middleware('role:koordinator');
     Route::get('/revisi/{id}', [PengajuanPinjamanController::class, 'revisiJaminan'])->name('pengajuanPinjaman.revisi')->middleware('role:anggota');

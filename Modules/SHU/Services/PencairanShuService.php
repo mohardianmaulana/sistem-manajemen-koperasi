@@ -340,4 +340,23 @@ class PencairanShuService
     {
         return $this->shuRepository->getTahunList();
     }
+
+   public function cairkanSemua()
+    {
+        $jumlah = $this->repository->cairkanSemua(
+            Auth::id()
+        );
+
+        if ($jumlah == 0) {
+            return [
+                'success' => false,
+                'message' => 'Tidak ada data yang perlu dicairkan.'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => $jumlah . ' data SHU berhasil dicairkan.'
+        ];
+    }
 }

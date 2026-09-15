@@ -2,6 +2,7 @@
 
 namespace Modules\Simpanan\Repositories;
 
+use App\Models\Core\User;
 use Illuminate\Support\Carbon;
 use Modules\Simpanan\Entities\MasterSimpananSukarela;
 use Modules\Simpanan\Entities\SimpananSukarela;
@@ -179,5 +180,21 @@ class SimpananSukarelaRepository
                 ->where('status', 'tidak berhasil')
                 ->count(),
         ];
+    }
+
+    public function searchAnggota(string $search, int $limit = 20)
+    {
+        return User::query()
+            ->where(function ($query) use ($search) {
+                $query->where('nip', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%");
+            })
+            ->orderBy('name')
+            ->limit($limit)
+            ->get([
+                'id',
+                'nip',
+                'name',
+            ]);
     }
 }

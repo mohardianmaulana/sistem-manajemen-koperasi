@@ -19,8 +19,7 @@ class CreateShuAnggotaTable extends Migration
             $table->bigInteger('shu_pinjaman');
             $table->bigInteger('pajak');
             $table->bigInteger('shu_anggota');
-            $table->date('periode_awal');
-            $table->date('periode_akhir');
+            $table->year('periode');
             $table->foreignId('id_anggota')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

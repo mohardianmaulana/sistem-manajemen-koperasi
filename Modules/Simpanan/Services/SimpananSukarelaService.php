@@ -60,18 +60,18 @@ class SimpananSukarelaService
 
         $data['status'] = 'pending';
         $data['tahun'] = date('Y');
-        $data['id_anggota'] = Auth::id();
+
+        // Jika id_anggota tidak diisi, gunakan user yang sedang login
+        $data['id_anggota'] = $data['id_anggota'] ?? Auth::id();
 
         if (isset($data['bukti']) && $data['bukti']) {
 
             $data['bukti'] = $data['bukti']
                 ->store('bukti-simpanan', 'public');
-
         }
 
         return $this->repository->store($data);
     }
-
     /**
      * FIND BY ID
      */
@@ -221,5 +221,14 @@ class SimpananSukarelaService
                 'tahun'      => Carbon::parse($jadwal->tanggal_mulai)->year,
             ]);
         }
+    }
+
+    public function searchAnggota(string $search)
+    {
+        if (strlen(trim($search)) < 2) {
+            return collect();
+        }
+
+        return $this->repository->searchAnggota($search);
     }
 }

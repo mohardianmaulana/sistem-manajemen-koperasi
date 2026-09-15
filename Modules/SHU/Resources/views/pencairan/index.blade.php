@@ -60,41 +60,62 @@
 
         @if(session('success'))
 
-            <div class="alert alert-success alert-dismissible">
+    <div class="alert alert-success alert-dismissible">
 
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="alert">
+        <button
+            type="button"
+            class="close"
+            data-dismiss="alert">
 
-                    &times;
+            &times;
 
-                </button>
+        </button>
 
-                {{ session('success') }}
+        {{ session('success') }}
 
-            </div>
+    </div>
 
-        @endif
+@endif
 
-        @if(session('error'))
 
-            <div class="alert alert-danger alert-dismissible">
+@if(session('warning'))
 
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="alert">
+    <div class="alert alert-warning alert-dismissible">
 
-                    &times;
+        <button
+            type="button"
+            class="close"
+            data-dismiss="alert">
 
-                </button>
+            &times;
 
-                {{ session('error') }}
+        </button>
 
-            </div>
+        {{ session('warning') }}
 
-        @endif
+    </div>
+
+@endif
+
+
+@if(session('error'))
+
+    <div class="alert alert-danger alert-dismissible">
+
+        <button
+            type="button"
+            class="close"
+            data-dismiss="alert">
+
+            &times;
+
+        </button>
+
+        {{ session('error') }}
+
+    </div>
+
+@endif  
 
 
         {{-- ===================== bendahara ===================== --}}

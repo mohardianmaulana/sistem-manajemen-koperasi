@@ -435,23 +435,6 @@ class MenusTableSeeder extends Seeder
             'parent_id' => 22,
         ]);
 
-        Menu::create([
-            'id' => 26,
-            'modul' => 'Core',
-            'label' => 'Penarikan Simpanan Sukarela',
-            'url' => '/pencairan-simpanan',
-            'icon' => 'far fa-circle',
-            'active' => serialize([
-                '/pencairan-simpanan',
-                '/pencairan-simpanan*'
-            ]),
-            'can' => serialize([
-                'koordinator',
-                'bendahara'
-            ]),
-            'urut' => 4,
-            'parent_id' => 22,
-        ]);
 
 
         /*
@@ -572,7 +555,7 @@ class MenusTableSeeder extends Seeder
                 '/user*'
             ]),
             'can' => serialize([
-                'admin'
+                'sekertaris'
             ]),
             'urut' => 12,
             'parent_id' => 0,
@@ -596,7 +579,7 @@ class MenusTableSeeder extends Seeder
                 '/rat*'
             ]),
             'can' => serialize([
-                'koordinator'
+                'sekertaris'
             ]),
             'urut' => 6,
             'parent_id' => 0,

@@ -25,7 +25,66 @@
             </a>
 
         </div>
+        @role('anggota')
+            <div class="alert alert-info">
 
+            <h5>
+                <i class="fas fa-info-circle"></i>
+                Informasi Pengajuan Simpanan Sukarela
+            </h5>
+
+            <p class="mb-2">
+                Simpanan sukarela merupakan simpanan yang dapat disetorkan oleh anggota
+                kapan saja sesuai kemampuan anggota. Pengajuan akan diproses setelah
+                bendahara melakukan verifikasi terhadap bukti transfer.
+            </p>
+
+            <hr>
+
+            <h6 class="mb-2">
+                <i class="fas fa-university"></i>
+                Rekening Tujuan Transfer
+            </h6>
+
+            <table class="table table-borderless table-sm mb-2">
+
+                <tr>
+                    <th width="180">Nama Bank</th>
+                    <td>: Bank BRI</td>
+                </tr>
+
+                <tr>
+                    <th>No. Rekening</th>
+                    <td>: 1234567890</td>
+                </tr>
+
+                <tr>
+                    <th>Atas Nama</th>
+                    <td>: Koperasi Karyawan Politeknik Negeri Banyuwangi</td>
+                </tr>
+
+            </table>
+
+            <hr>
+
+            <strong>Langkah Pengajuan</strong>
+
+            <ol class="mb-0">
+
+                <li>Transfer sesuai nominal yang ingin disimpan.</li>
+
+                <li>Isi form pengajuan simpanan sukarela.</li>
+
+                <li>Unggah bukti transfer.</li>
+
+                <li>Koordinator Simpan Pinjam akan melakukan verifikasi.</li>
+
+                <li>Status pengajuan dapat dipantau pada halaman Simpanan Sukarela.</li>
+
+            </ol>
+
+        </div>
+        @endrole
         <div class="card">
 
             <div class="card-header">
