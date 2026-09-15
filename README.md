@@ -79,6 +79,18 @@ php artisan module:seed --class=MenuModulKepegawaianTableSeeder Kepegawaian
 [Document_Lenkap_modul](https://laravelmodules.com/docs/v8)
 
 
+## 📚 Dokumentasi
+
+Seluruh dokumentasi Sistem Manajemen Koperasi, meliputi:
+
+- User Guide
+- Module Pengembangan
+- Laporan Tugas Akhir
+- Dokumentasi pendukung
+
+dapat diakses melalui Google Drive berikut:
+
+👉 [Google Drive - Dokumentasi Sistem Manajemen Koperasi](https://drive.google.com/drive/folders/1ngFlYLQoBbuhN_MfblYwCzoZDY3M8b6G?usp=sharing)
 
 ## Kontribusi
 
