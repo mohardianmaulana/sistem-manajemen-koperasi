@@ -63,6 +63,54 @@ class PengajuanPinjamanService {
                         $namaFile
                     );
             }
+
+            $koordinator = User::role('koordinator')->first();
+
+            if ($koordinator && $koordinator->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pengajuan Pinjaman Baru</b>
+
+                Halo {$koordinator->name},
+
+                Terdapat pengajuan pinjaman baru yang memerlukan verifikasi Anda.
+
+                👤 Anggota : {$pengajuanPinjaman->users->name}
+                💰 Nominal : Rp ".number_format($pengajuanPinjaman->jumlah_pengajuan,0,',','.')."
+                📅 Tanggal : ".date('d-m-Y')."
+
+                Silakan login ke Sistem Informasi Koperasi untuk melakukan verifikasi.
+                🔗 https://app.koperasi-poliwangi.my.id ";
+
+                    $this->telegramService->sendMessage(
+                        $koordinator->telegram_chat_id,
+                        $pesan
+                    );
+            }
+
+            $anggota = $pengajuanPinjaman->users;
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pengajuan Pinjaman Baru</b>
+
+                Halo {$anggota->name},
+
+                Pengajuan pinjaman baru telah berhasil diajukan.
+
+                👤 Anggota : {$anggota->name}
+                💰 Nominal : Rp ".number_format($pengajuanPinjaman->jumlah_pengajuan,0,',','.')."
+                📅 Tanggal : ".date('d-m-Y')."
+
+                Silakan login ke Sistem Informasi Koperasi untuk memantau perkembangan pengajuan pinjaman.
+                🔗 https://app.koperasi-poliwangi.my.id ";
+
+                    $this->telegramService->sendMessage(
+                        $anggota->telegram_chat_id,
+                        $pesan
+                    );
+            }
             DB::commit();
             return $pengajuanPinjaman;
         } catch (Exception $e) {
@@ -191,29 +239,50 @@ class PengajuanPinjamanService {
                 $persetujuan = $this->persetujuanRepository->create($data);
             }
 
-            // $ketua = User::role('ketua')->first();
+            $ketua = User::role('ketua')->first();
 
-            // if ($ketua && $ketua->telegram_chat_id) {
+            if ($ketua && $ketua->telegram_chat_id) {
 
-            // $pesan =
-            // "📢 <b>Pengajuan Pinjaman Baru</b>
+                $pesan =
+                "📢 <b>Pengajuan Pinjaman Baru</b>
 
-            // Halo {$ketua->name},
+                Halo {$ketua->name},
 
-            // Terdapat pengajuan pinjaman yang memerlukan persetujuan Anda.
+                Terdapat pengajuan pinjaman yang memerlukan persetujuan Anda.
 
-            // 👤 Anggota : {$pengajuan->users->name}
-            // 💰 Nominal : Rp ".number_format($pengajuan->jumlah_pengajuan,0,',','.')."
-            // 📅 Tanggal : ".date('d-m-Y')."
+                👤 Anggota : {$pengajuan->users->name}
+                💰 Nominal : Rp ".number_format($pengajuan->jumlah_pengajuan,0,',','.')."
+                📅 Tanggal : ".date('d-m-Y')."
 
-            // Silakan login ke Sistem Informasi Koperasi untuk melakukan persetujuan.
-            // 🔗 https://app.koperasi-poliwangi.my.id ";
+                Silakan login ke Sistem Informasi Koperasi untuk melakukan persetujuan.
+                🔗 https://app.koperasi-poliwangi.my.id ";
 
-            //     $this->telegramService->sendMessage(
-            //         $ketua->telegram_chat_id,
-            //         $pesan
-            //     );
-            // }
+                    $this->telegramService->sendMessage(
+                        $ketua->telegram_chat_id,
+                        $pesan
+                    );
+            }
+
+            $anggota = $pengajuan->users;
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pengajuan Pinjaman</b>
+
+                Halo {$anggota->name},
+
+                Pengajuan pinjaman anda dalam proses persetujuan kepada ketua koperasi.
+
+                👤 Anggota : {$anggota->name}
+                💰 Nominal : Rp ".number_format($pengajuan->jumlah_pengajuan,0,',','.')."
+                📅 Tanggal : ".date('d-m-Y')."";
+
+                    $this->telegramService->sendMessage(
+                        $anggota->telegram_chat_id,
+                        $pesan
+                    );
+            }
             DB::commit();
             return $updatePengajuanPinjaman;
         } catch (Exception $e) {
@@ -328,6 +397,28 @@ class PengajuanPinjamanService {
             $updatePengajuanPinjaman = $this->pengajuanPinjamanRepository->update([
                 'status_pengajuan' => 'revisi'
                 ], $pengajuan->id);
+
+            $anggota = $pengajuan->users;
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pengajuan Pinjaman</b>
+
+                Halo {$anggota->name},
+
+                Jaminan yang anda lampirkan ditolak oleh koordinator, 
+                buka menu riwayat pinjaman dan tekan tombol revisi jaminan.
+
+                👤 Anggota : {$anggota->name}
+                💰 Nominal : Rp ".number_format($pengajuan->jumlah_pengajuan,0,',','.')."
+                💬 Catatan : {$keterangan}";
+
+                    $this->telegramService->sendMessage(
+                        $anggota->telegram_chat_id,
+                        $pesan
+                    );
+            }
 
             DB::commit();
 

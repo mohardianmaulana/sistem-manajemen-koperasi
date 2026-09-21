@@ -27,7 +27,6 @@ class SkemaPinjamanRequest extends FormRequest
             'jaminan_ids' => 'required_if:jaminan,ada|array',
             'jaminan_ids.*' => 'exists:jaminan,id',
             'deskripsi' => 'required|string',
-            'status' => 'required|in:nonaktif,aktif',
         ];
     }
 
@@ -69,9 +68,6 @@ class SkemaPinjamanRequest extends FormRequest
 
             'deskripsi.required' => 'Deskripsi skema pinjaman wajib diisi.',
             'deskripsi.string' => 'Deskripsi harus berupa teks.',
-
-            'status.required' => 'Status skema pinjaman wajib dipilih.',
-            'status.in' => 'Status skema pinjaman tidak valid.',
         ];
     }
 

@@ -16,7 +16,7 @@ class PembayaranRequest extends FormRequest
         return [
             'id_angsuran' => 'required|exists:angsuran,id',
             'jumlah_bayar' => 'required|numeric|min:0',
-            'bukti_pembayaran' => 'nullable|file|mimes:jpg,png,jpeg|max:2048',
+            'bukti_pembayaran' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:2048',
         ];
     }
 
@@ -31,7 +31,7 @@ class PembayaranRequest extends FormRequest
             'jumlah_bayar.min' => 'Jumlah bayar tidak boleh kurang dari 0.',
 
             'bukti_pembayaran.file' => 'Dokumen jaminan harus berupa file.',
-            'bukti_pembayaran.mimes' => 'Dokumen jaminan harus berformat JPG, PNG, JPEG.',
+            'bukti_pembayaran.mimes' => 'Dokumen jaminan harus berformat PDF, JPG, PNG, JPEG.',
             'bukti_pembayaran.max' => 'Ukuran dokumen jaminan maksimal 2 MB.',
         ];
     }

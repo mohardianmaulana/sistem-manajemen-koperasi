@@ -61,7 +61,11 @@
                                             {{ $item->bunga }} %
                                         </td>
                                         <td>
+                                            @if($item->min_tenor == $item->max_tenor)
+                                            {{ $item->min_tenor }} Bulan
+                                            @else
                                             {{ $item->min_tenor }} - {{ $item->max_tenor }} Bulan
+                                            @endif
                                         </td>
                                         <td>
                                             Rp {{ number_format($item->min_nominal, 0, ',', '.') }} - {{ number_format($item->max_nominal, 0, ',', '.') }}

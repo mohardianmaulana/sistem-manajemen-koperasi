@@ -299,13 +299,49 @@
                         </table>
                     </div>
 
-                    <div class="form-group text-center">
-                        <label>QRIS Pembayaran</label>
-
-                        <div class="mt-2">
-                            <img src="{{ asset('images/qris.jpg') }}"
-                                class="img-fluid"
-                                style="max-width:250px;">
+                    <div class="form-group">
+                        <label>Rekening Pembayaran</label>
+                        <div class="card border-0 shadow-sm mt-2"
+                            style="border-radius: 12px; overflow: hidden;">
+                            <div class="card-body text-center"
+                                style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+                                <h6 class="font-weight-bold mb-1">
+                                    Kopkar Poliwangi
+                                </h6>
+                                <small class="text-muted d-block mb-3">
+                                    Silakan transfer pembayaran ke rekening berikut
+                                </small>
+                                <div class="p-3 bg-white border rounded"
+                                    style="border-radius: 10px;">
+                                    <small class="text-muted d-block">
+                                        Nomor Rekening
+                                    </small>
+                                    <div class="d-flex justify-content-center align-items-center mt-1">
+                                        <h4 class="font-weight-bold text-dark mb-0 mr-2">
+                                            7283225229
+                                        </h4>
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-success"
+                                            onclick="copyRekening()"
+                                            title="Salin nomor rekening">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">
+                                        Bank BSI
+                                    </small>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="alert alert-info mb-0 py-2 px-3 text-center"
+                                        style="border-radius: 8px; font-size: 13px;">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        <strong>Informasi Pembayaran</strong>
+                                        <br>
+                                        Bayar sesuai total pembayaran.
+                                        Jika ingin mencicil, dapat membayar tunggakan terlebih dahulu.
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -318,10 +354,10 @@
                         <input type="file"
                             name="bukti_pembayaran"
                             class="form-control"
-                            accept="image/*"
+                            accept=".pdf,.jpg,.jpeg,.png"
                             required>
                         <small class="form-text text-muted">
-                            Format file <strong>JPG, PNG, JPEG</strong> dengan ukuran maksimal <strong>2 MB</strong>.
+                            Format file <strong>PDF, JPG, PNG, JPEG</strong> dengan ukuran maksimal <strong>2 MB</strong>.
                         </small>
                     </div>
 
@@ -436,10 +472,13 @@
                         <input type="file"
                             name="bukti_pembayaran"
                             class="form-control"
-                            accept="image/*"
+                            accept=".pdf,.jpg,.jpeg,.png"
                             required>
                             <small class="form-text text-muted">
-                                Format file <strong>JPG, PNG, JPEG</strong> dengan ukuran maksimal <strong>2 MB</strong>.
+                                Format file <strong>PDF, JPG, PNG, JPEG</strong> dengan ukuran maksimal <strong>2 MB</strong>.
+                            </small>
+                            <small>
+                                Jika melakukan transfer <strong>2 kali atau lebih</strong>, mohon untuk dijadikan menjadi <strong>1 file PDF</strong>.
                             </small>
                     </div>
 
@@ -640,8 +679,17 @@ $(document).ready(function () {
 
         $('#catatan').val(catatan);
     });
-
 });
 
+</script>
+
+<script>
+    function copyRekening() {
+        const nomorRekening = '1234567890';
+
+        navigator.clipboard.writeText(nomorRekening).then(function () {
+            alert('Nomor rekening berhasil disalin.');
+        });
+    }
 </script>
 @endpush

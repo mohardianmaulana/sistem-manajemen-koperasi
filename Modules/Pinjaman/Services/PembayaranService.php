@@ -2,6 +2,7 @@
 
 namespace Modules\Pinjaman\Services;
 
+use App\Models\Core\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -17,12 +18,14 @@ class PembayaranService {
     private PembayaranRepository $pembayaranRepository;
     private AngsuranRepository $angsuranRepository;
     private PinjamanRepository $pinjamanRepository;
+    private TelegramService $telegramService;
 
-    public function __construct(PembayaranRepository $pembayaranRepository, AngsuranRepository $angsuranRepository, PinjamanRepository $pinjamanRepository)
+    public function __construct(PembayaranRepository $pembayaranRepository, AngsuranRepository $angsuranRepository, PinjamanRepository $pinjamanRepository, TelegramService $telegramService)
     {
         $this->pembayaranRepository = $pembayaranRepository;
         $this->angsuranRepository = $angsuranRepository;
         $this->pinjamanRepository = $pinjamanRepository;
+        $this->telegramService = $telegramService;
     }
 
     public function getAll($fields)
@@ -33,6 +36,25 @@ class PembayaranService {
     public function getById($fields, $id)
     {
         return $this->pembayaranRepository->getById($fields, $id);
+    }
+
+    public function getTunggakanGagal($idPembayaran)
+    {
+        $fields = ['*'];
+
+        $pembayaran = $this->pembayaranRepository->getById(
+            $fields,
+            $idPembayaran
+        );
+
+        $angsuran = $this->angsuranRepository->getById(
+            $fields,
+            $pembayaran->id_angsuran
+        );
+
+        return $this->angsuranRepository->getTunggakanGagalByPinjaman(
+            $angsuran->id_pinjaman
+        );
     }
 
     public function createManual(PembayaranRequest $request)
@@ -78,6 +100,46 @@ class PembayaranService {
                 'status_bayar' => 'verifikasi'
             ];
             $angsuran = $this->angsuranRepository->update($dataAngsuran, $validated['id_angsuran']);
+
+            $anggota = $angsuran->pinjaman->pengajuan->users;
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pembayaran Angsuran</b>
+
+                Halo {$anggota->name},
+
+                Pembayaran angsuran manual anda dalam proses verifikasi oleh koordinator.
+
+                👤 Anggota : {$anggota->name}
+                💰 Nominal : Rp ".number_format($dataPembayaran['jumlah_bayar'],0,',','.')."";
+
+                $this->telegramService->sendMessage(
+                    $anggota->telegram_chat_id,
+                    $pesan
+                );
+            }
+
+            $koordinator = User::role('koordinator')->first();
+
+            if ($koordinator && $koordinator->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pembayaran Angsuran</b>
+
+                Halo {$koordinator->name},
+
+                Pembayaran angsuran yang memerlukan verifikasi anda.
+
+                👤 Anggota : {$anggota->name}
+                💰 Nominal : Rp ".number_format($dataPembayaran['jumlah_bayar'],0,',','.')."";
+
+                $this->telegramService->sendMessage(
+                    $koordinator->telegram_chat_id,
+                    $pesan
+                );
+            }
             DB::commit();
             return $pembayaran;
         } catch (Exception $e) {
@@ -145,6 +207,46 @@ class PembayaranService {
 
             $angsuran = $this->angsuranRepository->update($dataAngsuran, $validated['id_angsuran']);
 
+            $anggota = $angsuran->pinjaman->pengajuan->users;
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pembayaran Angsuran</b>
+
+                Halo {$anggota->name},
+
+                Pembayaran ulang angsuran manual anda dalam proses verifikasi oleh koordinator.
+
+                👤 Anggota : {$anggota->name}
+                💰 Nominal : Rp ".number_format($dataPembayaran['jumlah_bayar'],0,',','.')."";
+
+                $this->telegramService->sendMessage(
+                    $anggota->telegram_chat_id,
+                    $pesan
+                );
+            }
+
+            $koordinator = User::role('koordinator')->first();
+
+            if ($koordinator && $koordinator->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pembayaran Angsuran</b>
+
+                Halo {$koordinator->name},
+
+                Pembayaran ulang angsuran yang memerlukan verifikasi anda.
+
+                👤 Anggota : {$anggota->name}
+                💰 Nominal : Rp ".number_format($dataPembayaran['jumlah_bayar'],0,',','.')."";
+
+                $this->telegramService->sendMessage(
+                    $koordinator->telegram_chat_id,
+                    $pesan
+                );
+            }
+
             DB::commit();
 
             return $pembayaran;
@@ -204,6 +306,26 @@ class PembayaranService {
                 $data, $id_angsuran
             );
             $this->cekStatusPinjaman($angsuran->id_pinjaman);
+
+            $anggota = $angsuran->pinjaman->pengajuan->users;
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pembayaran Angsuran</b>
+
+                Halo {$anggota->name},
+
+                Auto debet berhasil dilakukan untuk pembayaran angsuran anda.
+
+                👤 Anggota : {$anggota->name}
+                💰 Nominal : Rp ".number_format($dataPembayaran['jumlah_bayar'],0,',','.')."";
+
+                $this->telegramService->sendMessage(
+                    $anggota->telegram_chat_id,
+                    $pesan
+                );
+            }
             DB::commit();
             return $pembayaran;
         } catch (Exception $e) {
@@ -212,51 +334,83 @@ class PembayaranService {
         }
     }
 
-    public function update($id)
+    public function update($id, array $angsuranIds = [])
     {
         DB::beginTransaction();
+
         try {
-            $data = ['status_pembayaran' => 'sukses'];
+            $data = [
+                'status_pembayaran' => 'sukses'
+            ];
+
             $pembayaran = $this->pembayaranRepository->update(
-                $data, $id
+                $data,
+                $id
             );
-    
+
+            /*
+            * Angsuran utama yang dibayar
+            */
             $fields = ['*'];
-            // Angsuran yang dibayar
+
             $angsuran = $this->angsuranRepository->getById(
                 $fields,
                 $pembayaran->id_angsuran
             );
 
-            // Cari semua tunggakan sebelum angsuran ini
+            // Ambil semua angsuran verifikasi pada pinjaman tersebut
             $tunggakan = $this->angsuranRepository->getTunggakanVerifikasi(
                 $angsuran->id_pinjaman,
                 $angsuran->tanggal_jatuh_tempo
             );
 
-            // Lunasi seluruh tunggakan
+            /*
+            * Lunasi tunggakan yang dipilih
+            */
             foreach ($tunggakan as $item) {
-                $this->angsuranRepository->update([
-                    'status_bayar' => 'lunas'
-                ], $item->id);
+                // Jika dipilih oleh koordinator
+                if (in_array($item->id, $angsuranIds)) {
+                    $this->angsuranRepository->update([
+                        'status_bayar' => 'lunas'
+                    ], $item->id);
+                } else {
+                    // Jika TIDAK dipilih, kembalikan menjadi gagal debet
+                    $this->angsuranRepository->update([
+                        'status_bayar' => 'gagal_debet'
+                    ], $item->id);
+                }
             }
 
-            $id_angsuran = $pembayaran->id_angsuran;
-            $angsuran = $this->angsuranRepository->getById(
-                $fields, $id_angsuran
+            /*
+            * Cek apakah seluruh angsuran sudah lunas
+            */
+            $this->cekStatusPinjaman(
+                $angsuran->id_pinjaman
             );
-    
-            $dataAngsuran = [
-                'status_bayar' => 'lunas',
-            ];
-            $updateAngsuran = $this->angsuranRepository->update(
-                $dataAngsuran, $id_angsuran
-            );
-            $this->cekStatusPinjaman($angsuran->id_pinjaman);
+
+            $anggota = $angsuran->pinjaman->pengajuan->users;
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pembayaran Angsuran</b>
+
+                Halo {$anggota->name},
+
+                Pembayaran manual angsuran anda telah diverifikasi oleh koordinator dengan status sukses.";
+
+                $this->telegramService->sendMessage(
+                    $anggota->telegram_chat_id,
+                    $pesan
+                );
+            }
+
             DB::commit();
+
             return $pembayaran;
         } catch (Exception $e) {
             DB::rollBack();
+
             throw $e;
         }
     }
@@ -304,6 +458,28 @@ class PembayaranService {
             $updateAngsuran = $this->angsuranRepository->update(
                 $dataAngsuran, $id_angsuran
             );
+
+            $anggota = $angsuran->pinjaman->pengajuan->users;
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                $pesan =
+                "📢 <b>Pembayaran Angsuran</b>
+
+                Halo {$anggota->name},
+
+                Pembayaran manual angsuran anda telah diverifikasi oleh koordinator dengan status ditolak, 
+                buka menu angsuran lalu tekan tombol bayar untuk melakukan pembayaran ulang.
+                
+                👤 Anggota : {$anggota->name}
+                💬 Catatan : {$catatan}";
+
+                $this->telegramService->sendMessage(
+                    $anggota->telegram_chat_id,
+                    $pesan
+                );
+            }
+
             DB::commit();
             return $pembayaran;
         } catch (Exception $e) {

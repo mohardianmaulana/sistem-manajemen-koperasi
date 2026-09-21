@@ -58,7 +58,20 @@
                 <div class="header-body text-center mb-5">
                     <div class="row justify-content-center">
                         <div class="col-xl-5 col-lg-6 col-md-8 px-2">
-                            <img src="{{ asset(config('adminlte.logo_img')) }}" height="50">                            
+                            <div class="d-flex align-items-center justify-content-center">
+                                <img src="{{ asset('images/koperasii.png') }}"
+                                    height="60"
+                                    alt="Logo Koperasi">
+
+                                <div class="text-left ml-3">
+                                    <div style="font-size: 16px;">
+                                        Sistem Manajemen Koperasi
+                                    </div>
+                                    <div style="font-size: 18px; font-weight: 700;">
+                                        Koperasi Jenggirat Maju Mapan
+                                    </div>
+                                </div>
+                            </div>                            
                         </div>
                     </div>
                 </div>

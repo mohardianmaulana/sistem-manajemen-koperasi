@@ -67,5 +67,7 @@ class Kernel extends HttpKernel
 		'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         'permission' => \App\Http\Middleware\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+
+        'telegram.check' => \App\Http\Middleware\EnsureTelegramConnected::class,
     ];
 }

@@ -55,6 +55,30 @@
 								<span class="text-danger text-left">{{ $errors->first('nip') }}</span>
 							@endif
 						</div>
+						<div class="form-group">
+							<label>
+								Tanda tangan
+							</label>
+
+							@if($user->tanda_tangan)
+								<div class="mb-1">
+									<small class="text-success">
+                                        <i class="fas fa-check-circle"></i>
+                                        Dokumen sudah diupload
+                                    </small>
+								</div>
+								<div class="mb-3">
+									<img src="{{ asset('tanda_tangan/' . $user->tanda_tangan) }}"
+										class="img-thumbnail"
+										style="max-width:250px">
+								</div>
+							@endif
+
+							<input type="file"
+								name="tanda_tangan"
+								class="form-control"
+								accept="image/*">
+						</div>
 						{{-- 
 						<div class="mb-3">
 							<label for="asal_instansi" class="form-label">Asal Instansi</label>
@@ -100,9 +124,9 @@
 								<span class="text-danger text-left">{{ $errors->first('bidang_ilmu') }}</span>
 							@endif
 						</div>
-						 --}}
+						--}}
 
-						<div class="mb-3">
+						{{-- <div class="mb-3">
 							<label for="avatar" class="form-label">Avatar</label>
 							<div class="custom-file">
 								<input type="file" class="custom-file-input" id="customFile" name="avatar">
@@ -113,7 +137,7 @@
 							@if ($errors->has('avatar'))
 								<span class="text-danger text-left">{{ $errors->first('avatar') }}</span>
 							@endif
-						</div>
+						</div> --}}
 
 						{{-- 
 						<div class="mb-3">
@@ -127,7 +151,7 @@
 								<span class="text-danger text-left">{{ $errors->first('bidang_ilmu') }}</span>
 							@endif
 						</div>
-						 --}}
+						--}}
 						<input value="{{ $user->username }}" type="hidden" name="username">
 
 

@@ -99,16 +99,13 @@
                                                 data-id="{{ $item->id }}">
                                                 <i class="fa-solid fa-xmark"></i>
                                             </button>
-                                            <form action="{{ route('pembayaran.verifikasi', ['id' => $item->id]) }}"
-                                                method="POST"
-                                                style="display:inline;">
-                                                @csrf
-                                                @method('PATCH')
-
-                                                <button type="submit" class="btn btn-success btn-sm">
-                                                    <i class="fa-solid fa-check"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button"
+                                                class="btn btn-success btn-sm btn-verifikasi"
+                                                data-id="{{ $item->id }}"
+                                                data-toggle="modal"
+                                                data-target="#modalVerifikasi">
+                                                <i class="fa-solid fa-check"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -126,6 +123,92 @@
         </div>
     </div>
 @stop
+
+<div class="modal fade" id="modalVerifikasi" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Verifikasi Pembayaran
+                </h5>
+
+                <button type="button"
+                    class="close"
+                    data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Terdapat angsuran yang sebelumnya gagal debet.
+                    Silakan pilih angsuran yang dibayar berdasarkan bukti pembayaran.
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-striped">
+
+                        <thead class="thead-dark">
+                            <tr>
+                                <th class="text-center">Pilih</th>
+                                <th class="text-center">Angsuran Ke</th>
+                                <th class="text-center">Jatuh Tempo</th>
+                                <th class="text-center">Nominal</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="dataTunggakan">
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    Memuat data...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal">
+                    Tutup
+                </button>
+
+                <button type="button"
+                    class="btn btn-success"
+                    id="btnKonfirmasiVerifikasi">
+
+                    <i class="fa-solid fa-check"></i>
+                    Verifikasi Pembayaran
+
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<form id="formVerifikasi"
+    method="POST"
+    style="display:none;">
+
+    @csrf
+    @method('PATCH')
+
+    <div id="inputAngsuran"></div>
+
+</form>
 
 <div class="modal fade" id="modalBukti" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -233,6 +316,136 @@ $(document).ready(function () {
         $('#formGagalVerifikasi').attr('action', url);
     });
 
+});
+$('.btn-verifikasi').click(function () {
+
+    let id = $(this).data('id');
+
+    // Simpan ID pembayaran yang sedang diverifikasi
+    $('#btnKonfirmasiVerifikasi').data('id', id);
+
+    $('#dataTunggakan').html(`
+        <tr>
+            <td colspan="5" class="text-center">
+                Memuat data...
+            </td>
+        </tr>
+    `);
+
+    let url = "{{ route('pembayaran.tunggakan', ':id') }}";
+    url = url.replace(':id', id);
+
+    $.ajax({
+        url: url,
+        type: 'GET',
+
+        success: function (response) {
+
+            $('#dataTunggakan').empty();
+
+            if (!response.success || response.data.length === 0) {
+
+                $('#dataTunggakan').html(`
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            Tidak terdapat tunggakan gagal debet.
+                        </td>
+                    </tr>
+                `);
+
+                return;
+            }
+
+            response.data.forEach(function (item) {
+
+                let nominal = new Intl.NumberFormat('id-ID')
+                    .format(item.jumlah_angsuran);
+
+                let tanggal = new Date(item.tanggal_jatuh_tempo)
+                    .toLocaleDateString('id-ID', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+
+                $('#dataTunggakan').append(`
+                    <tr>
+                        <td class="text-center">
+
+                            <input type="checkbox"
+                                class="checkbox-tunggakan"
+                                value="${item.id}">
+
+                        </td>
+
+                        <td class="text-center">
+                            Angsuran ke-${item.angsuran_ke}
+                        </td>
+
+                        <td class="text-center">
+                            ${tanggal}
+                        </td>
+
+                        <td class="text-right">
+                            Rp ${nominal}
+                        </td>
+
+                        <td class="text-center">
+
+                            <span class="badge badge-danger">
+                                Gagal debet
+                            </span>
+
+                        </td>
+                    </tr>
+                `);
+
+            });
+
+        },
+
+        error: function () {
+
+            $('#dataTunggakan').html(`
+                <tr>
+                    <td colspan="5" class="text-center text-danger">
+                        Gagal mengambil data tunggakan.
+                    </td>
+                </tr>
+            `);
+
+        }
+    });
+
+});
+$('#btnKonfirmasiVerifikasi').click(function () {
+
+    let idPembayaran = $(this).data('id');
+
+    let angsuranIds = [];
+
+    $('.checkbox-tunggakan:checked').each(function () {
+        angsuranIds.push($(this).val());
+    });
+
+    let url = "{{ route('pembayaran.verifikasi', ':id') }}";
+    url = url.replace(':id', idPembayaran);
+
+    $('#formVerifikasi').attr('action', url);
+
+    $('#inputAngsuran').empty();
+
+    angsuranIds.forEach(function (id) {
+
+        $('#inputAngsuran').append(`
+            <input type="hidden"
+                name="angsuran_ids[]"
+                value="${id}">
+        `);
+
+    });
+
+    $('#formVerifikasi').submit();
 });
 </script>
 @endpush

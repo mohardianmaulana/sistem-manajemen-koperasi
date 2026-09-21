@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('user')->middleware(['auth', 'role:sekertaris'])->group(function () {
+Route::prefix('user')->middleware(['auth', 'role:sekertaris', 'telegram.check'])->group(function () {
         Route::get('/', 'UserController@index')->name('user.index');
         Route::get('/{id}/edit', 'UserController@edit') ->name('user.edit');
         Route::put('/{id}', 'UserController@update')->name('user.update');

@@ -36,6 +36,7 @@ class SkemaPinjamanService {
         DB::beginTransaction();
 
         try {
+            $data['status'] = 'aktif';
             $jaminanIds = $data['jaminan_ids'] ?? [];
             unset($data['jaminan_ids']);
             $skemaPinjaman = $this->skemaPinjamanRepository->create($data);

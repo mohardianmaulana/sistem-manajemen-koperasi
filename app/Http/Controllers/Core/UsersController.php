@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateProfilRequest;
 use App\Http\Requests\UserRequest;
 use Hash;
 use Auth;
@@ -136,27 +137,39 @@ class UsersController extends Controller
      * 
      * @return \Illuminate\Http\Response
      */
-    public function updateProfile(User $user, UpdateProfileRequest $request) 
+    public function updateProfile(User $user, UpdateProfilRequest $request) 
     {
         $validator=$request->validated();
         if($validator){
+            $user->name=$request->name;
+            $user->email=$request->email;
             $user->nip=$request->nip;
-            $user->asal_instansi=$request->asal_instansi;
-            $user->jabatan_fungsional=$request->jabatan_fungsional;
-            $user->pangkat_gol=$request->pangkat_gol;
-            $user->bidang_ilmu=$request->bidang_ilmu;
-            if($request->avatar){
-                $newname=$user->id.".".$request->file('avatar')->getClientOriginalExtension();
-                $user->avatar=$newname;
-                if(!Storage::disk('public_avatar')->putFileAs('/', $request->file('avatar'), $newname)) {
-                    return redirect()->route('users.editprofile')
-                        ->withSuccess(__('User updated successfully.'));
+            // Jika ada file tanda tangan baru
+            if ($request->hasFile('tanda_tangan')) {
+
+                $filePath = public_path(
+                            'tanda_tangan/'.$user->tanda_tangan
+                        );
+
+                // Hapus file lama
+                if ($user->tanda_tangan && File::exists($filePath)) {
+                    $oldFile = public_path(
+                            'tanda_tangan/'.$user->tanda_tangan
+                        );
+
+                    File::delete($oldFile);
                 }
+
+                // Upload file baru
+                $file = $request->file('tanda_tangan');
+
+                $namaFile = time() . '_' . $file->getClientOriginalName();
+
+                $file->move(public_path('tanda_tangan'), $namaFile);
+
+                $data['tanda_tangan'] = $namaFile;
             }
-            if($request->password){
-                $user->password= Hash::make($request->password);
-            }
-            $user->update();
+            $user->update($data);
 
             return redirect()->route('users.editprofile')
                 ->withSuccess(__('User updated successfully.'));

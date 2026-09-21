@@ -142,23 +142,6 @@
                                     @enderror
                                 </div>
                             </div>
-
-                            {{-- Status --}}
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Status <span class="text-danger">*</span></label>
-                                    <select name="status" class="form-control @error('status') is-invalid @enderror">
-                                    <option class="text-center" value="">-- Pilih Status --</option>
-                                    <option class="text-center" value="aktif"{{ old('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                    <option class="text-center" value="nonaktif"{{ old('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
-                                </select>
-                                    @error('status')
-                                        <span class="invalid-feedback d-block">
-                                            {{ $message }}
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
                         </div>
 
                         {{-- Jaminan --}}

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('unit')->middleware(['auth', 'role:admin'])->group(function () {
+Route::prefix('unit')->middleware(['auth', 'role:admin', 'telegram.check'])->group(function () {
         Route::get('/', 'UnitController@index')->name('unit.index');
         Route::get('/create', 'UnitController@create')->name('unit.create');
         Route::post('/store', 'UnitController@store')->name('unit.store');

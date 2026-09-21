@@ -32,6 +32,14 @@ class AngsuranRepository {
         return $tagihan;
     }
 
+    public function getTunggakanGagalByPinjaman($idPinjaman)
+    {
+        return Angsuran::where('id_pinjaman', $idPinjaman)
+            ->where('status_bayar', 'verifikasi')
+            ->orderBy('angsuran_ke')
+            ->get();
+    }
+
     public function getTunggakan($idPinjaman, $tanggalJatuhTempo)
     {
         return Angsuran::where('id_pinjaman', $idPinjaman)
@@ -44,7 +52,7 @@ class AngsuranRepository {
     {
         return Angsuran::where('id_pinjaman', $idPinjaman)
             ->where('status_bayar', 'verifikasi')
-            ->whereDate('tanggal_jatuh_tempo', '<', $tanggalJatuhTempo)
+            ->whereDate('tanggal_jatuh_tempo', '<=', $tanggalJatuhTempo)
             ->orderBy('tanggal_jatuh_tempo')
             ->get();
     }

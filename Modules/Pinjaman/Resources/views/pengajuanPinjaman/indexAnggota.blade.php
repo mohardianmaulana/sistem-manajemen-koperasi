@@ -53,7 +53,11 @@
                                             Tenor :
                                         </span>
                                         <br>
-                                        {{ $item->min_tenor }} - {{ $item->max_tenor }} Bulan
+                                        @if($item->min_tenor == $item->max_tenor)
+                                            {{ $item->min_tenor }} Bulan
+                                        @else
+                                            {{ $item->min_tenor }} - {{ $item->max_tenor }} Bulan
+                                        @endif
                                     </div>
 
                                     <div class="mb-2">

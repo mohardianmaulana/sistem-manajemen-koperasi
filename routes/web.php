@@ -22,11 +22,14 @@ Route::group(['namespace' => 'App\Http\Controllers\Core'], function()
 		});        
 	});
 	
-	Route::group(['middleware' => ['auth', 'permission']], function() {
-		/**
-		 * Home Routes
-		 */
-		Route::get('/home', 'HomeController@index')->name('home.index');
+    Route::group(['middleware' => ['auth', 'permission']], function() {
+        /**
+         * Home Routes
+         */
+        Route::get('/home', 'HomeController@index')->name('home.index');
+    });
+
+	Route::group(['middleware' => ['auth', 'permission', 'telegram.check']], function() {
 		
 		/**
          * User Routes

@@ -1,11 +1,21 @@
 <aside class="main-sidebar {{ config('adminlte.classes_sidebar', 'sidebar-dark-primary elevation-4') }}">
 
     {{-- Sidebar brand logo --}}
-    @if(config('adminlte.logo_img_xl'))
-        @include('adminlte::partials.common.brand-logo-xl')
-    @else
-        @include('adminlte::partials.common.brand-logo-xs')
-    @endif
+    <a href="{{ url('/') }}" class="brand-link d-flex align-items-center">
+        <img src="{{ asset('images/koperasii.png') }}"
+            alt="Logo Koperasi"
+            class="brand-image"
+            style="width: 40px; height: 40px; object-fit: contain;">
+
+        <div style="line-height: 1.2;">
+            <span class="d-block" style="font-size: 12px;">
+                Sistem Manajemen Koperasi
+            </span>
+            <span class="d-block font-weight-bold" style="font-size: 12px;">
+                Koperasi Karyawan Poliwangi
+            </span>
+        </div>
+    </a>
 
     {{-- Sidebar menu --}}
     <div class="sidebar">

@@ -46,6 +46,11 @@ class UserRepository
         return $user;
     }
 
+    public function findByKode($kode)
+    {
+        return User::where('telegram_token', $kode)->first();
+    }
+
     public function delete($id)
     {
         return User::findOrFail($id)->delete();

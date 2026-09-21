@@ -2,6 +2,7 @@
 
 namespace Modules\User\Services;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -115,6 +116,17 @@ class UserService
 
             // User otomatis menjadi aktif setelah diverifikasi
             $data['status'] = 2;
+
+            // Buat kode unik jika belum memiliki kode
+            if (empty($user->telegram_token)) {
+                do {
+                    $kode = 'KP-' . strtoupper(Str::random(6));
+                } while (
+                    $this->repository->findByKode($kode)
+                );
+
+                $data['telegram_token'] = $kode;
+            }
 
             // Hapus karena bukan kolom tabel users
             unset($data['role']);

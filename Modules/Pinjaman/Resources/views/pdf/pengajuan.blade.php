@@ -338,7 +338,7 @@ td {
 <tr>
 <td>Unit Kerja</td>
 <td>:</td>
-<td>{{ $pengajuan->users->units->nama ?? '-' }}</td>
+<td>{{ $pengajuan->users->units->nama ?? '' }}</td>
 </tr>
 
 <tr>
@@ -368,7 +368,7 @@ td {
 <tr>
 <td>Status SK kerja</td>
 <td>:</td>
-<td>Kontrak berakhir pada {{ '-' }}</td>
+<td>Kontrak berakhir pada {{ '' }}</td>
 </tr>
 
 </table>
@@ -403,7 +403,7 @@ td {
 <tr>
 <td>Unit Kerja</td>
 <td>:</td>
-<td>{{ $pengajuan->users->units->nama ?? '-' }}</td>
+<td>{{ $pengajuan->users->units->nama ?? '' }}</td>
 </tr>
 
 <tr>

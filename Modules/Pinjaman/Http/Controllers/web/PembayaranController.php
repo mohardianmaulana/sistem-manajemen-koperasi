@@ -30,6 +30,23 @@ class PembayaranController extends Controller
         return view('pinjaman::pembayaran.indexVerifikasi', compact('pembayaran'));
     }
 
+    public function tunggakan($id)
+    {
+        try {
+            $tunggakan = $this->pembayaranService->getTunggakanGagal($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $tunggakan,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tunggakan tidak ditemukan.',
+            ], 404);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      * @param Request $request
@@ -100,10 +117,10 @@ class PembayaranController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function update($id)
+    public function update(Request $request, $id)
     {
         try {
-            $pembayaran = $this->pembayaranService->update($id);
+            $pembayaran = $this->pembayaranService->update($id, $request->input('angsuran_ids', []));
             return redirect()->route('pembayaran.indexVerifikasi')->with('success', 'Pembayaran berhasil diverifikasi');           
         } catch (Exception $e) {
             return redirect()

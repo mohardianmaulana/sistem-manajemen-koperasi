@@ -19,6 +19,8 @@ class AddProfileFieldsToUsersTable extends Migration
             $table->text('alamat')->nullable()->after('tanggal_lahir');
             $table->string('no_hp')->nullable()->after('alamat');
             $table->string('file_sk')->nullable()->after('no_hp');
+            $table->string('telegram_chat_id')->nullable()->unique()->after('file_sk');
+            $table->string('telegram_token')->nullable()->unique()->after('telegram_chat_id');
         });
     }
 

@@ -33,8 +33,20 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-     public function index()
+    public function index()
     {
+        $user = auth()->user();
+
+        // Cek koneksi Telegram
+        if (
+            !empty($user->telegram_token) &&
+            empty($user->telegram_chat_id)
+        ) {
+            return view('dashboard.telegram', [
+                'token' => $user->telegram_token
+            ]);
+        }
+
         if (
             isset(auth()->user()->role_aktif) &&
             !empty(auth()->user()->role_aktif)

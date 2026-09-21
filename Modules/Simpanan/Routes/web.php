@@ -13,7 +13,7 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 */
 
 
-Route::prefix('simpanan')->middleware(['auth'])->group(function() {
+Route::prefix('simpanan')->middleware(['auth', 'telegram.check'])->group(function() {
     Route::get('/', 'SimpananController@index')->name('simpanan-pokok.index');
     Route::get('/tambah', 'SimpananController@create')->name('simpanan-pokok.create');
     Route::post('/store', 'SimpananController@store')->name('simpanan-pokok.store');
@@ -21,7 +21,7 @@ Route::prefix('simpanan')->middleware(['auth'])->group(function() {
     Route::put('/updatedata/{id}', 'SimpananController@update')->name('simpanan-pokok.update');
 });
 
-Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:koordinator'])->group(function() {
+Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:koordinator', 'telegram.check'])->group(function() {
     Route::get('/', 'MasterJenisSimpananController@index')->name('master-jenis-simpanan.index');
     Route::get('/master-jenis-simpanan/create', 'MasterJenisSimpananController@create')->name('master-jenis-simpanan.create');
     Route::post('/master-jenis-simpanan/store', 'MasterJenisSimpananController@store')->name('master-jenis-simpanan.store');
@@ -29,7 +29,7 @@ Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:koordinator'])->grou
     Route::put('/master-jenis-simpanan/updatedata/{id}', 'MasterJenisSimpananController@update')->name('master-jenis-simpanan.update'); 
 });
 
-   Route::prefix('simpanan-sukarela')->middleware(['auth'])->group(function () {
+   Route::prefix('simpanan-sukarela')->middleware(['auth', 'telegram.check'])->group(function () {
 
     Route::get('/', 'SimpananSukarelaController@index')->name('simpanan-sukarela.index');
     Route::middleware(['role:koordinator'])->group(function () {
@@ -56,7 +56,7 @@ Route::prefix('jadwal-simpanan')->middleware(['auth', 'role:koordinator'])->grou
 
 });
 
-Route::prefix('simpanan-wajib')->middleware(['auth'])->group(function () {
+Route::prefix('simpanan-wajib')->middleware(['auth', 'telegram.check'])->group(function () {
     Route::get('/', 'SimpananWajibController@index')
         ->name('simpanan-wajib.index');
     Route::middleware(['role:koordinator'])->group(function () {

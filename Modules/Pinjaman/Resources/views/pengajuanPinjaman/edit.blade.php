@@ -74,6 +74,10 @@
                                             value="{{ old('jumlah_pengajuan', $pengajuan->jumlah_pengajuan) }}">
                                     </div>
 
+                                    <small class="form-text text-muted">
+                                        Masukkan nominal tanpa titik. Contoh: <strong>1000000</strong>
+                                    </small>
+
                                     @error('jumlah_pengajuan')
                                         <span class="invalid-feedback d-block">
                                             {{ $message }}
@@ -90,7 +94,10 @@
                                     <input type="number"
                                         name="lama_angsuran"
                                         class="form-control @error('lama_angsuran') is-invalid @enderror"
-                                        placeholder="Masukkan lama angsuran dari {{ number_format($pengajuan->skemaPinjaman->min_tenor, 0, ',', '.') }} - {{ number_format($pengajuan->skemaPinjaman->max_tenor, 0, ',', '.') }} bulan"
+                                        placeholder="{{ $pengajuan->skemaPinjaman->min_tenor == $pengajuan->skemaPinjaman->max_tenor
+                                            ? 'Masukkan lama angsuran ' . $pengajuan->skemaPinjaman->min_tenor . ' bulan'
+                                            : 'Masukkan lama angsuran antara' . $pengajuan->skemaPinjaman->min_tenor . ' - ' . $pengajuan->skemaPinjaman->max_tenor . ' bulan'
+                                        }}"
                                         value="{{ old('lama_angsuran', $pengajuan->lama_angsuran) }}">
 
                                     @error('lama_angsuran')
