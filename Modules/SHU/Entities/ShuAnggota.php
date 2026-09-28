@@ -17,8 +17,7 @@ class ShuAnggota extends Model
         'jasa_pengurus',
         'shu_anggota',
         'pajak',
-        'periode_awal',
-        'periode_akhir',
+        'periode',
         'id_anggota',
     ];
     

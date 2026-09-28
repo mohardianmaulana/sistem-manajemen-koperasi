@@ -56,10 +56,7 @@ class ShuAnggotaController extends Controller
            try {
             $this->shuAnggotaService->hitungSemuaAnggota(
 
-            $request->periode_awal,
-
-            $request->periode_akhir,
-
+            $request->periode,
             $request->persen_pajak
 
         );

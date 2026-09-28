@@ -30,7 +30,7 @@
 
             <h5>
                 <i class="fas fa-info-circle"></i>
-                Informasi Pengajuan Simpanan Sukarela
+                Informasi Pengajuan Simpanan Pokok
             </h5>
 
             <p class="mb-2">

@@ -15,15 +15,10 @@ class ShuAnggotaRequest extends FormRequest
     {
         return [
 
-            'periode_awal' => [
+            'periode' => [
                 'required',
-                'date',
-            ],
-
-            'periode_akhir' => [
-                'required',
-                'date',
-                'after_or_equal:periode_awal',
+                'integer',
+                'digits:4',
             ],
 
             'persen_pajak' => [
@@ -40,32 +35,14 @@ class ShuAnggotaRequest extends FormRequest
     {
         return [
 
-            'periode_awal.required' =>
-                'Periode awal wajib diisi.',
+            'periode.required' =>
+                'Periode wajib diisi.',
 
-            'periode_awal.date' =>
-                'Periode awal tidak valid.',
+            'periode.integer' =>
+                'Periode harus berupa angka.',
 
-            'periode_akhir.required' =>
-                'Periode akhir wajib diisi.',
-
-            'periode_akhir.date' =>
-                'Periode akhir tidak valid.',
-
-            'periode_akhir.after_or_equal' =>
-                'Periode akhir harus lebih besar atau sama dengan periode awal.',
-
-            'persen_jasa_pengurus.required' =>
-                'Persentase jasa pengurus wajib diisi.',
-
-            'persen_jasa_pengurus.numeric' =>
-                'Persentase jasa pengurus harus berupa angka.',
-
-            'persen_jasa_pengurus.min' =>
-                'Persentase jasa pengurus minimal 0%.',
-
-            'persen_jasa_pengurus.max' =>
-                'Persentase jasa pengurus maksimal 100%.',
+            'periode.digits' =>
+                'Periode harus terdiri dari 4 digit.',
 
             'persen_pajak.required' =>
                 'Persentase pajak wajib diisi.',
@@ -83,7 +60,7 @@ class ShuAnggotaRequest extends FormRequest
     }
 
     /**
-     * Determine if the user is authorized to make this request.
+     * Determine if the user is authorized to make the request.
      *
      * @return bool
      */

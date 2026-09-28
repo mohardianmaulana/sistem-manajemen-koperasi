@@ -2,10 +2,12 @@
 
 namespace Modules\Simpanan\Services;
 
+use App\Models\Core\User;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Modules\Pinjaman\Services\TelegramService;
 use Modules\Simpanan\Repositories\SimpananSukarelaRepository;
 use Modules\Simpanan\Services\MasterJenisSimpananService as ServicesMasterJenisSimpananService;
 
@@ -13,13 +15,16 @@ class SimpananSukarelaService
 {
     protected $repository;
     protected $masterJenisSimpananService;
+    protected $telegramService;
 
     public function __construct(
         SimpananSukarelaRepository $repository,
-        ServicesMasterJenisSimpananService $masterJenisSimpananService
+        ServicesMasterJenisSimpananService $masterJenisSimpananService,
+        TelegramService $telegramService
     ) {
         $this->repository = $repository;
         $this->masterJenisSimpananService = $masterJenisSimpananService;
+        $this->telegramService = $telegramService;
     }
 
     /**
@@ -143,39 +148,74 @@ class SimpananSukarelaService
             $master = $this->repository->findById($id);
 
             if (!$master) {
-                throw new Exception('Data simpanan sukarela tidak ditemukan.');
+                throw new Exception(
+                    'Data simpanan sukarela tidak ditemukan.'
+                );
             }
 
-            // Validasi status yang diperbolehkan
             if (!in_array($data['status'], ['selesai', 'tidak berhasil'])) {
                 throw new Exception('Status tidak valid.');
             }
 
-            // Update status pengajuan
             $this->repository->update($master, [
                 'status' => $data['status'],
             ]);
 
-            /**
-             * Jika disetujui (selesai)
-             */
             if ($data['status'] == 'selesai') {
 
-                // Hindari data ganda
                 if (!$this->repository->sudahMasukSimpanan($master)) {
 
                     $this->repository->storeSimpanan([
-
                         'nilai'      => $master->nilai,
-
                         'periode'    => $master->periode,
-
                         'tahun'      => $master->tahun,
-
                         'id_anggota' => $master->id_anggota,
-
                     ]);
                 }
+            }
+
+            // Ambil anggota
+            $anggota = User::find($master->id_anggota);
+
+            if ($anggota && $anggota->telegram_chat_id) {
+
+                if ($data['status'] == 'selesai') {
+
+                    $pesan =
+                        "✅ <b>Simpanan Sukarela Berhasil</b>
+
+    Halo {$anggota->name},
+
+    Pembayaran simpanan sukarela Anda telah berhasil diproses.
+
+    💰 Nominal : Rp " .
+                        number_format($master->nilai, 0, ',', '.') .
+                        "
+    📅 Periode : {$master->periode}
+
+    Terima kasih.";
+
+                } else {
+
+                    $pesan =
+                        "❌ <b>Simpanan Sukarela Tidak Berhasil</b>
+
+    Halo {$anggota->name},
+
+    Pembayaran simpanan sukarela Anda tidak berhasil diproses.
+
+    💰 Nominal : Rp " .
+                        number_format($master->nilai, 0, ',', '.') .
+                        "
+    📅 Periode : {$master->periode}
+
+    Silakan melakukan pembayaran secara manual melalui sistem koperasi.";
+                }
+
+                $this->telegramService->sendMessage(
+                    $anggota->telegram_chat_id,
+                    $pesan
+                );
             }
 
             return $master;

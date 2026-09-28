@@ -95,64 +95,28 @@
 
                     <div class="row">
 
-                        {{-- Periode Awal --}}
                         <div class="col-md-6">
 
                             <div class="form-group">
 
                                 <label>
-
-                                    Periode Awal
+                                    Periode
                                     <span class="text-danger">*</span>
-
                                 </label>
 
                                 <input
-                                    type="date"
-                                    name="periode_awal"
-                                    class="form-control @error('periode_awal') is-invalid @enderror"
-                                    value="{{ old('periode_awal') }}">
+                                    type="number"
+                                    name="periode"
+                                    class="form-control @error('periode') is-invalid @enderror"
+                                    value="{{ old('periode') }}"
+                                    min="2000"
+                                    max="2100"
+                                    placeholder="Contoh: 2026">
 
-                                @error('periode_awal')
-
+                                @error('periode')
                                     <span class="invalid-feedback d-block">
-
                                         {{ $message }}
-
                                     </span>
-
-                                @enderror
-
-                            </div>
-
-                        </div>
-
-                        {{-- Periode Akhir --}}
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-
-                                <label>
-
-                                    Periode Akhir
-                                    <span class="text-danger">*</span>
-
-                                </label>
-
-                                <input
-                                    type="date"
-                                    name="periode_akhir"
-                                    class="form-control @error('periode_akhir') is-invalid @enderror"
-                                    value="{{ old('periode_akhir') }}">
-
-                                @error('periode_akhir')
-
-                                    <span class="invalid-feedback d-block">
-
-                                        {{ $message }}
-
-                                    </span>
-
                                 @enderror
 
                             </div>

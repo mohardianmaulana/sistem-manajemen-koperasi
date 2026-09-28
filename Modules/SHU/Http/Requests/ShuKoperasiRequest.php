@@ -14,8 +14,7 @@ class ShuKoperasiRequest extends FormRequest
     public function rules()
     {
             return match ($this->method()) {
-                'POST' => ['periode_awal' => ['required','date',],
-                           'periode_akhir' => ['required','date','after:periode_awal',],
+                'POST' => ['periode' => ['required', 'digits:4', 'integer', 'min:1900', 'max:2100'],
                            'total_shu' => ['required','numeric','min:1',],
                            'persen_jasa_simpanan' => ['required','numeric','min:0','max:100',],
                            'persen_jasa_pinjaman' => ['required','numeric','min:0','max:100',],
@@ -23,8 +22,7 @@ class ShuKoperasiRequest extends FormRequest
                            'persen_jasa_pengurus' => ['required','numeric','min:0','max:100',],
                            'persen_dana_sosial' => ['required','numeric','min:0','max:100',],
                            ],
-                'PUT', 'PATCH' => ['periode_awal' => ['required','date',],
-                                   'periode_akhir' => ['required','date','after:periode_awal',],
+                'PUT', 'PATCH' => ['periode' => ['required','year',],
                                    'total_shu' => ['required','numeric','min:1',],
                                    'persen_jasa_simpanan' => ['required','numeric','min:0','max:100',],
                                    'persen_jasa_pinjaman' => ['required','numeric','min:0','max:100',],
@@ -41,12 +39,9 @@ class ShuKoperasiRequest extends FormRequest
         return [
 
             // Periode
-            'periode_awal.required' => 'Periode awal wajib diisi.',
-            'periode_awal.date'     => 'Format periode awal tidak valid.',
+            'periode.required' => 'Periode awal wajib diisi.',
+            'periode.year'     => 'Format periode awal tidak valid.',
 
-            'periode_akhir.required' => 'Periode akhir wajib diisi.',
-            'periode_akhir.date'     => 'Format periode akhir tidak valid.',
-            'periode_akhir.after'    => 'Periode akhir harus lebih besar dari periode awal.',
 
             // Total SHU
             'total_shu.required' => 'Total SHU wajib diisi.',

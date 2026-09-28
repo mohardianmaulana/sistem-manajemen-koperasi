@@ -98,7 +98,6 @@ class ShuAnggotaRepository
     )
     {
         return ShuKoperasi::where('periode', $periode )
-            ->where('periode_akhir', $periode)
             ->first();
     }
 
@@ -107,19 +106,13 @@ class ShuAnggotaRepository
         return User::role('anggota')->get();
     }
 
-    public function totalSimpananSemua(
-    $periode
-    )
+    public function totalSimpananSemua($periode)
     {
-        $wajib = SimpananWajib::whereBetween(
-            'periode',
-            [$periode, $periode]
-        )->sum('nilai');
+        $wajib = SimpananWajib::where('periode', $periode)
+            ->sum('nilai');
 
-        $sukarela = SimpananSukarela::whereBetween(
-            'periode',
-            [$periode]
-        )->sum('nilai');
+        $sukarela = SimpananSukarela::where('periode', $periode)
+            ->sum('nilai');
 
         return $wajib + $sukarela;
     }
@@ -127,22 +120,20 @@ class ShuAnggotaRepository
    public function totalSimpananAnggota(
     $idAnggota,
     $periode
-    )
-    {
+    ) {
         $wajib = SimpananWajib::where('id_anggota', $idAnggota)
-            ->whereBetween('periode',[$periode])
+            ->where('periode', $periode)
             ->sum('nilai');
 
         $sukarela = SimpananSukarela::where('id_anggota', $idAnggota)
-            ->whereBetween('periode',[$periode])
+            ->where('periode', $periode)
             ->sum('nilai');
 
         return $wajib + $sukarela;
     }
 
-    public function totalJasaPinjamanSemua(
-    $periode
-    ) {
+    public function totalJasaPinjamanSemua($periode)
+    {
         $total = 0;
 
         $pinjaman = Pinjaman::with('pengajuan')->get();
@@ -159,13 +150,10 @@ class ShuAnggotaRepository
                 $item->jumlah_bunga /
                 $item->pengajuan->lama_angsuran;
 
-            // Jumlah angsuran yang sudah dibayar pada periode
+            // Jumlah angsuran yang sudah dibayar pada periode/tahun tersebut
             $jumlahLunas = Angsuran::where('id_pinjaman', $item->id)
                 ->where('status_bayar', 'lunas')
-                ->whereBetween(
-                    'tanggal_jatuh_tempo',
-                    [$periode]
-                )
+                ->whereYear('tanggal_jatuh_tempo', $periode)
                 ->count();
 
             // Jasa pinjaman yang sudah diterima koperasi
@@ -175,7 +163,7 @@ class ShuAnggotaRepository
         return round($total);
     }
 
-   public function totalJasaPinjamanAnggota(
+  public function totalJasaPinjamanAnggota(
     $idAnggota,
     $periode
     ) {
@@ -207,7 +195,7 @@ class ShuAnggotaRepository
                 $item->jumlah_bunga /
                 $item->pengajuan->lama_angsuran;
 
-            // Jumlah angsuran yang dibayar pada periode
+            // Jumlah angsuran yang dibayar pada periode/tahun tersebut
             $jumlahLunas = Angsuran::where(
                     'id_pinjaman',
                     $item->id
@@ -216,9 +204,9 @@ class ShuAnggotaRepository
                     'status_bayar',
                     'lunas'
                 )
-                ->whereBetween(
+                ->whereYear(
                     'tanggal_jatuh_tempo',
-                    [$periode]
+                    $periode
                 )
                 ->count();
 

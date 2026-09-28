@@ -2,18 +2,22 @@
 
 namespace Modules\Simpanan\Services;
 
+use App\Models\Core\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Modules\Pinjaman\Services\TelegramService;
 use Modules\Simpanan\Repositories\SimpananWajibRepository;
 
 class SimpananWajibService
 {
     protected $repository;
+    protected $telegramService;
 
-    public function __construct(SimpananWajibRepository $repository)
+    public function __construct(SimpananWajibRepository $repository, TelegramService $telegramService)
     {
         $this->repository = $repository;
+        $this->telegramService = $telegramService;
     }
 
     /**
@@ -119,6 +123,10 @@ class SimpananWajibService
     {
         $master = $this->repository->findById($id);
 
+        if (!$master) {
+            throw new Exception('Data simpanan sukarela tidak ditemukan.');
+        }
+
         if (isset($data['bukti']) && $data['bukti']) {
             $data['bukti'] = $data['bukti']->store(
                 'bukti-simpanan',
@@ -126,6 +134,7 @@ class SimpananWajibService
             );
         }
 
+        // Jika anggota hanya upload bukti
         if (Auth::user()->hasRole('anggota')) {
 
             if ($master->status != 'tidak berhasil') {
@@ -139,11 +148,13 @@ class SimpananWajibService
             ]);
         }
 
+        // Update status dan bukti
         $this->repository->update($master, [
             'status' => $data['status'],
             'bukti'  => $data['bukti'] ?? $master->bukti,
         ]);
 
+        // Jika selesai, masukkan ke simpanan
         if (
             $data['status'] == 'selesai' &&
             !$this->repository->existsSimpanan(
@@ -157,6 +168,52 @@ class SimpananWajibService
                 'tahun'      => $master->tahun,
                 'id_anggota' => $master->id_anggota,
             ]);
+        }
+
+        // Kirim Telegram ke anggota
+        $anggota = User::find($master->id_anggota);
+
+        if ($anggota && $anggota->telegram_chat_id) {
+
+            if ($data['status'] == 'selesai') {
+
+                $pesan =
+                    "✅ <b>Simpanan Sukarela Berhasil</b>
+
+    Halo {$anggota->name},
+
+    Pengajuan simpanan sukarela Anda telah berhasil diproses.
+
+    💰 Nominal : Rp " .
+                    number_format($master->nilai, 0, ',', '.') .
+                    "
+    📅 Periode : {$master->periode}
+
+    Status : <b>Selesai</b>";
+
+            } elseif ($data['status'] == 'tidak berhasil') {
+
+                $pesan =
+                    "❌ <b>Simpanan Sukarela Tidak Berhasil</b>
+
+    Halo {$anggota->name},
+
+    Pengajuan simpanan sukarela Anda tidak berhasil diproses.
+
+    💰 Nominal : Rp " .
+                    number_format($master->nilai, 0, ',', '.') .
+                    "
+    📅 Periode : {$master->periode}
+
+    Silakan melakukan pembayaran secara manual melalui sistem koperasi.";
+            }
+
+            if (isset($pesan)) {
+                $this->telegramService->sendMessage(
+                    $anggota->telegram_chat_id,
+                    $pesan
+                );
+            }
         }
 
         return $master;
